@@ -1,0 +1,699 @@
+- id: 1
+  name: App Index Site
+  description: 100本のミニツールを一覧するStreamlitアプリ
+  command: streamlit run index.py
+  tags: [index, ui]
+  status: release
+
+- id: 2
+  name: 4則電卓
+  description: 基本的な四則演算を行う電卓
+  command: python apps/002_simple_calc/main.py
+  tags: [math, calculator]
+  status: release
+
+- id: 3
+  name: 電卓 Pro
+  description: 平方根、パーセント、乗算機能付き高機能電卓
+  command: python apps/003_advanced_calc/main.py
+  tags: [math, calculator, advanced]
+  status: release
+
+- id: 4
+  name: 消費税計算機
+  description: 価格と税率から消費税込み価格を計算
+  command: python apps/004_tax_calc/main.py
+  tags: [tax, finance]
+  status: release
+
+- id: 5
+  name: 年齢早見
+  description: 生年月日から現在の年齢を計算
+  command: python apps/005_age_lookup/main.py
+  tags: [date, age]
+  status: release
+
+- id: 6
+  name: 日付差分計算
+  description: 2つの日付間の差分を計算
+  command: python apps/006_date_diff/main.py
+  tags: [date, calculator]
+  status: release
+
+- id: 7
+  name: BMI計算
+  description: 身長と体重からBMIを計算
+  command: python apps/007_bmi_calc/main.py
+  tags: [health, calculator]
+  status: release
+
+- id: 8
+  name: ローン返済額
+  description: ローンの月々返済額を計算
+  command: python apps/008_loan_calc/main.py
+  tags: [finance, loan]
+  status: release
+
+- id: 9
+  name: 金利→年利換算
+  description: 金利を年利に換算
+  command: python apps/009_interest_convert/main.py
+  tags: [finance, interest]
+  status: release
+
+- id: 10
+  name: ROI計算
+  description: 投資利益率を計算
+  command: python apps/010_roi_calc/main.py
+  tags: [finance, roi]
+  status: release
+
+- id: 11
+  name: 距離速度時間三角形
+  description: 距離・速度・時間の関係計算
+  command: python apps/011_distance_speed_time/main.py
+  tags: [physics, calculator]
+  status: release
+
+- id: 12
+  name: Hex↔RGB変換
+  description: 16進カラーコードとRGBを相互変換
+  command: python apps/012_hex_rgb_convert/main.py
+  tags: [color, convert]
+  status: release
+
+- id: 13
+  name: 長さ単位変換
+  description: メートル、フィート、インチなどの長さ単位変換
+  command: python apps/013_length_convert/main.py
+  tags: [unit, convert, length]
+  status: release
+
+- id: 14
+  name: 質量単位変換
+  description: キログラム、ポンド、オンスなどの質量単位変換
+  command: python apps/014_mass_convert/main.py
+  tags: [unit, convert, mass]
+  status: release
+
+- id: 15
+  name: 温度単位変換
+  description: 摂氏、華氏、ケルビンの温度単位変換
+  command: python apps/015_temp_convert/main.py
+  tags: [unit, convert, temperature]
+  status: release
+
+- id: 16
+  name: カロリー計算
+  description: 年齢・性別・活動レベルから基礎代謝を計算
+  command: python apps/016_calorie_calc/main.py
+  tags: [health, calorie]
+  status: release
+
+- id: 17
+  name: 男女別割り勘計算
+  description: 男女別の料金設定で割り勘を計算
+  command: python apps/017_gendered_split/main.py
+  tags: [finance, split]
+  status: release
+
+- id: 18
+  name: モード・中央値計算
+  description: 数値リストの最頻値と中央値を計算
+  command: python apps/018_mode_median/main.py
+  tags: [statistics, math]
+  status: release
+
+- id: 19
+  name: 標準偏差計算
+  description: 数値リストの標準偏差を計算
+  command: python apps/019_std_dev/main.py
+  tags: [statistics, math]
+  status: release
+
+- id: 20
+  name: 三角関数ミニ
+  description: sin、cos、tanの三角関数を計算
+  command: python apps/020_trigonometry/main.py
+  tags: [math, trigonometry]
+  status: release
+
+- id: 21
+  name: 文字数カウンタ
+  description: テキストの文字数、単語数、行数をカウント
+  command: python apps/021_char_count/main.py
+  tags: [text, count]
+  status: release
+
+- id: 22
+  name: 全角⇔半角変換
+  description: 全角文字と半角文字を相互変換
+  command: python apps/022_fullwidth_convert/main.py
+  tags: [text, convert, japanese]
+  status: release
+
+- id: 23
+  name: スネーク⇔キャメル変換
+  description: snake_caseとcamelCaseを相互変換
+  command: python apps/023_case_convert/main.py
+  tags: [text, convert, programming]
+  status: release
+
+- id: 24
+  name: Base64エン/デコード
+  description: テキストをBase64でエンコード/デコード
+  command: python apps/024_base64_convert/main.py
+  tags: [encoding, convert]
+  status: release
+
+- id: 25
+  name: JSONフォーマッタ
+  description: JSONをきれいに整形
+  command: python apps/025_json_formatter/main.py
+  tags: [json, format]
+  status: release
+
+- id: 26
+  name: CSV↔JSON変換
+  description: CSVとJSONを相互変換
+  command: python apps/026_csv_json_convert/main.py
+  tags: [csv, json, convert]
+  status: release
+
+- id: 27
+  name: Markdown↔HTML変換
+  description: MarkdownとHTMLを相互変換
+  command: python apps/027_markdown_html_convert/main.py
+  tags: [markdown, html, convert]
+  status: release
+
+- id: 28
+  name: diffビューア
+  description: 2つのテキストファイルの差分を表示
+  command: python apps/028_diff_viewer/main.py
+  tags: [diff, text, comparison]
+  status: release
+
+- id: 29
+  name: 正規表現テスター
+  description: 正規表現パターンのテストツール
+  command: python apps/029_regex_tester/main.py
+  tags: [regex, test]
+  status: release
+
+- id: 30
+  name: パスワードジェネレータ
+  description: セキュアなランダムパスワードを生成
+  command: python apps/030_password_generator/main.py
+  tags: [security, password]
+  status: release
+
+- id: 31
+  name: ダミーテキスト生成
+  description: Lorem Ipsumダミーテキストを生成
+  command: python apps/031_lorem_ipsum/main.py
+  tags: [text, dummy]
+  status: release
+
+- id: 32
+  name: QRコード生成
+  description: テキストからQRコードを生成（モック）
+  command: python apps/032_qr_generator/main.py
+  tags: [qr, generate, mock]
+  status: release
+
+- id: 33
+  name: URL正規化
+  description: URLを標準形式に正規化
+  command: python apps/033_url_normalize/main.py
+  tags: [url, normalize]
+  status: release
+
+- id: 34
+  name: URLデコード
+  description: URLエンコードされた文字列をデコード
+  command: python apps/034_url_decode/main.py
+  tags: [url, decode]
+  status: release
+
+- id: 35
+  name: HTMLエスケープ
+  description: HTMLの特殊文字をエスケープ
+  command: python apps/035_html_escape/main.py
+  tags: [html, escape]
+  status: release
+
+- id: 36
+  name: CSV空白列削除
+  description: CSVの空白列を削除
+  command: python apps/036_csv_clean/main.py
+  tags: [csv, clean]
+  status: release
+
+- id: 37
+  name: 住所→都道府県抽出
+  description: 住所文字列から都道府県を抽出
+  command: python apps/037_address_parser/main.py
+  tags: [address, parse, japanese]
+  status: release
+
+- id: 38
+  name: しりとり判定
+  description: しりとりが成立するかを判定
+  command: python apps/038_shiritori/main.py
+  tags: [game, japanese]
+  status: release
+
+- id: 39
+  name: ZIP展開一覧
+  description: ZIPファイルの中身を一覧表示
+  command: python apps/039_zip_list/main.py
+  tags: [zip, list]
+  status: release
+
+- id: 40
+  name: ZIP作成
+  description: フォルダをZIPファイルに圧縮
+  command: python apps/040_zip_create/main.py
+  tags: [zip, create]
+  status: release
+
+- id: 41
+  name: 画像リサイズ
+  description: 画像ファイルをリサイズ
+  command: python apps/041_image_resize/main.py
+  tags: [image, resize]
+  status: release
+
+- id: 42
+  name: PNG→JPEG変換
+  description: PNG画像をJPEG形式に変換
+  command: python apps/042_png_to_jpeg/main.py
+  tags: [image, convert]
+  status: release
+
+- id: 43
+  name: 透過PNG背景合成
+  description: 透明PNGに背景色を合成
+  command: python apps/043_png_background/main.py
+  tags: [image, png, composite]
+  status: release
+
+- id: 44
+  name: 重複ファイル検出
+  description: フォルダ内の重複ファイルを検出
+  command: python apps/044_duplicate_finder/main.py
+  tags: [file, duplicate]
+  status: release
+
+- id: 45
+  name: フォルダサイズ集計
+  description: フォルダのサイズを集計
+  command: python apps/045_folder_size/main.py
+  tags: [file, size]
+  status: release
+
+- id: 46
+  name: ファイル名一括リネーム
+  description: ファイル名を一括でリネーム
+  command: python apps/046_bulk_rename/main.py
+  tags: [file, rename]
+  status: release
+
+- id: 47
+  name: PDFページ数カウント
+  description: PDFファイルのページ数をカウント
+  command: python apps/047_pdf_page_count/main.py
+  tags: [pdf, count]
+  status: release
+
+- id: 48
+  name: PDF分割
+  description: PDFファイルをページ毎に分割
+  command: python apps/048_pdf_split/main.py
+  tags: [pdf, split]
+  status: release
+
+- id: 49
+  name: PDF結合
+  description: 複数のPDFファイルを結合
+  command: python apps/049_pdf_merge/main.py
+  tags: [pdf, merge]
+  status: release
+
+- id: 50
+  name: PDF画像抽出
+  description: PDFから画像を抽出（モック）
+  command: python apps/050_pdf_image_extract/main.py
+  tags: [pdf, image, extract, mock]
+  status: release
+
+- id: 51
+  name: テキスト→PDF
+  description: テキストファイルをPDFに変換（モック）
+  command: python apps/051_text_to_pdf/main.py
+  tags: [text, pdf, convert, mock]
+  status: release
+
+- id: 52
+  name: OCR
+  description: 画像からテキストを抽出（モック）
+  command: python apps/052_ocr/main.py
+  tags: [ocr, image, text, mock]
+  status: release
+
+- id: 53
+  name: CSV行列カウンタ
+  description: CSVファイルの行数と列数をカウント
+  command: python apps/053_csv_count/main.py
+  tags: [csv, count]
+  status: release
+
+- id: 54
+  name: 欠損値割合チェック
+  description: CSVの欠損値の割合をチェック
+  command: python apps/054_missing_value_check/main.py
+  tags: [csv, data, analysis]
+  status: release
+
+- id: 55
+  name: サンプル抽出
+  description: CSVからランダムサンプルを抽出
+  command: python apps/055_sample_extract/main.py
+  tags: [csv, sample]
+  status: release
+
+- id: 56
+  name: ランダム行並べ替え
+  description: CSVの行をランダムに並べ替え
+  command: python apps/056_random_shuffle/main.py
+  tags: [csv, shuffle]
+  status: release
+
+- id: 57
+  name: ピボットテーブル CLI
+  description: CSVデータからピボットテーブルを作成
+  command: python apps/057_pivot_table/main.py
+  tags: [csv, pivot, analysis]
+  status: release
+
+- id: 58
+  name: 単回帰分析
+  description: 2変数の単回帰分析を実行
+  command: python apps/058_simple_regression/main.py
+  tags: [statistics, regression]
+  status: release
+
+- id: 59
+  name: 異常値検出
+  description: ±3σ法で異常値を検出
+  command: python apps/059_outlier_detection/main.py
+  tags: [statistics, outlier]
+  status: release
+
+- id: 60
+  name: ヒストグラム PNG
+  description: データのヒストグラムをPNG画像で出力
+  command: python apps/060_histogram/main.py
+  tags: [statistics, plot, histogram]
+  status: release
+
+- id: 61
+  name: 相関行列 Heatmap
+  description: 相関行列をヒートマップで可視化
+  command: python apps/061_correlation_heatmap/main.py
+  tags: [statistics, correlation, heatmap]
+  status: release
+
+- id: 62
+  name: 時系列リサンプル
+  description: 時系列データをリサンプル
+  command: python apps/062_timeseries_resample/main.py
+  tags: [timeseries, resample]
+  status: release
+
+- id: 63
+  name: Excel列削除
+  description: Excelファイルから指定列を削除
+  command: python apps/063_excel_column_delete/main.py
+  tags: [excel, edit]
+  status: release
+
+- id: 64
+  name: Excelシート比較
+  description: 2つのExcelシートを比較
+  command: python apps/064_excel_compare/main.py
+  tags: [excel, compare]
+  status: release
+
+- id: 65
+  name: JSONスキーマ検証
+  description: JSONデータをスキーマで検証
+  command: python apps/065_json_schema_validate/main.py
+  tags: [json, schema, validate]
+  status: release
+
+- id: 66
+  name: CSV文字コード判定
+  description: CSVファイルの文字コードを判定
+  command: python apps/066_csv_encoding_detect/main.py
+  tags: [csv, encoding]
+  status: release
+
+- id: 67
+  name: 議事録テンプレ
+  description: 議事録のテンプレートを生成
+  command: python apps/067_meeting_template/main.py
+  tags: [template, meeting]
+  status: release
+
+- id: 68
+  name: 見積書ジェネレータ
+  description: 見積書を生成
+  command: python apps/068_quote_generator/main.py
+  tags: [business, quote]
+  status: release
+
+- id: 69
+  name: 請求書生成
+  description: 請求書を生成
+  command: python apps/069_invoice_generator/main.py
+  tags: [business, invoice]
+  status: release
+
+- id: 70
+  name: NDA雛形
+  description: 秘密保持契約書の雛形を生成
+  command: python apps/070_nda_template/main.py
+  tags: [legal, nda]
+  status: release
+
+- id: 71
+  name: 秘密保持契約 EN/JP
+  description: 英日秘密保持契約書を生成
+  command: python apps/071_nda_en_jp/main.py
+  tags: [legal, nda, bilingual]
+  status: release
+
+- id: 72
+  name: 退職届ひな型
+  description: 退職届の雛形を生成
+  command: python apps/072_resignation_template/main.py
+  tags: [hr, resignation]
+  status: release
+
+- id: 73
+  name: プロポーザル骨子
+  description: 提案書の骨子を生成
+  command: python apps/073_proposal_outline/main.py
+  tags: [business, proposal]
+  status: release
+
+- id: 74
+  name: リスク分析シート
+  description: リスク分析シートを生成
+  command: python apps/074_risk_analysis/main.py
+  tags: [business, risk]
+  status: release
+
+- id: 75
+  name: テストケース表
+  description: テストケース表を生成
+  command: python apps/075_test_case_table/main.py
+  tags: [testing, template]
+  status: release
+
+- id: 76
+  name: RFP雛形
+  description: 提案依頼書の雛形を生成
+  command: python apps/076_rfp_template/main.py
+  tags: [business, rfp]
+  status: release
+
+- id: 77
+  name: Slackお知らせテンプレ
+  description: Slack用お知らせテンプレートを生成
+  command: python apps/077_slack_template/main.py
+  tags: [communication, slack]
+  status: release
+
+- id: 78
+  name: 社内アンケート質問集
+  description: 社内アンケートの質問集を生成
+  command: python apps/078_survey_questions/main.py
+  tags: [hr, survey]
+  status: release
+
+- id: 79
+  name: PowerPoint骨格生成
+  description: PowerPointプレゼンの骨格を生成
+  command: python apps/079_powerpoint_outline/main.py
+  tags: [presentation, template]
+  status: release
+
+- id: 80
+  name: PlantUMLフロー図スケルトン
+  description: PlantUMLフローチャートのスケルトンを生成
+  command: python apps/080_plantuml_flow/main.py
+  tags: [diagram, plantuml]
+  status: release
+
+- id: 81
+  name: Pomodoroタイマー
+  description: ポモドーロタイマー
+  command: python apps/081_pomodoro_timer/main.py
+  tags: [productivity, timer]
+  status: release
+
+- id: 82
+  name: ストップウォッチ
+  description: ストップウォッチ機能
+  command: python apps/082_stopwatch/main.py
+  tags: [timer, stopwatch]
+  status: release
+
+- id: 83
+  name: ToDo CLI
+  description: SQLiteベースのToDo管理CLI
+  command: python apps/083_todo_cli/main.py
+  tags: [productivity, todo, sqlite]
+  status: release
+
+- id: 84
+  name: 習慣チェックシート
+  description: 習慣管理チェックシート
+  command: python apps/084_habit_tracker/main.py
+  tags: [productivity, habit]
+  status: release
+
+- id: 85
+  name: 祝日カレンダー .ics
+  description: 祝日カレンダーをics形式で出力
+  command: python apps/085_holiday_calendar/main.py
+  tags: [calendar, holiday]
+  status: release
+
+- id: 86
+  name: シンプル日記 CLI
+  description: シンプルな日記CLI
+  command: python apps/086_diary_cli/main.py
+  tags: [diary, cli]
+  status: release
+
+- id: 87
+  name: タイムゾーン変換
+  description: 異なるタイムゾーン間で時刻を変換
+  command: python apps/087_timezone_convert/main.py
+  tags: [time, timezone]
+  status: release
+
+- id: 88
+  name: 月間カレンダー出力
+  description: 指定月のカレンダーを出力
+  command: python apps/088_monthly_calendar/main.py
+  tags: [calendar, monthly]
+  status: release
+
+- id: 89
+  name: 年間ガントチャート
+  description: 年間ガントチャートを生成
+  command: python apps/089_gantt_chart/main.py
+  tags: [project, gantt]
+  status: release
+
+- id: 90
+  name: 作業ログ→集計
+  description: 作業ログから時間を集計
+  command: python apps/090_work_log_summary/main.py
+  tags: [productivity, log]
+  status: release
+
+- id: 91
+  name: カウントダウンタイマー
+  description: カウントダウンタイマー
+  command: python apps/091_countdown_timer/main.py
+  tags: [timer, countdown]
+  status: release
+
+- id: 92
+  name: 為替早見ツール
+  description: 為替レート早見ツール（モックレート）
+  command: python apps/092_exchange_rate/main.py
+  tags: [finance, exchange, mock]
+  status: release
+
+- id: 93
+  name: 簡易メモ帳 CLI
+  description: 簡易メモ帳CLI
+  command: python apps/093_memo_cli/main.py
+  tags: [memo, cli]
+  status: release
+
+- id: 94
+  name: 逆さ言葉ジェネレーター
+  description: 逆さ言葉を生成
+  command: python apps/094_reverse_word/main.py
+  tags: [text, reverse]
+  status: release
+
+- id: 95
+  name: おみくじ占い
+  description: おみくじ占いアプリ
+  command: python apps/095_omikuji/main.py
+  tags: [game, fortune]
+  status: release
+
+- id: 96
+  name: 色名→カラーコード辞書
+  description: 色名からカラーコードを検索
+  command: python apps/096_color_dict/main.py
+  tags: [color, dictionary]
+  status: release
+
+- id: 97
+  name: スクリーンキャプチャ風
+  description: モック画像を生成してスクリーンキャプチャ風に
+  command: python apps/097_screenshot_mock/main.py
+  tags: [image, mock, screenshot]
+  status: release
+
+- id: 98
+  name: 名言ランダム表示
+  description: 名言をランダムに表示
+  command: python apps/098_famous_quotes/main.py
+  tags: [quotes, random]
+  status: release
+
+- id: 99
+  name: フィボナッチ数列生成
+  description: フィボナッチ数列を生成
+  command: python apps/099_fibonacci/main.py
+  tags: [math, fibonacci]
+  status: release
+
+- id: 100
+  name: 天気予報
+  description: 天気予報（モック）
+  command: python apps/100_weather_forecast/main.py
+  tags: [weather, mock]
+  status: release
