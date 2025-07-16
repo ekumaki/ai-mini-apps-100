@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>標準偏差計算機 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .calculator {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .type-selector {
+            margin-bottom: 20px;
+        }
+
+        .type-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .type-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .type-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .type-btn:hover:not(.active) {
+            background: #e9ecef;
+            border-color: #dee2e6;
+        }
+
+        .type-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .type-desc {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .formula-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d7ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #0066cc;
+        }
+
+        .formula {
+            font-weight: bold;
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 5px 8px;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+
+        .input-method {
+            margin-bottom: 20px;
+        }
+
+        .method-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .method-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .method-btn.active {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .method-btn:hover:not(.active) {
+            background: #e9ecef;
+            border-color: #dee2e6;
+        }
+
+        .input-content {
+            display: none;
+        }
+
+        .input-content.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: monospace;
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .number-inputs {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .number-input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .number-input-row input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .number-input-row input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        .add-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .add-btn:hover {
+            background: #218838;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .calculate-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .result {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result-main {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .result-label {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .statistics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .info {
+            background: #e7f3ff;
+            border: 1px solid #b3d7ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #0066cc;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="header">
+            <h1>標準偏差計算機</h1>
+            <p>データの標準偏差を計算</p>
+        </div>
+
+        <div class="type-selector">
+            <div class="type-buttons">
+                <button class="type-btn active" onclick="selectType('sample')">
+                    <div class="type-title">標本標準偏差</div>
+                    <div class="type-desc">n-1で割る（推定値）</div>
+                </button>
+                <button class="type-btn" onclick="selectType('population')">
+                    <div class="type-title">母標準偏差</div>
+                    <div class="type-desc">nで割る（全体）</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="formula-info" id="formulaInfo">
+            <strong>標本標準偏差の計算式:</strong>
+            <div class="formula">s = √(Σ(xi - x̄)² / (n-1))</div>
+            <div style="margin-top: 10px;">
+                <strong>分散:</strong> s² = Σ(xi - x̄)² / (n-1)
+            </div>
+        </div>
+
+        <div class="input-method">
+            <div class="method-buttons">
+                <button class="method-btn active" onclick="selectMethod('text')">テキスト入力</button>
+                <button class="method-btn" onclick="selectMethod('individual')">個別入力</button>
+            </div>
+        </div>
+
+        <!-- テキスト入力 -->
+        <div class="input-content active" id="textInput">
+            <div class="info">
+                数値をスペース、カンマ、改行で区切って入力してください
+            </div>
+
+            <div class="input-group">
+                <label for="numbersText">数値データ</label>
+                <textarea id="numbersText" placeholder="例: 10 20 30 40 50
+または
+10, 20, 30, 40, 50"></textarea>
+                <div class="error" id="textError"></div>
+            </div>
+        </div>
+
+        <!-- 個別入力 -->
+        <div class="input-content" id="individualInput">
+            <div class="info">
+                数値を1つずつ入力してください
+            </div>
+
+            <div class="number-inputs" id="numberInputs">
+                <div class="number-input-row">
+                    <input type="number" placeholder="数値1" step="any">
+                    <button class="remove-btn" onclick="removeInput(this)">削除</button>
+                </div>
+                <div class="number-input-row">
+                    <input type="number" placeholder="数値2" step="any">
+                    <button class="remove-btn" onclick="removeInput(this)">削除</button>
+                </div>
+            </div>
+            <button class="add-btn" onclick="addInput()">+ 入力欄を追加</button>
+            <div class="error" id="individualError"></div>
+        </div>
+
+        <button class="calculate-btn" onclick="calculate()">標準偏差を計算</button>
+
+        <div class="result" id="result">
+            <div class="result-main">
+                <div class="result-value" id="stdDevValue">0</div>
+                <div class="result-label" id="stdDevLabel">標本標準偏差</div>
+            </div>
+
+            <div class="statistics">
+                <div class="stat-card">
+                    <div class="stat-value" id="countValue">0</div>
+                    <div class="stat-label">データ数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="meanValue">0</div>
+                    <div class="stat-label">平均値</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="varianceValue">0</div>
+                    <div class="stat-label">分散</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="minValue">0</div>
+                    <div class="stat-label">最小値</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="maxValue">0</div>
+                    <div class="stat-label">最大値</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="rangeValue">0</div>
+                    <div class="stat-label">範囲</div>
+                </div>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        let currentType = 'sample';
+        let currentMethod = 'text';
+
+        function selectType(type) {
+            // ボタンの状態更新
+            document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            currentType = type;
+            updateFormulaInfo();
+            clearErrors();
+            hideResult();
+        }
+
+        function selectMethod(method) {
+            // ボタンの状態更新
+            document.querySelectorAll('.method-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // コンテンツの表示切り替え
+            document.querySelectorAll('.input-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(method + 'Input').classList.add('active');
+
+            currentMethod = method;
+            clearErrors();
+            hideResult();
+        }
+
+        function updateFormulaInfo() {
+            const formulaInfo = document.getElementById('formulaInfo');
+            if (currentType === 'sample') {
+                formulaInfo.innerHTML = `
+                    <strong>標本標準偏差の計算式:</strong>
+                    <div class="formula">s = √(Σ(xi - x̄)² / (n-1))</div>
+                    <div style="margin-top: 10px;">
+                        <strong>分散:</strong> s² = Σ(xi - x̄)² / (n-1)
+                    </div>
+                `;
+            } else {
+                formulaInfo.innerHTML = `
+                    <strong>母標準偏差の計算式:</strong>
+                    <div class="formula">σ = √(Σ(xi - μ)² / n)</div>
+                    <div style="margin-top: 10px;">
+                        <strong>分散:</strong> σ² = Σ(xi - μ)² / n
+                    </div>
+                `;
+            }
+        }
+
+        function addInput() {
+            const container = document.getElementById('numberInputs');
+            const newRow = document.createElement('div');
+            newRow.className = 'number-input-row';
+            newRow.innerHTML = `
+                <input type="number" placeholder="数値${container.children.length + 1}" step="any">
+                <button class="remove-btn" onclick="removeInput(this)">削除</button>
+            `;
+            container.appendChild(newRow);
+        }
+
+        function removeInput(button) {
+            const container = document.getElementById('numberInputs');
+            if (container.children.length > 1) {
+                button.parentElement.remove();
+            }
+        }
+
+        function calculate() {
+            clearErrors();
+            let numbers = [];
+
+            if (currentMethod === 'text') {
+                const text = document.getElementById('numbersText').value.trim();
+                if (!text) {
+                    showError('textError', 'データを入力してください');
+                    hideResult();
+                    return;
+                }
+
+                // スペース、カンマ、改行で分割
+                const values = text.split(/[\s,]+/).filter(v => v);
+                numbers = values.map(v => {
+                    const num = parseFloat(v);
+                    if (isNaN(num)) {
+                        showError('textError', `"${v}" は有効な数値ではありません`);
+                        return null;
+                    }
+                    return num;
+                });
+
+                if (numbers.includes(null)) {
+                    hideResult();
+                    return;
+                }
+            } else {
+                const inputs = document.querySelectorAll('#numberInputs input');
+                let hasError = false;
+
+                inputs.forEach(input => {
+                    if (input.value.trim()) {
+                        const num = parseFloat(input.value);
+                        if (isNaN(num)) {
+                            hasError = true;
+                        } else {
+                            numbers.push(num);
+                        }
+                    }
+                });
+
+                if (hasError) {
+                    showError('individualError', '有効な数値を入力してください');
+                    hideResult();
+                    return;
+                }
+
+                if (numbers.length === 0) {
+                    showError('individualError', '少なくとも1つの数値を入力してください');
+                    hideResult();
+                    return;
+                }
+            }
+
+            if (currentType === 'sample' && numbers.length < 2) {
+                const errorId = currentMethod === 'text' ? 'textError' : 'individualError';
+                showError(errorId, '標本標準偏差を計算するには少なくとも2つの数値が必要です');
+                hideResult();
+                return;
+            }
+
+            displayResult(numbers);
+        }
+
+        function displayResult(numbers) {
+            const n = numbers.length;
+            const sum = numbers.reduce((a, b) => a + b, 0);
+            const mean = sum / n;
+            const min = Math.min(...numbers);
+            const max = Math.max(...numbers);
+            const range = max - min;
+
+            // 分散の計算
+            const squaredDiffs = numbers.map(x => Math.pow(x - mean, 2));
+            const sumSquaredDiffs = squaredDiffs.reduce((a, b) => a + b, 0);
+            
+            let variance, stdDev;
+            if (currentType === 'sample') {
+                variance = sumSquaredDiffs / (n - 1);
+                stdDev = Math.sqrt(variance);
+            } else {
+                variance = sumSquaredDiffs / n;
+                stdDev = Math.sqrt(variance);
+            }
+
+            // 結果表示
+            document.getElementById('stdDevValue').textContent = formatNumber(stdDev);
+            document.getElementById('stdDevLabel').textContent = 
+                currentType === 'sample' ? '標本標準偏差' : '母標準偏差';
+            document.getElementById('countValue').textContent = n;
+            document.getElementById('meanValue').textContent = formatNumber(mean);
+            document.getElementById('varianceValue').textContent = formatNumber(variance);
+            document.getElementById('minValue').textContent = formatNumber(min);
+            document.getElementById('maxValue').textContent = formatNumber(max);
+            document.getElementById('rangeValue').textContent = formatNumber(range);
+
+            document.getElementById('result').classList.add('show');
+        }
+
+        function formatNumber(num) {
+            if (Math.abs(num) >= 1000000) {
+                return num.toExponential(2);
+            }
+            if (Math.floor(num) === num) {
+                return num.toLocaleString('ja-JP');
+            }
+            return num.toLocaleString('ja-JP', { maximumFractionDigits: 4 });
+        }
+
+        function showError(elementId, message) {
+            document.getElementById(elementId).textContent = message;
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error').forEach(error => error.textContent = '');
+        }
+
+        function hideResult() {
+            document.getElementById('result').classList.remove('show');
+        }
+
+        // Enterキーで計算（テキストエリア以外）
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && event.target.tagName !== 'TEXTAREA') {
+                calculate();
+            }
+        });
+
+        // 初期化
+        updateFormulaInfo();
+    </script>
+</body>
+</html>

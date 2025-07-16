@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>電力計算機 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .calculator {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .calculation-type {
+            margin-bottom: 30px;
+        }
+
+        .type-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .type-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 12px 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .type-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .type-btn:hover:not(.active) {
+            background: #e9ecef;
+            border-color: #dee2e6;
+        }
+
+        .type-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .type-desc {
+            font-size: 0.7rem;
+            opacity: 0.8;
+        }
+
+        .calculation-content {
+            display: none;
+        }
+
+        .calculation-content.active {
+            display: block;
+        }
+
+        .formula-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d7ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #0066cc;
+        }
+
+        .formula {
+            font-weight: bold;
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 5px 8px;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .unit {
+            color: #666;
+            font-weight: 600;
+            min-width: 50px;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .calculate-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .result {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result-main {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .result-unit {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .detail-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .detail-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .detail-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .cost-breakdown {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .cost-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .cost-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .cost-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            background: #f8f9fa;
+            margin: 10px -15px -15px;
+            padding: 15px;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .cost-label {
+            color: #666;
+        }
+
+        .cost-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .examples {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .examples-title {
+            font-weight: 600;
+            color: #155724;
+            margin-bottom: 10px;
+        }
+
+        .example-item {
+            font-size: 0.9rem;
+            color: #155724;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="header">
+            <h1>電力計算機</h1>
+            <p>電力消費量と電気代を計算</p>
+        </div>
+
+        <div class="calculation-type">
+            <div class="type-buttons">
+                <button class="type-btn active" onclick="selectType('consumption')">
+                    <div class="type-title">消費電力</div>
+                    <div class="type-desc">W・V・A から計算</div>
+                </button>
+                <button class="type-btn" onclick="selectType('cost')">
+                    <div class="type-title">電気代</div>
+                    <div class="type-desc">使用量から料金計算</div>
+                </button>
+                <button class="type-btn" onclick="selectType('efficiency')">
+                    <div class="type-title">効率計算</div>
+                    <div class="type-desc">電力効率の計算</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- 消費電力計算 -->
+        <div class="calculation-content active" id="consumption">
+            <div class="formula-info">
+                <strong>オームの法則:</strong>
+                <div class="formula">P = V × I = V² / R = I² × R</div>
+                <div style="margin-top: 10px;">
+                    P = 電力(W), V = 電圧(V), I = 電流(A), R = 抵抗(Ω)
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="voltage">電圧</label>
+                <div class="input-row">
+                    <input type="number" id="voltage" placeholder="例: 100" min="0" step="0.1">
+                    <span class="unit">V</span>
+                </div>
+                <div class="error" id="voltageError"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="current">電流</label>
+                <div class="input-row">
+                    <input type="number" id="current" placeholder="例: 2" min="0" step="0.01">
+                    <span class="unit">A</span>
+                </div>
+                <div class="error" id="currentError"></div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateConsumption()">消費電力を計算</button>
+        </div>
+
+        <!-- 電気代計算 -->
+        <div class="calculation-content" id="cost">
+            <div class="formula-info">
+                <strong>電気代計算式:</strong>
+                <div class="formula">電気代 = 消費電力(kW) × 使用時間(h) × 電気料金(円/kWh)</div>
+            </div>
+
+            <div class="input-group">
+                <label for="power">消費電力</label>
+                <div class="input-row">
+                    <input type="number" id="power" placeholder="例: 200" min="0" step="1">
+                    <span class="unit">W</span>
+                </div>
+                <div class="error" id="powerError"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="hours">使用時間</label>
+                <div class="input-row">
+                    <input type="number" id="hours" placeholder="例: 8" min="0" step="0.1">
+                    <span class="unit">時間</span>
+                </div>
+                <div class="error" id="hoursError"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="rate">電気料金</label>
+                <div class="input-row">
+                    <input type="number" id="rate" placeholder="例: 27" min="0" step="0.1" value="27">
+                    <span class="unit">円/kWh</span>
+                </div>
+                <div class="error" id="rateError"></div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateCost()">電気代を計算</button>
+        </div>
+
+        <!-- 効率計算 -->
+        <div class="calculation-content" id="efficiency">
+            <div class="formula-info">
+                <strong>効率計算式:</strong>
+                <div class="formula">効率 = 出力電力 / 入力電力 × 100</div>
+            </div>
+
+            <div class="input-group">
+                <label for="inputPower">入力電力</label>
+                <div class="input-row">
+                    <input type="number" id="inputPower" placeholder="例: 1000" min="0" step="1">
+                    <span class="unit">W</span>
+                </div>
+                <div class="error" id="inputPowerError"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="outputPower">出力電力</label>
+                <div class="input-row">
+                    <input type="number" id="outputPower" placeholder="例: 850" min="0" step="1">
+                    <span class="unit">W</span>
+                </div>
+                <div class="error" id="outputPowerError"></div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateEfficiency()">効率を計算</button>
+        </div>
+
+        <div class="result" id="result">
+            <div class="result-main">
+                <div class="result-value" id="resultValue">0</div>
+                <div class="result-unit" id="resultUnit">W</div>
+            </div>
+
+            <div class="result-details" id="resultDetails">
+                <!-- 詳細情報がここに表示されます -->
+            </div>
+
+            <div class="cost-breakdown" id="costBreakdown" style="display: none;">
+                <div class="cost-title">料金内訳</div>
+                <div id="costItems"></div>
+            </div>
+        </div>
+
+        <div class="examples">
+            <div class="examples-title">参考値</div>
+            <div class="example-item">• 白熱電球 (60W): 約1.6円/時間</div>
+            <div class="example-item">• LED電球 (8W): 約0.2円/時間</div>
+            <div class="example-item">• エアコン (600W): 約16円/時間</div>
+            <div class="example-item">• 冷蔵庫 (150W): 約4円/時間</div>
+            <div class="example-item">• 電子レンジ (1000W): 約27円/時間</div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        let currentType = 'consumption';
+
+        function selectType(type) {
+            // ボタンの状態更新
+            document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // コンテンツの表示切り替え
+            document.querySelectorAll('.calculation-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(type).classList.add('active');
+
+            currentType = type;
+            clearErrors();
+            hideResult();
+        }
+
+        function calculateConsumption() {
+            clearErrors();
+
+            const voltage = parseFloat(document.getElementById('voltage').value);
+            const current = parseFloat(document.getElementById('current').value);
+
+            let hasError = false;
+
+            if (!voltage || voltage <= 0) {
+                showError('voltageError', '正しい電圧を入力してください');
+                hasError = true;
+            }
+
+            if (!current || current <= 0) {
+                showError('currentError', '正しい電流を入力してください');
+                hasError = true;
+            }
+
+            if (hasError) {
+                hideResult();
+                return;
+            }
+
+            const power = voltage * current;
+            const resistance = voltage / current;
+
+            displayConsumptionResult(power, voltage, current, resistance);
+        }
+
+        function calculateCost() {
+            clearErrors();
+
+            const power = parseFloat(document.getElementById('power').value);
+            const hours = parseFloat(document.getElementById('hours').value);
+            const rate = parseFloat(document.getElementById('rate').value);
+
+            let hasError = false;
+
+            if (!power || power <= 0) {
+                showError('powerError', '正しい消費電力を入力してください');
+                hasError = true;
+            }
+
+            if (!hours || hours <= 0) {
+                showError('hoursError', '正しい使用時間を入力してください');
+                hasError = true;
+            }
+
+            if (!rate || rate <= 0) {
+                showError('rateError', '正しい電気料金を入力してください');
+                hasError = true;
+            }
+
+            if (hasError) {
+                hideResult();
+                return;
+            }
+
+            const kWh = (power / 1000) * hours;
+            const costPerHour = (power / 1000) * rate;
+            const totalCost = kWh * rate;
+            const dailyCost = totalCost * 24 / hours;
+            const monthlyCost = dailyCost * 30;
+            const yearlyCost = monthlyCost * 12;
+
+            displayCostResult(totalCost, power, hours, rate, kWh, costPerHour, dailyCost, monthlyCost, yearlyCost);
+        }
+
+        function calculateEfficiency() {
+            clearErrors();
+
+            const inputPower = parseFloat(document.getElementById('inputPower').value);
+            const outputPower = parseFloat(document.getElementById('outputPower').value);
+
+            let hasError = false;
+
+            if (!inputPower || inputPower <= 0) {
+                showError('inputPowerError', '正しい入力電力を入力してください');
+                hasError = true;
+            }
+
+            if (!outputPower || outputPower <= 0) {
+                showError('outputPowerError', '正しい出力電力を入力してください');
+                hasError = true;
+            }
+
+            if (outputPower > inputPower) {
+                showError('outputPowerError', '出力電力は入力電力以下にしてください');
+                hasError = true;
+            }
+
+            if (hasError) {
+                hideResult();
+                return;
+            }
+
+            const efficiency = (outputPower / inputPower) * 100;
+            const powerLoss = inputPower - outputPower;
+            const lossPercentage = (powerLoss / inputPower) * 100;
+
+            displayEfficiencyResult(efficiency, inputPower, outputPower, powerLoss, lossPercentage);
+        }
+
+        function displayConsumptionResult(power, voltage, current, resistance) {
+            document.getElementById('resultValue').textContent = power.toFixed(1);
+            document.getElementById('resultUnit').textContent = 'W';
+
+            const detailsHTML = `
+                <div class="detail-card">
+                    <div class="detail-value">${voltage.toFixed(1)}</div>
+                    <div class="detail-label">電圧 (V)</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${current.toFixed(2)}</div>
+                    <div class="detail-label">電流 (A)</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${resistance.toFixed(1)}</div>
+                    <div class="detail-label">抵抗 (Ω)</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${(power / 1000).toFixed(3)}</div>
+                    <div class="detail-label">消費電力 (kW)</div>
+                </div>
+            `;
+
+            document.getElementById('resultDetails').innerHTML = detailsHTML;
+            document.getElementById('costBreakdown').style.display = 'none';
+            document.getElementById('result').classList.add('show');
+        }
+
+        function displayCostResult(totalCost, power, hours, rate, kWh, costPerHour, dailyCost, monthlyCost, yearlyCost) {
+            document.getElementById('resultValue').textContent = totalCost.toFixed(1);
+            document.getElementById('resultUnit').textContent = '円';
+
+            const detailsHTML = `
+                <div class="detail-card">
+                    <div class="detail-value">${power}</div>
+                    <div class="detail-label">消費電力 (W)</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${hours}</div>
+                    <div class="detail-label">使用時間 (h)</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${kWh.toFixed(3)}</div>
+                    <div class="detail-label">消費電力量 (kWh)</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${costPerHour.toFixed(1)}</div>
+                    <div class="detail-label">1時間あたり (円)</div>
+                </div>
+            `;
+
+            const costItemsHTML = `
+                <div class="cost-item">
+                    <span class="cost-label">1日あたり (24時間)</span>
+                    <span class="cost-value">${dailyCost.toFixed(0)}円</span>
+                </div>
+                <div class="cost-item">
+                    <span class="cost-label">1ヶ月あたり (30日)</span>
+                    <span class="cost-value">${monthlyCost.toFixed(0)}円</span>
+                </div>
+                <div class="cost-item">
+                    <span class="cost-label">1年あたり (365日)</span>
+                    <span class="cost-value">${yearlyCost.toFixed(0)}円</span>
+                </div>
+            `;
+
+            document.getElementById('resultDetails').innerHTML = detailsHTML;
+            document.getElementById('costItems').innerHTML = costItemsHTML;
+            document.getElementById('costBreakdown').style.display = 'block';
+            document.getElementById('result').classList.add('show');
+        }
+
+        function displayEfficiencyResult(efficiency, inputPower, outputPower, powerLoss, lossPercentage) {
+            document.getElementById('resultValue').textContent = efficiency.toFixed(1);
+            document.getElementById('resultUnit').textContent = '%';
+
+            const detailsHTML = `
+                <div class="detail-card">
+                    <div class="detail-value">${inputPower}</div>
+                    <div class="detail-label">入力電力 (W)</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${outputPower}</div>
+                    <div class="detail-label">出力電力 (W)</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${powerLoss.toFixed(1)}</div>
+                    <div class="detail-label">電力損失 (W)</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${lossPercentage.toFixed(1)}</div>
+                    <div class="detail-label">損失率 (%)</div>
+                </div>
+            `;
+
+            document.getElementById('resultDetails').innerHTML = detailsHTML;
+            document.getElementById('costBreakdown').style.display = 'none';
+            document.getElementById('result').classList.add('show');
+        }
+
+        function showError(elementId, message) {
+            document.getElementById(elementId).textContent = message;
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error').forEach(error => error.textContent = '');
+        }
+
+        function hideResult() {
+            document.getElementById('result').classList.remove('show');
+        }
+
+        // Enterキーで計算
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                switch (currentType) {
+                    case 'consumption':
+                        calculateConsumption();
+                        break;
+                    case 'cost':
+                        calculateCost();
+                        break;
+                    case 'efficiency':
+                        calculateEfficiency();
+                        break;
+                }
+            }
+        });
+
+        // リアルタイム計算
+        document.getElementById('voltage').addEventListener('input', function() {
+            const voltage = this.value;
+            const current = document.getElementById('current').value;
+            if (voltage && current) {
+                setTimeout(calculateConsumption, 500);
+            }
+        });
+
+        document.getElementById('current').addEventListener('input', function() {
+            const voltage = document.getElementById('voltage').value;
+            const current = this.value;
+            if (voltage && current) {
+                setTimeout(calculateConsumption, 500);
+            }
+        });
+
+        ['power', 'hours', 'rate'].forEach(id => {
+            document.getElementById(id).addEventListener('input', function() {
+                const power = document.getElementById('power').value;
+                const hours = document.getElementById('hours').value;
+                const rate = document.getElementById('rate').value;
+                if (power && hours && rate) {
+                    setTimeout(calculateCost, 500);
+                }
+            });
+        });
+
+        ['inputPower', 'outputPower'].forEach(id => {
+            document.getElementById(id).addEventListener('input', function() {
+                const inputPower = document.getElementById('inputPower').value;
+                const outputPower = document.getElementById('outputPower').value;
+                if (inputPower && outputPower) {
+                    setTimeout(calculateEfficiency, 500);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
