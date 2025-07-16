@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>テキスト分割ツール - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .splitter {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        .text-input {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            resize: vertical;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .control-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            font-weight: 600;
+            color: #333;
+            min-width: 100px;
+        }
+
+        .control-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .control-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .split-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .split-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .result-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .result-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .result-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .result-number {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .result-info {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .result-content {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #333;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .stats {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #155724;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .export-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .export-btn:hover {
+            background: #5a6268;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="splitter">
+        <div class="header">
+            <h1>テキスト分割ツール</h1>
+            <p>テキストを指定した区切り文字で分割</p>
+        </div>
+
+        <div class="input-section">
+            <textarea 
+                id="inputText" 
+                class="text-input" 
+                placeholder="分割したいテキストを入力してください..."
+                oninput="updatePreview()"
+            ></textarea>
+        </div>
+
+        <div class="controls">
+            <div class="control-row">
+                <label class="control-label">区切り文字:</label>
+                <input type="text" id="delimiter" class="control-input" placeholder="例: ,  |  ;  タブ" value="," oninput="updatePreview()">
+                <button class="split-btn" onclick="splitText()">分割実行</button>
+            </div>
+            <div class="control-row">
+                <label class="control-label">最大分割数:</label>
+                <input type="number" id="maxSplit" class="control-input" placeholder="制限なしの場合は空欄" min="1" oninput="updatePreview()">
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalParts">0</div>
+                    <div class="stat-label">分割数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalChars">0</div>
+                    <div class="stat-label">総文字数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgLength">0</div>
+                    <div class="stat-label">平均文字数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="emptyParts">0</div>
+                    <div class="stat-label">空の部分</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-section">
+            <div class="result-title">分割結果</div>
+            <div id="resultList">
+                <p style="color: #666; font-style: italic;">分割結果がここに表示されます</p>
+            </div>
+        </div>
+
+        <div class="export-section">
+            <div class="export-buttons">
+                <button class="export-btn" onclick="exportResults('text')">テキストファイル</button>
+                <button class="export-btn" onclick="exportResults('json')">JSON形式</button>
+                <button class="export-btn" onclick="exportResults('csv')">CSV形式</button>
+                <button class="export-btn" onclick="copyResults()">クリップボードにコピー</button>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        let splitResults = [];
+
+        function splitText() {
+            const text = document.getElementById('inputText').value;
+            const delimiter = document.getElementById('delimiter').value;
+            const maxSplit = parseInt(document.getElementById('maxSplit').value);
+
+            if (!text) {
+                alert('分割するテキストを入力してください');
+                return;
+            }
+
+            if (!delimiter) {
+                alert('区切り文字を入力してください');
+                return;
+            }
+
+            // 特殊文字の処理
+            let actualDelimiter = delimiter;
+            if (delimiter.toLowerCase() === 'タブ' || delimiter === '\\t') {
+                actualDelimiter = '\t';
+            } else if (delimiter === '\\n') {
+                actualDelimiter = '\n';
+            } else if (delimiter === '\\r') {
+                actualDelimiter = '\r';
+            }
+
+            // 分割実行
+            let parts;
+            if (maxSplit && maxSplit > 0) {
+                parts = text.split(actualDelimiter, maxSplit);
+                // 残りの部分を最後に追加
+                const remainingText = text.split(actualDelimiter).slice(maxSplit).join(actualDelimiter);
+                if (remainingText) {
+                    parts.push(remainingText);
+                }
+            } else {
+                parts = text.split(actualDelimiter);
+            }
+
+            splitResults = parts;
+            displayResults(parts);
+            updateStats(parts, text);
+        }
+
+        function updatePreview() {
+            const text = document.getElementById('inputText').value;
+            const delimiter = document.getElementById('delimiter').value;
+            
+            if (text && delimiter) {
+                splitText();
+            }
+        }
+
+        function displayResults(parts) {
+            const resultList = document.getElementById('resultList');
+            resultList.innerHTML = '';
+
+            if (parts.length === 0) {
+                resultList.innerHTML = '<p style="color: #666; font-style: italic;">分割結果がありません</p>';
+                return;
+            }
+
+            parts.forEach((part, index) => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <div class="result-header">
+                        <span class="result-number">部分 ${index + 1}</span>
+                        <span class="result-info">${part.length} 文字</span>
+                    </div>
+                    <div class="result-content">${part || '(空)'}</div>
+                `;
+                resultList.appendChild(resultItem);
+            });
+        }
+
+        function updateStats(parts, originalText) {
+            const totalParts = parts.length;
+            const totalChars = originalText.length;
+            const avgLength = totalParts > 0 ? Math.round(totalChars / totalParts) : 0;
+            const emptyParts = parts.filter(part => part.trim() === '').length;
+
+            document.getElementById('totalParts').textContent = totalParts;
+            document.getElementById('totalChars').textContent = totalChars;
+            document.getElementById('avgLength').textContent = avgLength;
+            document.getElementById('emptyParts').textContent = emptyParts;
+        }
+
+        function exportResults(format) {
+            if (splitResults.length === 0) {
+                alert('エクスポートする結果がありません');
+                return;
+            }
+
+            let content = '';
+            let filename = '';
+            let mimeType = '';
+
+            switch (format) {
+                case 'text':
+                    content = splitResults.join('\n---\n');
+                    filename = 'split_results.txt';
+                    mimeType = 'text/plain';
+                    break;
+
+                case 'json':
+                    const data = {
+                        originalText: document.getElementById('inputText').value,
+                        delimiter: document.getElementById('delimiter').value,
+                        results: splitResults,
+                        stats: {
+                            totalParts: splitResults.length,
+                            avgLength: Math.round(splitResults.reduce((a, b) => a + b.length, 0) / splitResults.length),
+                            emptyParts: splitResults.filter(part => part.trim() === '').length
+                        },
+                        timestamp: new Date().toISOString()
+                    };
+                    content = JSON.stringify(data, null, 2);
+                    filename = 'split_results.json';
+                    mimeType = 'application/json';
+                    break;
+
+                case 'csv':
+                    content = 'Part Number,Content,Length\n' + 
+                             splitResults.map((part, index) => `${index + 1},"${part.replace(/"/g, '""')}",${part.length}`).join('\n');
+                    filename = 'split_results.csv';
+                    mimeType = 'text/csv';
+                    break;
+            }
+
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function copyResults() {
+            if (splitResults.length === 0) {
+                alert('コピーする結果がありません');
+                return;
+            }
+
+            const content = splitResults.join('\n');
+            navigator.clipboard.writeText(content).then(() => {
+                alert('結果がクリップボードにコピーされました！');
+            });
+        }
+
+        // 初期サンプル
+        document.getElementById('inputText').value = 'apple,banana,orange,grape,kiwi';
+        updatePreview();
+    </script>
+</body>
+</html>
