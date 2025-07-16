@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>為替換算ツール - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .converter {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .info {
+            background: #e7f3ff;
+            border: 1px solid #b3d7ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #0066cc;
+        }
+
+        .conversion-row {
+            display: grid;
+            grid-template-columns: 1fr 60px 1fr;
+            gap: 15px;
+            align-items: end;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .currency-input {
+            display: flex;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .currency-input:focus-within {
+            border-color: #667eea;
+        }
+
+        .currency-input input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .currency-select {
+            background: #f8f9fa;
+            border: none;
+            padding: 12px;
+            cursor: pointer;
+            min-width: 80px;
+            font-weight: 600;
+            border-left: 2px solid #e9ecef;
+        }
+
+        .swap-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .swap-btn:hover {
+            background: #5a6fd8;
+            transform: rotate(180deg);
+        }
+
+        .result {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .result-amount {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .result-currency {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .rate-info {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .rate-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .rate-row:last-child {
+            border-bottom: none;
+        }
+
+        .rate-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .rate-value {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .popular-rates {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .popular-rates h3 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .rate-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .rate-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .rate-card-currency {
+            font-weight: bold;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .rate-card-value {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 500px) {
+            .conversion-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .swap-btn {
+                justify-self: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="converter">
+        <div class="header">
+            <h1>為替換算ツール</h1>
+            <p>通貨間の為替レート計算</p>
+        </div>
+
+        <div class="info">
+            ※ このアプリは固定レートを使用したデモ版です。実際の取引には最新の為替レートをご確認ください。
+        </div>
+
+        <div class="conversion-row">
+            <div class="input-group">
+                <label>変換元</label>
+                <div class="currency-input">
+                    <input type="number" id="fromAmount" placeholder="金額を入力" value="1" oninput="convert()">
+                    <select class="currency-select" id="fromCurrency" onchange="convert()">
+                        <option value="JPY">JPY</option>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="GBP">GBP</option>
+                        <option value="CNY">CNY</option>
+                        <option value="KRW">KRW</option>
+                        <option value="AUD">AUD</option>
+                        <option value="CAD">CAD</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="swap-btn" onclick="swapCurrencies()" title="通貨を入れ替え">⇄</button>
+
+            <div class="input-group">
+                <label>変換先</label>
+                <div class="currency-input">
+                    <input type="number" id="toAmount" placeholder="結果" readonly>
+                    <select class="currency-select" id="toCurrency" onchange="convert()">
+                        <option value="JPY">JPY</option>
+                        <option value="USD" selected>USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="GBP">GBP</option>
+                        <option value="CNY">CNY</option>
+                        <option value="KRW">KRW</option>
+                        <option value="AUD">AUD</option>
+                        <option value="CAD">CAD</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="result">
+            <div class="result-amount" id="resultAmount">0.00</div>
+            <div class="result-currency" id="resultCurrency">USD</div>
+        </div>
+
+        <div class="rate-info">
+            <div class="rate-row">
+                <span class="rate-label">1 <span id="baseFromCurrency">JPY</span> =</span>
+                <span class="rate-value" id="exchangeRate">0.0067 USD</span>
+            </div>
+            <div class="rate-row">
+                <span class="rate-label">1 <span id="baseToCurrency">USD</span> =</span>
+                <span class="rate-value" id="reverseRate">150.00 JPY</span>
+            </div>
+        </div>
+
+        <div class="popular-rates">
+            <h3>主要通貨レート (対円)</h3>
+            <div class="rate-grid">
+                <div class="rate-card">
+                    <div class="rate-card-currency">USD/JPY</div>
+                    <div class="rate-card-value">150.00</div>
+                </div>
+                <div class="rate-card">
+                    <div class="rate-card-currency">EUR/JPY</div>
+                    <div class="rate-card-value">160.50</div>
+                </div>
+                <div class="rate-card">
+                    <div class="rate-card-currency">GBP/JPY</div>
+                    <div class="rate-card-value">185.75</div>
+                </div>
+                <div class="rate-card">
+                    <div class="rate-card-currency">AUD/JPY</div>
+                    <div class="rate-card-value">98.50</div>
+                </div>
+                <div class="rate-card">
+                    <div class="rate-card-currency">CNY/JPY</div>
+                    <div class="rate-card-value">20.85</div>
+                </div>
+                <div class="rate-card">
+                    <div class="rate-card-currency">KRW/JPY</div>
+                    <div class="rate-card-value">0.113</div>
+                </div>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        // モック為替レート（JPYベース）
+        const exchangeRates = {
+            'JPY': 1,
+            'USD': 0.00667,
+            'EUR': 0.00623,
+            'GBP': 0.00538,
+            'CNY': 0.04795,
+            'KRW': 8.850,
+            'AUD': 0.01015,
+            'CAD': 0.00908
+        };
+
+        const currencyNames = {
+            'JPY': '日本円',
+            'USD': '米ドル',
+            'EUR': 'ユーロ',
+            'GBP': '英ポンド',
+            'CNY': '中国元',
+            'KRW': '韓国ウォン',
+            'AUD': 'オーストラリアドル',
+            'CAD': 'カナダドル'
+        };
+
+        function convert() {
+            const fromAmount = parseFloat(document.getElementById('fromAmount').value) || 0;
+            const fromCurrency = document.getElementById('fromCurrency').value;
+            const toCurrency = document.getElementById('toCurrency').value;
+            
+            // JPYを基準とした変換
+            const jpyAmount = fromAmount / exchangeRates[fromCurrency];
+            const toAmount = jpyAmount * exchangeRates[toCurrency];
+            
+            // 結果表示
+            document.getElementById('toAmount').value = toAmount.toFixed(6).replace(/\.?0+$/, '');
+            document.getElementById('resultAmount').textContent = formatCurrency(toAmount, toCurrency);
+            document.getElementById('resultCurrency').textContent = currencyNames[toCurrency];
+            
+            // レート情報更新
+            updateRateInfo(fromCurrency, toCurrency);
+        }
+
+        function updateRateInfo(fromCurrency, toCurrency) {
+            const rate = exchangeRates[toCurrency] / exchangeRates[fromCurrency];
+            const reverseRate = exchangeRates[fromCurrency] / exchangeRates[toCurrency];
+            
+            document.getElementById('baseFromCurrency').textContent = fromCurrency;
+            document.getElementById('baseToCurrency').textContent = toCurrency;
+            document.getElementById('exchangeRate').textContent = `${rate.toFixed(6).replace(/\.?0+$/, '')} ${toCurrency}`;
+            document.getElementById('reverseRate').textContent = `${reverseRate.toFixed(6).replace(/\.?0+$/, '')} ${fromCurrency}`;
+        }
+
+        function formatCurrency(amount, currency) {
+            const decimals = currency === 'JPY' || currency === 'KRW' ? 0 : 2;
+            return new Intl.NumberFormat('ja-JP', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            }).format(amount);
+        }
+
+        function swapCurrencies() {
+            const fromCurrency = document.getElementById('fromCurrency');
+            const toCurrency = document.getElementById('toCurrency');
+            const fromAmount = document.getElementById('fromAmount');
+            const toAmount = document.getElementById('toAmount');
+
+            // 通貨を交換
+            const tempCurrency = fromCurrency.value;
+            fromCurrency.value = toCurrency.value;
+            toCurrency.value = tempCurrency;
+
+            // 金額を交換
+            const tempAmount = fromAmount.value;
+            fromAmount.value = toAmount.value;
+            toAmount.value = tempAmount;
+
+            convert();
+        }
+
+        // 人気通貨ペアをクリックで選択
+        document.addEventListener('click', function(event) {
+            if (event.target.closest('.rate-card')) {
+                const currencyPair = event.target.closest('.rate-card').querySelector('.rate-card-currency').textContent;
+                const [from, to] = currencyPair.split('/');
+                
+                document.getElementById('fromCurrency').value = from;
+                document.getElementById('toCurrency').value = to;
+                convert();
+            }
+        });
+
+        // 初期化
+        convert();
+    </script>
+</body>
+</html>

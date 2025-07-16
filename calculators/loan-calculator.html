@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ローン計算機 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .calculator {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-group input,
+        .input-group select {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .unit {
+            color: #666;
+            font-weight: 600;
+            min-width: 50px;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .calculate-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .result {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result-section {
+            margin-bottom: 20px;
+        }
+
+        .result-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .result-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .result-value {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .highlight {
+            background: #667eea;
+            color: white;
+            margin: 0 -20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+        }
+
+        .highlight .result-label,
+        .highlight .result-value {
+            color: white;
+        }
+
+        .chart-container {
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .chart-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .chart {
+            display: flex;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .chart-principal {
+            background: #28a745;
+        }
+
+        .chart-interest {
+            background: #dc3545;
+        }
+
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 0.9rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .info {
+            background: #e7f3ff;
+            border: 1px solid #b3d7ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #0066cc;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="header">
+            <h1>ローン計算機</h1>
+            <p>月々の返済額や総返済額を計算</p>
+        </div>
+
+        <div class="info">
+            借入金額、金利、返済期間から月々の返済額と総返済額を計算します
+        </div>
+
+        <div class="input-group">
+            <label for="loanAmount">借入金額</label>
+            <div class="input-row">
+                <input type="number" id="loanAmount" placeholder="例: 3000" min="1" step="1">
+                <span class="unit">万円</span>
+            </div>
+            <div class="error" id="loanAmountError"></div>
+        </div>
+
+        <div class="input-group">
+            <label for="interestRate">年利率</label>
+            <div class="input-row">
+                <input type="number" id="interestRate" placeholder="例: 1.5" min="0" max="100" step="0.01">
+                <span class="unit">%</span>
+            </div>
+            <div class="error" id="interestRateError"></div>
+        </div>
+
+        <div class="input-group">
+            <label for="loanTerm">返済期間</label>
+            <div class="input-row">
+                <input type="number" id="loanTerm" placeholder="例: 35" min="1" max="50" step="1">
+                <select id="termUnit">
+                    <option value="years">年</option>
+                    <option value="months">ヶ月</option>
+                </select>
+            </div>
+            <div class="error" id="loanTermError"></div>
+        </div>
+
+        <div class="input-group">
+            <label for="paymentType">返済方式</label>
+            <select id="paymentType">
+                <option value="equal">元利均等返済</option>
+                <option value="principal">元金均等返済</option>
+            </select>
+        </div>
+
+        <button class="calculate-btn" onclick="calculateLoan()">ローンを計算</button>
+
+        <div class="result" id="result">
+            <div class="result-section">
+                <div class="result-title">返済概要</div>
+                <div class="result-row highlight">
+                    <span class="result-label">月々の返済額</span>
+                    <span class="result-value" id="monthlyPayment">0円</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">総返済額</span>
+                    <span class="result-value" id="totalPayment">0円</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">利息総額</span>
+                    <span class="result-value" id="totalInterest">0円</span>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">元金と利息の割合</div>
+                <div class="chart" id="paymentChart"></div>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #28a745;"></div>
+                        <span>元金</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #dc3545;"></div>
+                        <span>利息</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        function calculateLoan() {
+            clearErrors();
+
+            const loanAmount = parseFloat(document.getElementById('loanAmount').value) * 10000; // 万円を円に変換
+            const annualRate = parseFloat(document.getElementById('interestRate').value) / 100;
+            const termValue = parseInt(document.getElementById('loanTerm').value);
+            const termUnit = document.getElementById('termUnit').value;
+            const paymentType = document.getElementById('paymentType').value;
+
+            let hasError = false;
+
+            // バリデーション
+            if (!loanAmount || loanAmount <= 0) {
+                showError('loanAmountError', '正しい借入金額を入力してください');
+                hasError = true;
+            }
+
+            if (isNaN(annualRate) || annualRate < 0 || annualRate > 1) {
+                showError('interestRateError', '正しい年利率を入力してください (0-100%)');
+                hasError = true;
+            }
+
+            if (!termValue || termValue <= 0) {
+                showError('loanTermError', '正しい返済期間を入力してください');
+                hasError = true;
+            }
+
+            if (hasError) {
+                hideResult();
+                return;
+            }
+
+            // 返済期間を月数に変換
+            const totalMonths = termUnit === 'years' ? termValue * 12 : termValue;
+            const monthlyRate = annualRate / 12;
+
+            let monthlyPayment, totalPayment, totalInterest;
+
+            if (paymentType === 'equal') {
+                // 元利均等返済
+                if (monthlyRate === 0) {
+                    monthlyPayment = loanAmount / totalMonths;
+                } else {
+                    monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / 
+                                   (Math.pow(1 + monthlyRate, totalMonths) - 1);
+                }
+                totalPayment = monthlyPayment * totalMonths;
+            } else {
+                // 元金均等返済（簡略計算：平均返済額）
+                const principalPayment = loanAmount / totalMonths;
+                const averageInterest = (loanAmount * monthlyRate * (totalMonths + 1)) / (2 * totalMonths);
+                monthlyPayment = principalPayment + averageInterest;
+                totalPayment = loanAmount + (loanAmount * monthlyRate * (totalMonths + 1)) / 2;
+            }
+
+            totalInterest = totalPayment - loanAmount;
+
+            displayResult(monthlyPayment, totalPayment, totalInterest, loanAmount);
+        }
+
+        function displayResult(monthlyPayment, totalPayment, totalInterest, loanAmount) {
+            document.getElementById('monthlyPayment').textContent = formatCurrency(monthlyPayment);
+            document.getElementById('totalPayment').textContent = formatCurrency(totalPayment);
+            document.getElementById('totalInterest').textContent = formatCurrency(totalInterest);
+
+            // チャート表示
+            const principalRatio = (loanAmount / totalPayment) * 100;
+            const interestRatio = (totalInterest / totalPayment) * 100;
+
+            const chart = document.getElementById('paymentChart');
+            chart.innerHTML = `
+                <div class="chart-principal" style="width: ${principalRatio}%"></div>
+                <div class="chart-interest" style="width: ${interestRatio}%"></div>
+            `;
+
+            document.getElementById('result').classList.add('show');
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('ja-JP', {
+                style: 'currency',
+                currency: 'JPY',
+                maximumFractionDigits: 0
+            }).format(Math.round(amount));
+        }
+
+        function showError(elementId, message) {
+            document.getElementById(elementId).textContent = message;
+        }
+
+        function clearErrors() {
+            document.getElementById('loanAmountError').textContent = '';
+            document.getElementById('interestRateError').textContent = '';
+            document.getElementById('loanTermError').textContent = '';
+        }
+
+        function hideResult() {
+            document.getElementById('result').classList.remove('show');
+        }
+
+        // Enterキーで計算
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                calculateLoan();
+            }
+        });
+
+        // リアルタイム計算
+        ['loanAmount', 'interestRate', 'loanTerm'].forEach(id => {
+            document.getElementById(id).addEventListener('input', function() {
+                const loanAmount = document.getElementById('loanAmount').value;
+                const interestRate = document.getElementById('interestRate').value;
+                const loanTerm = document.getElementById('loanTerm').value;
+                
+                if (loanAmount && interestRate && loanTerm) {
+                    calculateLoan();
+                }
+            });
+        });
+
+        document.getElementById('termUnit').addEventListener('change', function() {
+            const loanAmount = document.getElementById('loanAmount').value;
+            const interestRate = document.getElementById('interestRate').value;
+            const loanTerm = document.getElementById('loanTerm').value;
+            
+            if (loanAmount && interestRate && loanTerm) {
+                calculateLoan();
+            }
+        });
+
+        document.getElementById('paymentType').addEventListener('change', function() {
+            const loanAmount = document.getElementById('loanAmount').value;
+            const interestRate = document.getElementById('interestRate').value;
+            const loanTerm = document.getElementById('loanTerm').value;
+            
+            if (loanAmount && interestRate && loanTerm) {
+                calculateLoan();
+            }
+        });
+    </script>
+</body>
+</html>

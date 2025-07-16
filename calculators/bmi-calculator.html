@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI計算機 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .calculator {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .unit {
+            color: #666;
+            font-weight: 600;
+            min-width: 30px;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .calculate-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .result {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .bmi-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .bmi-category {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .underweight {
+            background: #cce5ff;
+            color: #0066cc;
+        }
+
+        .normal {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .overweight {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .obese {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .bmi-info {
+            background: #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .bmi-info h3 {
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .bmi-ranges {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .range {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-radius: 5px;
+            background: white;
+        }
+
+        .range-name {
+            font-weight: 600;
+        }
+
+        .range-value {
+            color: #666;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="header">
+            <h1>BMI計算機</h1>
+            <p>身長と体重からBMI値を計算</p>
+        </div>
+
+        <div class="input-group">
+            <label for="height">身長</label>
+            <div class="input-row">
+                <input type="number" id="height" placeholder="例: 170" min="1" max="300" step="0.1">
+                <span class="unit">cm</span>
+            </div>
+            <div class="error" id="heightError"></div>
+        </div>
+
+        <div class="input-group">
+            <label for="weight">体重</label>
+            <div class="input-row">
+                <input type="number" id="weight" placeholder="例: 65" min="1" max="500" step="0.1">
+                <span class="unit">kg</span>
+            </div>
+            <div class="error" id="weightError"></div>
+        </div>
+
+        <button class="calculate-btn" onclick="calculateBMI()">BMIを計算</button>
+
+        <div class="result" id="result">
+            <div class="bmi-value" id="bmiValue">0.0</div>
+            <div class="bmi-category" id="bmiCategory">標準体重</div>
+            <p id="bmiDescription">健康的な体重範囲です</p>
+        </div>
+
+        <div class="bmi-info">
+            <h3>BMI判定基準</h3>
+            <div class="bmi-ranges">
+                <div class="range">
+                    <span class="range-name">低体重</span>
+                    <span class="range-value">18.5未満</span>
+                </div>
+                <div class="range">
+                    <span class="range-name">標準体重</span>
+                    <span class="range-value">18.5-24.9</span>
+                </div>
+                <div class="range">
+                    <span class="range-name">過体重</span>
+                    <span class="range-value">25.0-29.9</span>
+                </div>
+                <div class="range">
+                    <span class="range-name">肥満</span>
+                    <span class="range-value">30.0以上</span>
+                </div>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        function calculateBMI() {
+            clearErrors();
+
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            
+            let hasError = false;
+
+            // バリデーション
+            if (!height || height <= 0 || height > 300) {
+                showError('heightError', '正しい身長を入力してください (1-300cm)');
+                hasError = true;
+            }
+
+            if (!weight || weight <= 0 || weight > 500) {
+                showError('weightError', '正しい体重を入力してください (1-500kg)');
+                hasError = true;
+            }
+
+            if (hasError) {
+                hideResult();
+                return;
+            }
+
+            // BMI計算 (身長をメートルに変換)
+            const heightInMeters = height / 100;
+            const bmi = weight / (heightInMeters * heightInMeters);
+
+            // 結果表示
+            displayResult(bmi);
+        }
+
+        function displayResult(bmi) {
+            const bmiValue = document.getElementById('bmiValue');
+            const bmiCategory = document.getElementById('bmiCategory');
+            const bmiDescription = document.getElementById('bmiDescription');
+            const result = document.getElementById('result');
+
+            bmiValue.textContent = bmi.toFixed(1);
+
+            let category, description, className;
+
+            if (bmi < 18.5) {
+                category = '低体重';
+                description = '体重が不足している可能性があります。バランスの良い食事を心がけましょう。';
+                className = 'underweight';
+            } else if (bmi < 25) {
+                category = '標準体重';
+                description = '健康的な体重範囲です。現在の生活習慣を維持しましょう。';
+                className = 'normal';
+            } else if (bmi < 30) {
+                category = '過体重';
+                description = '体重がやや多めです。適度な運動とバランスの良い食事を心がけましょう。';
+                className = 'overweight';
+            } else {
+                category = '肥満';
+                description = '健康リスクが高い可能性があります。医師に相談することをお勧めします。';
+                className = 'obese';
+            }
+
+            bmiCategory.textContent = category;
+            bmiCategory.className = `bmi-category ${className}`;
+            bmiDescription.textContent = description;
+
+            result.classList.add('show');
+        }
+
+        function showError(elementId, message) {
+            document.getElementById(elementId).textContent = message;
+        }
+
+        function clearErrors() {
+            document.getElementById('heightError').textContent = '';
+            document.getElementById('weightError').textContent = '';
+        }
+
+        function hideResult() {
+            document.getElementById('result').classList.remove('show');
+        }
+
+        // Enterキーで計算
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                calculateBMI();
+            }
+        });
+
+        // リアルタイム計算
+        document.getElementById('height').addEventListener('input', function() {
+            const height = this.value;
+            const weight = document.getElementById('weight').value;
+            if (height && weight) {
+                calculateBMI();
+            }
+        });
+
+        document.getElementById('weight').addEventListener('input', function() {
+            const height = document.getElementById('height').value;
+            const weight = this.value;
+            if (height && weight) {
+                calculateBMI();
+            }
+        });
+    </script>
+</body>
+</html>
