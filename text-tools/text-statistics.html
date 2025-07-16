@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>テキスト統計ツール - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .text-statistics {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .control-btn.secondary {
+            background: #28a745;
+        }
+
+        .control-btn.secondary:hover {
+            background: #218838;
+        }
+
+        .control-btn.danger {
+            background: #dc3545;
+        }
+
+        .control-btn.danger:hover {
+            background: #c82333;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-section label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .text-input {
+            width: 100%;
+            min-height: 300px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            resize: vertical;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stats-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .stats-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stats-card-icon {
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        .stats-list {
+            list-style: none;
+        }
+
+        .stats-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .stats-list li:last-child {
+            border-bottom: none;
+        }
+
+        .stats-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .stats-value {
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .frequency-section {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .frequency-title {
+            color: #155724;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .frequency-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .frequency-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .frequency-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .frequency-option label {
+            color: #333;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .frequency-table {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            overflow: hidden;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .frequency-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .frequency-table th,
+        .frequency-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .frequency-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .frequency-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .frequency-bar {
+            background: #667eea;
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 5px;
+            transition: width 0.3s ease;
+        }
+
+        .readability-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .readability-title {
+            color: #856404;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .readability-score {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .readability-level {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .readability-details {
+            background: white;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .readability-details ul {
+            list-style: none;
+        }
+
+        .readability-details li {
+            padding: 5px 0;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .frequency-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="text-statistics">
+        <div class="header">
+            <h1>テキスト統計ツール</h1>
+            <p>テキストの詳細な統計情報と読みやすさを分析</p>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="analyzeText()">統計分析</button>
+            <button class="control-btn secondary" onclick="exportReport()">レポート出力</button>
+            <button class="control-btn secondary" onclick="loadSampleText()">サンプル読み込み</button>
+            <button class="control-btn danger" onclick="clearAll()">クリア</button>
+        </div>
+
+        <div class="input-section">
+            <label for="textInput">分析対象のテキスト</label>
+            <textarea 
+                id="textInput" 
+                class="text-input" 
+                placeholder="統計分析したいテキストを入力してください..."
+                oninput="analyzeText()"
+            ></textarea>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stats-card">
+                <h3>
+                    <span class="stats-card-icon">📊</span>
+                    基本統計
+                </h3>
+                <ul class="stats-list">
+                    <li>
+                        <span class="stats-label">文字数</span>
+                        <span class="stats-value" id="charCount">0</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">文字数（空白除く）</span>
+                        <span class="stats-value" id="charCountNoSpaces">0</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">単語数</span>
+                        <span class="stats-value" id="wordCount">0</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">行数</span>
+                        <span class="stats-value" id="lineCount">0</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">段落数</span>
+                        <span class="stats-value" id="paragraphCount">0</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">文数</span>
+                        <span class="stats-value" id="sentenceCount">0</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="stats-card">
+                <h3>
+                    <span class="stats-card-icon">📝</span>
+                    文字種別統計
+                </h3>
+                <ul class="stats-list">
+                    <li>
+                        <span class="stats-label">ひらがな</span>
+                        <span class="stats-value" id="hiraganaCount">0</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">カタカナ</span>
+                        <span class="stats-value" id="katakanaCount">0</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">漢字</span>
+                        <span class="stats-value" id="kanjiCount">0</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">英字</span>
+                        <span class="stats-value" id="alphabetCount">0</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">数字</span>
+                        <span class="stats-value" id="numberCount">0</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">記号</span>
+                        <span class="stats-value" id="symbolCount">0</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="stats-card">
+                <h3>
+                    <span class="stats-card-icon">⏱️</span>
+                    読書時間・平均値
+                </h3>
+                <ul class="stats-list">
+                    <li>
+                        <span class="stats-label">読書時間（分）</span>
+                        <span class="stats-value" id="readingTime">0</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">平均単語長</span>
+                        <span class="stats-value" id="avgWordLength">0</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">平均文長</span>
+                        <span class="stats-value" id="avgSentenceLength">0</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">最長単語</span>
+                        <span class="stats-value" id="longestWord">-</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">最短単語</span>
+                        <span class="stats-value" id="shortestWord">-</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">ユニーク単語数</span>
+                        <span class="stats-value" id="uniqueWords">0</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="stats-card">
+                <h3>
+                    <span class="stats-card-icon">💾</span>
+                    ファイル情報
+                </h3>
+                <ul class="stats-list">
+                    <li>
+                        <span class="stats-label">バイト数</span>
+                        <span class="stats-value" id="byteSize">0</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">KB</span>
+                        <span class="stats-value" id="kbSize">0</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">文字密度</span>
+                        <span class="stats-value" id="charDensity">0%</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">語彙の豊富さ</span>
+                        <span class="stats-value" id="lexicalDiversity">0%</span>
+                    </li>
+                    <li>
+                        <span class="stats-label">圧縮率予測</span>
+                        <span class="stats-value" id="compressionRatio">0%</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="frequency-section">
+            <div class="frequency-title">文字・単語頻度分析</div>
+            <div class="frequency-controls">
+                <div class="frequency-option">
+                    <input type="radio" id="charFreq" name="frequency" value="char" checked onchange="updateFrequency()">
+                    <label for="charFreq">文字頻度</label>
+                </div>
+                <div class="frequency-option">
+                    <input type="radio" id="wordFreq" name="frequency" value="word" onchange="updateFrequency()">
+                    <label for="wordFreq">単語頻度</label>
+                </div>
+                <div class="frequency-option">
+                    <input type="checkbox" id="ignoreCase" onchange="updateFrequency()">
+                    <label for="ignoreCase">大文字小文字を無視</label>
+                </div>
+                <div class="frequency-option">
+                    <input type="checkbox" id="ignoreSpaces" checked onchange="updateFrequency()">
+                    <label for="ignoreSpaces">空白を無視</label>
+                </div>
+            </div>
+            <div class="frequency-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>項目</th>
+                            <th>出現回数</th>
+                            <th>頻度</th>
+                            <th>グラフ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="frequencyTableBody">
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #666;">テキストを入力してください</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="readability-section">
+            <div class="readability-title">読みやすさ指標</div>
+            <div class="readability-score" id="readabilityScore">-</div>
+            <div class="readability-level" id="readabilityLevel">テキストを入力してください</div>
+            <div class="readability-details">
+                <ul id="readabilityDetails">
+                    <li>・文の平均長さ: -</li>
+                    <li>・難しい単語の割合: -</li>
+                    <li>・読書レベル: -</li>
+                    <li>・推奨対象: -</li>
+                </ul>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        let currentText = '';
+        let analysisData = {};
+
+        function analyzeText() {
+            const text = document.getElementById('textInput').value;
+            currentText = text;
+            
+            if (!text) {
+                clearStats();
+                return;
+            }
+            
+            analysisData = performAnalysis(text);
+            updateStats(analysisData);
+            updateFrequency();
+            updateReadability(analysisData);
+        }
+
+        function performAnalysis(text) {
+            const data = {};
+            
+            // 基本統計
+            data.charCount = text.length;
+            data.charCountNoSpaces = text.replace(/\s/g, '').length;
+            data.lineCount = text.split('\n').length;
+            data.paragraphCount = text.split(/\n\s*\n/).filter(p => p.trim()).length;
+            
+            // 文数（日本語の場合は句点で分割）
+            const sentences = text.split(/[.!?。！？]/).filter(s => s.trim());
+            data.sentenceCount = sentences.length;
+            
+            // 単語数（日本語対応）
+            const words = text.match(/[\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+/g) || [];
+            data.wordCount = words.length;
+            data.uniqueWords = new Set(words.map(w => w.toLowerCase())).size;
+            
+            // 文字種別統計
+            data.hiraganaCount = (text.match(/[\u3040-\u309F]/g) || []).length;
+            data.katakanaCount = (text.match(/[\u30A0-\u30FF]/g) || []).length;
+            data.kanjiCount = (text.match(/[\u4E00-\u9FAF]/g) || []).length;
+            data.alphabetCount = (text.match(/[a-zA-Z]/g) || []).length;
+            data.numberCount = (text.match(/[0-9]/g) || []).length;
+            data.symbolCount = (text.match(/[^\w\s\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/g) || []).length;
+            
+            // 平均値計算
+            data.avgWordLength = words.length > 0 ? (words.join('').length / words.length).toFixed(1) : 0;
+            data.avgSentenceLength = sentences.length > 0 ? (text.length / sentences.length).toFixed(1) : 0;
+            
+            // 最長・最短単語
+            if (words.length > 0) {
+                const sortedWords = words.sort((a, b) => a.length - b.length);
+                data.shortestWord = sortedWords[0];
+                data.longestWord = sortedWords[sortedWords.length - 1];
+            } else {
+                data.shortestWord = '-';
+                data.longestWord = '-';
+            }
+            
+            // ファイル情報
+            data.byteSize = new TextEncoder().encode(text).length;
+            data.kbSize = (data.byteSize / 1024).toFixed(2);
+            data.charDensity = data.charCountNoSpaces > 0 ? ((data.charCountNoSpaces / data.charCount) * 100).toFixed(1) : 0;
+            data.lexicalDiversity = data.wordCount > 0 ? ((data.uniqueWords / data.wordCount) * 100).toFixed(1) : 0;
+            
+            // 読書時間（1分間に500文字読むと仮定）
+            data.readingTime = Math.ceil(data.charCount / 500);
+            
+            // 圧縮率予測（簡易的な計算）
+            data.compressionRatio = data.uniqueWords > 0 ? (100 - (data.uniqueWords / data.wordCount * 100)).toFixed(1) : 0;
+            
+            return data;
+        }
+
+        function updateStats(data) {
+            document.getElementById('charCount').textContent = data.charCount;
+            document.getElementById('charCountNoSpaces').textContent = data.charCountNoSpaces;
+            document.getElementById('wordCount').textContent = data.wordCount;
+            document.getElementById('lineCount').textContent = data.lineCount;
+            document.getElementById('paragraphCount').textContent = data.paragraphCount;
+            document.getElementById('sentenceCount').textContent = data.sentenceCount;
+            
+            document.getElementById('hiraganaCount').textContent = data.hiraganaCount;
+            document.getElementById('katakanaCount').textContent = data.katakanaCount;
+            document.getElementById('kanjiCount').textContent = data.kanjiCount;
+            document.getElementById('alphabetCount').textContent = data.alphabetCount;
+            document.getElementById('numberCount').textContent = data.numberCount;
+            document.getElementById('symbolCount').textContent = data.symbolCount;
+            
+            document.getElementById('readingTime').textContent = data.readingTime;
+            document.getElementById('avgWordLength').textContent = data.avgWordLength;
+            document.getElementById('avgSentenceLength').textContent = data.avgSentenceLength;
+            document.getElementById('longestWord').textContent = data.longestWord;
+            document.getElementById('shortestWord').textContent = data.shortestWord;
+            document.getElementById('uniqueWords').textContent = data.uniqueWords;
+            
+            document.getElementById('byteSize').textContent = data.byteSize;
+            document.getElementById('kbSize').textContent = data.kbSize;
+            document.getElementById('charDensity').textContent = data.charDensity + '%';
+            document.getElementById('lexicalDiversity').textContent = data.lexicalDiversity + '%';
+            document.getElementById('compressionRatio').textContent = data.compressionRatio + '%';
+        }
+
+        function updateFrequency() {
+            const freqType = document.querySelector('input[name="frequency"]:checked').value;
+            const ignoreCase = document.getElementById('ignoreCase').checked;
+            const ignoreSpaces = document.getElementById('ignoreSpaces').checked;
+            
+            if (!currentText) return;
+            
+            let items = [];
+            if (freqType === 'char') {
+                items = currentText.split('');
+                if (ignoreSpaces) {
+                    items = items.filter(char => char.trim() !== '');
+                }
+            } else {
+                items = currentText.match(/[\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+/g) || [];
+            }
+            
+            if (ignoreCase) {
+                items = items.map(item => item.toLowerCase());
+            }
+            
+            const frequency = {};
+            items.forEach(item => {
+                frequency[item] = (frequency[item] || 0) + 1;
+            });
+            
+            const sortedItems = Object.entries(frequency)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 50); // 上位50件のみ表示
+            
+            const tbody = document.getElementById('frequencyTableBody');
+            tbody.innerHTML = '';
+            
+            if (sortedItems.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #666;">データがありません</td></tr>';
+                return;
+            }
+            
+            const maxCount = sortedItems[0][1];
+            
+            sortedItems.forEach(([item, count]) => {
+                const percentage = ((count / items.length) * 100).toFixed(1);
+                const barWidth = (count / maxCount) * 100;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item === ' ' ? '(空白)' : item}</td>
+                    <td>${count}</td>
+                    <td>${percentage}%</td>
+                    <td>
+                        <div style="position: relative; width: 100px;">
+                            <div class="frequency-bar" style="width: ${barWidth}%"></div>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateReadability(data) {
+            // 簡易的な読みやすさ指標（日本語対応）
+            const avgSentenceLength = parseFloat(data.avgSentenceLength);
+            const avgWordLength = parseFloat(data.avgWordLength);
+            
+            // 読みやすさスコア（100点満点、低いほど読みやすい）
+            let score = 0;
+            let level = '';
+            let target = '';
+            
+            if (avgSentenceLength > 0) {
+                score = (avgSentenceLength * 0.5) + (avgWordLength * 2) + (data.kanjiCount / data.charCount * 30);
+                
+                if (score < 10) {
+                    level = '非常に読みやすい';
+                    target = '小学生レベル';
+                } else if (score < 20) {
+                    level = '読みやすい';
+                    target = '中学生レベル';
+                } else if (score < 30) {
+                    level = '普通';
+                    target = '高校生レベル';
+                } else if (score < 40) {
+                    level = 'やや難しい';
+                    target = '大学生レベル';
+                } else {
+                    level = '難しい';
+                    target = '専門家レベル';
+                }
+            } else {
+                score = 0;
+                level = 'データ不足';
+                target = '-';
+            }
+            
+            document.getElementById('readabilityScore').textContent = score.toFixed(1);
+            document.getElementById('readabilityLevel').textContent = level;
+            
+            const details = document.getElementById('readabilityDetails');
+            details.innerHTML = `
+                <li>・文の平均長さ: ${avgSentenceLength}文字</li>
+                <li>・平均単語長: ${avgWordLength}文字</li>
+                <li>・漢字の割合: ${((data.kanjiCount / data.charCount) * 100).toFixed(1)}%</li>
+                <li>・読書レベル: ${level}</li>
+                <li>・推奨対象: ${target}</li>
+            `;
+        }
+
+        function clearStats() {
+            const elements = [
+                'charCount', 'charCountNoSpaces', 'wordCount', 'lineCount', 'paragraphCount', 'sentenceCount',
+                'hiraganaCount', 'katakanaCount', 'kanjiCount', 'alphabetCount', 'numberCount', 'symbolCount',
+                'readingTime', 'avgWordLength', 'avgSentenceLength', 'uniqueWords',
+                'byteSize', 'kbSize', 'charDensity', 'lexicalDiversity', 'compressionRatio'
+            ];
+            
+            elements.forEach(id => {
+                document.getElementById(id).textContent = '0';
+            });
+            
+            document.getElementById('longestWord').textContent = '-';
+            document.getElementById('shortestWord').textContent = '-';
+            document.getElementById('readabilityScore').textContent = '-';
+            document.getElementById('readabilityLevel').textContent = 'テキストを入力してください';
+            
+            document.getElementById('frequencyTableBody').innerHTML = 
+                '<tr><td colspan="4" style="text-align: center; color: #666;">テキストを入力してください</td></tr>';
+        }
+
+        function exportReport() {
+            if (!currentText) {
+                alert('分析するテキストを入力してください');
+                return;
+            }
+            
+            const report = generateReport(analysisData);
+            const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `text_analysis_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function generateReport(data) {
+            const timestamp = new Date().toLocaleString();
+            return `テキスト統計分析レポート
+生成日時: ${timestamp}
+
+=== 基本統計 ===
+文字数: ${data.charCount}
+文字数（空白除く）: ${data.charCountNoSpaces}
+単語数: ${data.wordCount}
+行数: ${data.lineCount}
+段落数: ${data.paragraphCount}
+文数: ${data.sentenceCount}
+
+=== 文字種別統計 ===
+ひらがな: ${data.hiraganaCount}
+カタカナ: ${data.katakanaCount}
+漢字: ${data.kanjiCount}
+英字: ${data.alphabetCount}
+数字: ${data.numberCount}
+記号: ${data.symbolCount}
+
+=== 読書時間・平均値 ===
+読書時間: ${data.readingTime}分
+平均単語長: ${data.avgWordLength}文字
+平均文長: ${data.avgSentenceLength}文字
+最長単語: ${data.longestWord}
+最短単語: ${data.shortestWord}
+ユニーク単語数: ${data.uniqueWords}
+
+=== ファイル情報 ===
+バイト数: ${data.byteSize}
+KB: ${data.kbSize}
+文字密度: ${data.charDensity}%
+語彙の豊富さ: ${data.lexicalDiversity}%
+圧縮率予測: ${data.compressionRatio}%
+
+=== 読みやすさ指標 ===
+スコア: ${document.getElementById('readabilityScore').textContent}
+レベル: ${document.getElementById('readabilityLevel').textContent}
+`;
+        }
+
+        function loadSampleText() {
+            const sampleText = `日本語のテキスト統計分析ツールのサンプル文章です。
+
+このツールは、入力されたテキストの様々な統計情報を分析し、読みやすさの指標を提供します。文字数、単語数、行数などの基本的な統計から、ひらがな、カタカナ、漢字、英字の分布まで詳細に分析できます。
+
+また、文字や単語の頻度分析により、テキストの特徴を把握することができます。読みやすさの指標では、文章の複雑さを数値化し、適切な読者層を判定します。
+
+このような機能により、文章の品質向上や、ターゲット読者に適した文章作成に役立てることができます。`;
+            
+            document.getElementById('textInput').value = sampleText;
+            analyzeText();
+        }
+
+        function clearAll() {
+            document.getElementById('textInput').value = '';
+            currentText = '';
+            analysisData = {};
+            clearStats();
+        }
+
+        // 初期設定
+        loadSampleText();
+    </script>
+</body>
+</html>

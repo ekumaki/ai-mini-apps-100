@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSVエディタ - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .csv-editor {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .controls-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .control-input {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .control-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .control-btn.secondary {
+            background: #28a745;
+        }
+
+        .control-btn.secondary:hover {
+            background: #218838;
+        }
+
+        .control-btn.danger {
+            background: #dc3545;
+        }
+
+        .control-btn.danger:hover {
+            background: #c82333;
+        }
+
+        .control-btn.warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .control-btn.warning:hover {
+            background: #e0a800;
+        }
+
+        .editor-modes {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .mode-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .mode-btn:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        .editor-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .editor-section.table-only {
+            grid-template-columns: 1fr;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .csv-input {
+            width: 100%;
+            min-height: 400px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .csv-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .csv-input.error {
+            border-color: #dc3545;
+        }
+
+        .table-container {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .csv-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .csv-table th,
+        .csv-table td {
+            border: 1px solid #e9ecef;
+            padding: 8px 12px;
+            text-align: left;
+            min-width: 100px;
+        }
+
+        .csv-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .csv-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .csv-table tr:hover {
+            background: #e9ecef;
+        }
+
+        .editable-cell {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 3px;
+            padding: 4px 8px;
+            font-family: inherit;
+            font-size: inherit;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .editable-cell:focus {
+            outline: none;
+            border-color: #5a6fd8;
+        }
+
+        .stats-section {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #155724;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .success-message {
+            color: #28a745;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .editor-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .controls-group {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="csv-editor">
+        <div class="header">
+            <h1>CSVエディタ</h1>
+            <p>CSVデータの編集・変換・管理</p>
+        </div>
+
+        <div class="controls">
+            <div class="editor-modes">
+                <button class="mode-btn active" onclick="setMode('split')">分割表示</button>
+                <button class="mode-btn" onclick="setMode('table')">テーブルのみ</button>
+            </div>
+
+            <div class="controls-row">
+                <div class="controls-group">
+                    <label for="delimiter">区切り文字:</label>
+                    <select id="delimiter" class="control-input" onchange="parseCSV()">
+                        <option value=",">カンマ (,)</option>
+                        <option value=";">セミコロン (;)</option>
+                        <option value="\t">タブ</option>
+                        <option value="|">パイプ (|)</option>
+                    </select>
+                </div>
+                <div class="controls-group">
+                    <label for="quote">引用符:</label>
+                    <select id="quote" class="control-input" onchange="parseCSV()">
+                        <option value='"'>ダブルクォート (")</option>
+                        <option value="'">シングルクォート (')</option>
+                        <option value="">なし</option>
+                    </select>
+                </div>
+                <div class="controls-group">
+                    <input type="checkbox" id="hasHeader" checked onchange="parseCSV()">
+                    <label for="hasHeader">ヘッダー行あり</label>
+                </div>
+            </div>
+
+            <div class="controls-row">
+                <div class="controls-group">
+                    <button class="control-btn" onclick="addRow()">行追加</button>
+                    <button class="control-btn" onclick="addColumn()">列追加</button>
+                    <button class="control-btn warning" onclick="removeRow()">行削除</button>
+                    <button class="control-btn warning" onclick="removeColumn()">列削除</button>
+                </div>
+                <div class="controls-group">
+                    <button class="control-btn secondary" onclick="exportCSV()">CSV出力</button>
+                    <button class="control-btn secondary" onclick="exportJSON()">JSON出力</button>
+                    <button class="control-btn secondary" onclick="loadSample()">サンプル</button>
+                    <button class="control-btn danger" onclick="clearAll()">クリア</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="editor-section" id="editorSection">
+            <div class="input-group">
+                <label for="csvInput">CSV入力</label>
+                <textarea 
+                    id="csvInput" 
+                    class="csv-input" 
+                    placeholder="CSVデータを入力してください..."
+                    oninput="parseCSV()"
+                ></textarea>
+                <div id="inputMessage"></div>
+            </div>
+            <div class="input-group">
+                <label for="tableView">テーブル表示</label>
+                <div class="table-container">
+                    <table id="csvTable" class="csv-table">
+                        <thead id="tableHeader"></thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="rowCount">0</div>
+                    <div class="stat-label">行数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="columnCount">0</div>
+                    <div class="stat-label">列数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="cellCount">0</div>
+                    <div class="stat-label">セル数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="fileSize">0</div>
+                    <div class="stat-label">ファイルサイズ (KB)</div>
+                </div>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        let csvData = [];
+        let hasHeader = true;
+        let currentMode = 'split';
+
+        function setMode(mode) {
+            currentMode = mode;
+            const editorSection = document.getElementById('editorSection');
+            
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (mode === 'table') {
+                editorSection.className = 'editor-section table-only';
+            } else {
+                editorSection.className = 'editor-section';
+            }
+        }
+
+        function parseCSV() {
+            const input = document.getElementById('csvInput').value;
+            const delimiter = document.getElementById('delimiter').value;
+            const quote = document.getElementById('quote').value;
+            hasHeader = document.getElementById('hasHeader').checked;
+            
+            if (!input.trim()) {
+                csvData = [];
+                updateTable();
+                updateStats();
+                return;
+            }
+            
+            try {
+                csvData = parseCSVString(input, delimiter, quote);
+                updateTable();
+                updateStats();
+                showMessage('CSVが正常に解析されました', 'success');
+            } catch (error) {
+                showMessage('CSVの解析に失敗しました: ' + error.message, 'error');
+            }
+        }
+
+        function parseCSVString(str, delimiter, quote) {
+            const rows = [];
+            const lines = str.split('\n');
+            
+            for (let line of lines) {
+                if (line.trim() === '') continue;
+                
+                const row = [];
+                let current = '';
+                let inQuotes = false;
+                let i = 0;
+                
+                while (i < line.length) {
+                    const char = line[i];
+                    
+                    if (char === quote && quote !== '') {
+                        if (inQuotes && line[i + 1] === quote) {
+                            current += quote;
+                            i += 2;
+                        } else {
+                            inQuotes = !inQuotes;
+                            i++;
+                        }
+                    } else if (char === delimiter && !inQuotes) {
+                        row.push(current);
+                        current = '';
+                        i++;
+                    } else {
+                        current += char;
+                        i++;
+                    }
+                }
+                
+                row.push(current);
+                rows.push(row);
+            }
+            
+            return rows;
+        }
+
+        function updateTable() {
+            const table = document.getElementById('csvTable');
+            const header = document.getElementById('tableHeader');
+            const body = document.getElementById('tableBody');
+            
+            header.innerHTML = '';
+            body.innerHTML = '';
+            
+            if (csvData.length === 0) {
+                return;
+            }
+            
+            const maxColumns = Math.max(...csvData.map(row => row.length));
+            
+            // ヘッダー行の作成
+            if (hasHeader && csvData.length > 0) {
+                const headerRow = document.createElement('tr');
+                for (let i = 0; i < maxColumns; i++) {
+                    const th = document.createElement('th');
+                    th.textContent = csvData[0][i] || `列${i + 1}`;
+                    headerRow.appendChild(th);
+                }
+                header.appendChild(headerRow);
+            } else {
+                const headerRow = document.createElement('tr');
+                for (let i = 0; i < maxColumns; i++) {
+                    const th = document.createElement('th');
+                    th.textContent = `列${i + 1}`;
+                    headerRow.appendChild(th);
+                }
+                header.appendChild(headerRow);
+            }
+            
+            // データ行の作成
+            const startRow = hasHeader ? 1 : 0;
+            for (let i = startRow; i < csvData.length; i++) {
+                const row = document.createElement('tr');
+                for (let j = 0; j < maxColumns; j++) {
+                    const td = document.createElement('td');
+                    const value = csvData[i][j] || '';
+                    
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'editable-cell';
+                    input.value = value;
+                    input.onchange = () => updateCell(i, j, input.value);
+                    
+                    td.appendChild(input);
+                    row.appendChild(td);
+                }
+                body.appendChild(row);
+            }
+        }
+
+        function updateCell(row, col, value) {
+            if (!csvData[row]) {
+                csvData[row] = [];
+            }
+            csvData[row][col] = value;
+            generateCSVString();
+        }
+
+        function generateCSVString() {
+            const delimiter = document.getElementById('delimiter').value;
+            const quote = document.getElementById('quote').value;
+            
+            const lines = csvData.map(row => {
+                return row.map(cell => {
+                    const cellStr = String(cell || '');
+                    if (quote && (cellStr.includes(delimiter) || cellStr.includes(quote) || cellStr.includes('\n'))) {
+                        return quote + cellStr.replace(new RegExp(quote, 'g'), quote + quote) + quote;
+                    }
+                    return cellStr;
+                }).join(delimiter);
+            });
+            
+            document.getElementById('csvInput').value = lines.join('\n');
+            updateStats();
+        }
+
+        function addRow() {
+            const maxColumns = csvData.length > 0 ? Math.max(...csvData.map(row => row.length)) : 1;
+            csvData.push(new Array(maxColumns).fill(''));
+            updateTable();
+            generateCSVString();
+        }
+
+        function addColumn() {
+            if (csvData.length === 0) {
+                csvData.push(['']);
+            } else {
+                csvData.forEach(row => row.push(''));
+            }
+            updateTable();
+            generateCSVString();
+        }
+
+        function removeRow() {
+            if (csvData.length > 0) {
+                csvData.pop();
+                updateTable();
+                generateCSVString();
+            }
+        }
+
+        function removeColumn() {
+            if (csvData.length > 0) {
+                csvData.forEach(row => row.pop());
+                updateTable();
+                generateCSVString();
+            }
+        }
+
+        function updateStats() {
+            const input = document.getElementById('csvInput').value;
+            const rows = csvData.length;
+            const columns = rows > 0 ? Math.max(...csvData.map(row => row.length)) : 0;
+            const cells = rows * columns;
+            const sizeKB = Math.round(new TextEncoder().encode(input).length / 1024 * 100) / 100;
+            
+            document.getElementById('rowCount').textContent = rows;
+            document.getElementById('columnCount').textContent = columns;
+            document.getElementById('cellCount').textContent = cells;
+            document.getElementById('fileSize').textContent = sizeKB;
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('inputMessage');
+            messageDiv.textContent = message;
+            messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
+            
+            setTimeout(() => {
+                messageDiv.textContent = '';
+                messageDiv.className = '';
+            }, 3000);
+        }
+
+        function exportCSV() {
+            const input = document.getElementById('csvInput').value;
+            if (!input.trim()) {
+                alert('CSVデータがありません');
+                return;
+            }
+            
+            const blob = new Blob([input], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `csv_export_${Date.now()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportJSON() {
+            if (csvData.length === 0) {
+                alert('CSVデータがありません');
+                return;
+            }
+            
+            let jsonData;
+            if (hasHeader && csvData.length > 1) {
+                const headers = csvData[0];
+                jsonData = csvData.slice(1).map(row => {
+                    const obj = {};
+                    headers.forEach((header, index) => {
+                        obj[header] = row[index] || '';
+                    });
+                    return obj;
+                });
+            } else {
+                jsonData = csvData;
+            }
+            
+            const jsonString = JSON.stringify(jsonData, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `csv_export_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function loadSample() {
+            const sampleCSV = `名前,年齢,職業,都市
+田中太郎,28,エンジニア,東京
+佐藤花子,32,デザイナー,大阪
+山田次郎,25,営業,福岡
+鈴木一郎,35,マネージャー,札幌
+高橋美咲,29,マーケター,名古屋`;
+            
+            document.getElementById('csvInput').value = sampleCSV;
+            parseCSV();
+        }
+
+        function clearAll() {
+            document.getElementById('csvInput').value = '';
+            csvData = [];
+            updateTable();
+            updateStats();
+        }
+
+        // 初期設定
+        loadSample();
+    </script>
+</body>
+</html>

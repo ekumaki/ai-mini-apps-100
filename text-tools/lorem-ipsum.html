@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lorem Ipsum生成 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .lorem-generator {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .control-input {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .control-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .text-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .type-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .type-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .type-btn:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        .options {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .option-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .option-item label {
+            color: #333;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.secondary {
+            background: #28a745;
+        }
+
+        .action-btn.secondary:hover {
+            background: #218838;
+        }
+
+        .action-btn.danger {
+            background: #dc3545;
+        }
+
+        .action-btn.danger:hover {
+            background: #c82333;
+        }
+
+        .result-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .result-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .result-stats {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .result-output {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 300px;
+            line-height: 1.6;
+            font-size: 14px;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+
+        .result-output.placeholder {
+            color: #666;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .language-samples {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .samples-title {
+            font-weight: 600;
+            color: #155724;
+            margin-bottom: 15px;
+        }
+
+        .samples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .sample-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sample-item:hover {
+            background: #d4edda;
+        }
+
+        .sample-name {
+            font-weight: bold;
+            color: #155724;
+            margin-bottom: 5px;
+        }
+
+        .sample-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .sample-preview {
+            color: #333;
+            font-size: 0.8rem;
+            font-style: italic;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .format-options {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .format-title {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .format-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .format-btn {
+            background: white;
+            border: 2px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .format-btn:hover {
+            background: #ffeaa7;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .text-type-selector {
+                flex-direction: column;
+            }
+            
+            .options {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="lorem-generator">
+        <div class="header">
+            <h1>Lorem Ipsum生成</h1>
+            <p>様々な言語のダミーテキストを生成</p>
+        </div>
+
+        <div class="controls">
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label for="textCount">生成数量</label>
+                    <input type="number" id="textCount" class="control-input" value="5" min="1" max="50">
+                </div>
+                <div class="control-group">
+                    <label for="textUnit">単位</label>
+                    <select id="textUnit" class="control-input">
+                        <option value="paragraphs">段落</option>
+                        <option value="sentences">文</option>
+                        <option value="words">単語</option>
+                        <option value="characters">文字</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="language">言語</label>
+                    <select id="language" class="control-input">
+                        <option value="latin">ラテン語 (Lorem Ipsum)</option>
+                        <option value="japanese">日本語</option>
+                        <option value="english">英語</option>
+                        <option value="chinese">中国語</option>
+                        <option value="korean">韓国語</option>
+                        <option value="spanish">スペイン語</option>
+                        <option value="french">フランス語</option>
+                        <option value="german">ドイツ語</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="startWith">開始文字</label>
+                    <select id="startWith" class="control-input">
+                        <option value="default">デフォルト</option>
+                        <option value="lorem">Lorem ipsum...</option>
+                        <option value="random">ランダム</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="options">
+                <div class="option-item">
+                    <input type="checkbox" id="includeHtml">
+                    <label for="includeHtml">HTMLタグを含める</label>
+                </div>
+                <div class="option-item">
+                    <input type="checkbox" id="includeNumbers">
+                    <label for="includeNumbers">数字を含める</label>
+                </div>
+                <div class="option-item">
+                    <input type="checkbox" id="includeSpecialChars">
+                    <label for="includeSpecialChars">特殊文字を含める</label>
+                </div>
+                <div class="option-item">
+                    <input type="checkbox" id="capitalizeFirst" checked>
+                    <label for="capitalizeFirst">先頭文字を大文字にする</label>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn" onclick="generateText()">テキスト生成</button>
+                <button class="action-btn secondary" onclick="copyResult()">コピー</button>
+                <button class="action-btn secondary" onclick="downloadResult()">ダウンロード</button>
+                <button class="action-btn danger" onclick="clearResult()">クリア</button>
+            </div>
+        </div>
+
+        <div class="result-section">
+            <div class="result-header">
+                <div class="result-title">生成結果</div>
+                <div class="result-stats" id="resultStats">0文字, 0単語, 0段落</div>
+            </div>
+            <div class="result-output placeholder" id="resultOutput">
+                生成されたテキストがここに表示されます
+            </div>
+        </div>
+
+        <div class="format-options">
+            <div class="format-title">クイック出力フォーマット</div>
+            <div class="format-buttons">
+                <button class="format-btn" onclick="formatOutput('html')">HTMLとして出力</button>
+                <button class="format-btn" onclick="formatOutput('markdown')">Markdownとして出力</button>
+                <button class="format-btn" onclick="formatOutput('json')">JSONとして出力</button>
+                <button class="format-btn" onclick="formatOutput('csv')">CSVとして出力</button>
+            </div>
+        </div>
+
+        <div class="language-samples">
+            <div class="samples-title">サンプルテキスト</div>
+            <div class="samples-grid">
+                <div class="sample-item" onclick="loadSample('classic')">
+                    <div class="sample-name">Classic Lorem</div>
+                    <div class="sample-description">伝統的なLorem Ipsum</div>
+                    <div class="sample-preview">Lorem ipsum dolor sit amet...</div>
+                </div>
+                <div class="sample-item" onclick="loadSample('short')">
+                    <div class="sample-name">Short Text</div>
+                    <div class="sample-description">短いダミーテキスト</div>
+                    <div class="sample-preview">Lorem ipsum dolor...</div>
+                </div>
+                <div class="sample-item" onclick="loadSample('japanese')">
+                    <div class="sample-name">Japanese Sample</div>
+                    <div class="sample-description">日本語のサンプル</div>
+                    <div class="sample-preview">これは日本語のサンプルテキストです...</div>
+                </div>
+                <div class="sample-item" onclick="loadSample('tech')">
+                    <div class="sample-name">Tech Lorem</div>
+                    <div class="sample-description">技術系のダミーテキスト</div>
+                    <div class="sample-preview">System.out.println("Hello World")...</div>
+                </div>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        const textTemplates = {
+            latin: {
+                words: ['lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit', 'sed', 'do', 'eiusmod', 'tempor', 'incididunt', 'ut', 'labore', 'et', 'dolore', 'magna', 'aliqua', 'enim', 'ad', 'minim', 'veniam', 'quis', 'nostrud', 'exercitation', 'ullamco', 'laboris', 'nisi', 'aliquip', 'ex', 'ea', 'commodo', 'consequat', 'duis', 'aute', 'irure', 'in', 'reprehenderit', 'voluptate', 'velit', 'esse', 'cillum', 'fugiat', 'nulla', 'pariatur', 'excepteur', 'sint', 'occaecat', 'cupidatat', 'non', 'proident', 'sunt', 'culpa', 'qui', 'officia', 'deserunt', 'mollit', 'anim', 'id', 'est', 'laborum'],
+                sentences: [
+                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+                    'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+                    'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.',
+                    'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum.',
+                    'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+                ]
+            },
+            japanese: {
+                words: ['これは', '日本語の', 'サンプル', 'テキスト', 'です', 'ダミー', '文章', '生成', 'ツール', 'として', '使用', 'できます', 'レイアウト', 'デザイン', 'テスト', '用途', '開発', 'プロジェクト', 'ウェブサイト', 'アプリケーション', 'システム', 'プログラム', 'コード', 'データベース', 'インターフェース', 'ユーザー', 'エクスペリエンス', '機能', '実装', 'バージョン'],
+                sentences: [
+                    'これは日本語のサンプルテキストです。',
+                    'ダミー文章として使用することができます。',
+                    'レイアウトやデザインのテストに最適です。',
+                    'ウェブサイトやアプリケーションの開発に役立ちます。',
+                    'システムのプロトタイプ作成時に便利です。'
+                ]
+            },
+            english: {
+                words: ['the', 'quick', 'brown', 'fox', 'jumps', 'over', 'lazy', 'dog', 'sample', 'text', 'dummy', 'content', 'placeholder', 'design', 'layout', 'website', 'application', 'development', 'project', 'system', 'program', 'code', 'database', 'interface', 'user', 'experience', 'feature', 'implementation', 'version', 'testing'],
+                sentences: [
+                    'The quick brown fox jumps over the lazy dog.',
+                    'This is a sample text for testing purposes.',
+                    'It can be used as dummy content for layouts.',
+                    'Perfect for website and application development.',
+                    'Useful for system prototype creation.'
+                ]
+            },
+            chinese: {
+                words: ['这是', '中文', '样本', '文本', '虚拟', '内容', '测试', '用途', '网站', '应用', '开发', '项目', '系统', '程序', '代码', '数据库', '界面', '用户', '体验', '功能', '实现', '版本', '设计', '布局', '原型', '创建', '有用', '完美', '目的', '可以'],
+                sentences: [
+                    '这是中文样本文本。',
+                    '它可以用作测试用途的虚拟内容。',
+                    '完美适用于网站和应用开发。',
+                    '对系统原型创建很有用。',
+                    '可以用于设计和布局测试。'
+                ]
+            },
+            korean: {
+                words: ['이것은', '한국어', '샘플', '텍스트', '입니다', '더미', '콘텐츠', '테스트', '목적', '웹사이트', '애플리케이션', '개발', '프로젝트', '시스템', '프로그램', '코드', '데이터베이스', '인터페이스', '사용자', '경험', '기능', '구현', '버전', '디자인', '레이아웃', '프로토타입', '생성', '유용', '완벽', '사용'],
+                sentences: [
+                    '이것은 한국어 샘플 텍스트입니다.',
+                    '테스트 목적으로 더미 콘텐츠로 사용할 수 있습니다.',
+                    '웹사이트와 애플리케이션 개발에 완벽합니다.',
+                    '시스템 프로토타입 생성에 유용합니다.',
+                    '디자인과 레이아웃 테스트에 사용할 수 있습니다.'
+                ]
+            },
+            spanish: {
+                words: ['esto', 'es', 'texto', 'muestra', 'español', 'contenido', 'ficticio', 'propósito', 'prueba', 'sitio', 'web', 'aplicación', 'desarrollo', 'proyecto', 'sistema', 'programa', 'código', 'base', 'datos', 'interfaz', 'usuario', 'experiencia', 'función', 'implementación', 'versión', 'diseño', 'diseño', 'prototipo', 'creación', 'útil'],
+                sentences: [
+                    'Esto es un texto de muestra en español.',
+                    'Se puede usar como contenido ficticio para propósitos de prueba.',
+                    'Perfecto para desarrollo de sitios web y aplicaciones.',
+                    'Útil para la creación de prototipos de sistemas.',
+                    'Puede ser usado para pruebas de diseño y diseño.'
+                ]
+            },
+            french: {
+                words: ['ceci', 'est', 'texte', 'échantillon', 'français', 'contenu', 'factice', 'but', 'test', 'site', 'web', 'application', 'développement', 'projet', 'système', 'programme', 'code', 'base', 'données', 'interface', 'utilisateur', 'expérience', 'fonction', 'mise', 'œuvre', 'version', 'conception', 'mise', 'page', 'prototype'],
+                sentences: [
+                    'Ceci est un texte échantillon en français.',
+                    'Il peut être utilisé comme contenu factice à des fins de test.',
+                    'Parfait pour le développement de sites web et d\'applications.',
+                    'Utile pour la création de prototypes de systèmes.',
+                    'Peut être utilisé pour les tests de conception et de mise en page.'
+                ]
+            },
+            german: {
+                words: ['dies', 'ist', 'text', 'probe', 'deutsch', 'inhalt', 'dummy', 'zweck', 'test', 'webseite', 'anwendung', 'entwicklung', 'projekt', 'system', 'programm', 'code', 'datenbank', 'schnittstelle', 'benutzer', 'erfahrung', 'funktion', 'implementierung', 'version', 'design', 'layout', 'prototyp', 'erstellung', 'nützlich', 'perfekt', 'verwendet'],
+                sentences: [
+                    'Dies ist ein Probetext auf Deutsch.',
+                    'Er kann als Dummy-Inhalt für Testzwecke verwendet werden.',
+                    'Perfekt für die Entwicklung von Webseiten und Anwendungen.',
+                    'Nützlich für die Erstellung von Systemprototypen.',
+                    'Kann für Design- und Layout-Tests verwendet werden.'
+                ]
+            }
+        };
+
+        function generateText() {
+            const count = parseInt(document.getElementById('textCount').value);
+            const unit = document.getElementById('textUnit').value;
+            const language = document.getElementById('language').value;
+            const startWith = document.getElementById('startWith').value;
+            
+            const includeHtml = document.getElementById('includeHtml').checked;
+            const includeNumbers = document.getElementById('includeNumbers').checked;
+            const includeSpecialChars = document.getElementById('includeSpecialChars').checked;
+            const capitalizeFirst = document.getElementById('capitalizeFirst').checked;
+            
+            let result = '';
+            
+            switch (unit) {
+                case 'paragraphs':
+                    result = generateParagraphs(count, language, startWith, includeHtml, capitalizeFirst);
+                    break;
+                case 'sentences':
+                    result = generateSentences(count, language, startWith, capitalizeFirst);
+                    break;
+                case 'words':
+                    result = generateWords(count, language, includeNumbers, includeSpecialChars);
+                    break;
+                case 'characters':
+                    result = generateCharacters(count, language);
+                    break;
+            }
+            
+            displayResult(result);
+        }
+
+        function generateParagraphs(count, language, startWith, includeHtml, capitalizeFirst) {
+            const paragraphs = [];
+            
+            for (let i = 0; i < count; i++) {
+                const sentenceCount = Math.floor(Math.random() * 5) + 3; // 3-7 sentences per paragraph
+                const sentences = generateSentences(sentenceCount, language, i === 0 ? startWith : 'random', capitalizeFirst);
+                
+                let paragraph = sentences;
+                
+                if (includeHtml) {
+                    const tags = ['<strong>', '<em>', '<span>', '<code>'];
+                    const closeTags = ['</strong>', '</em>', '</span>', '</code>'];
+                    
+                    // ランダムにHTMLタグを挿入
+                    if (Math.random() < 0.3) {
+                        const tagIndex = Math.floor(Math.random() * tags.length);
+                        const words = paragraph.split(' ');
+                        const insertIndex = Math.floor(Math.random() * words.length);
+                        words[insertIndex] = tags[tagIndex] + words[insertIndex];
+                        if (insertIndex + 1 < words.length) {
+                            words[insertIndex + 1] = words[insertIndex + 1] + closeTags[tagIndex];
+                        }
+                        paragraph = words.join(' ');
+                    }
+                }
+                
+                paragraphs.push(paragraph);
+            }
+            
+            return paragraphs.join('\n\n');
+        }
+
+        function generateSentences(count, language, startWith, capitalizeFirst) {
+            const template = textTemplates[language];
+            const sentences = [];
+            
+            for (let i = 0; i < count; i++) {
+                let sentence = '';
+                
+                if (i === 0 && startWith === 'lorem' && language === 'latin') {
+                    sentence = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+                } else if (i === 0 && startWith === 'default' && template.sentences && template.sentences.length > 0) {
+                    sentence = template.sentences[Math.floor(Math.random() * template.sentences.length)];
+                } else {
+                    // ランダムな文を生成
+                    const wordCount = Math.floor(Math.random() * 10) + 5; // 5-14 words per sentence
+                    const words = [];
+                    
+                    for (let j = 0; j < wordCount; j++) {
+                        const randomWord = template.words[Math.floor(Math.random() * template.words.length)];
+                        words.push(randomWord);
+                    }
+                    
+                    sentence = words.join(' ') + '.';
+                }
+                
+                if (capitalizeFirst && sentence.length > 0) {
+                    sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1);
+                }
+                
+                sentences.push(sentence);
+            }
+            
+            return sentences.join(' ');
+        }
+
+        function generateWords(count, language, includeNumbers, includeSpecialChars) {
+            const template = textTemplates[language];
+            const words = [];
+            
+            for (let i = 0; i < count; i++) {
+                let word = template.words[Math.floor(Math.random() * template.words.length)];
+                
+                if (includeNumbers && Math.random() < 0.1) {
+                    word += Math.floor(Math.random() * 100);
+                }
+                
+                if (includeSpecialChars && Math.random() < 0.05) {
+                    const specialChars = ['!', '@', '#', '$', '%', '&', '*'];
+                    word += specialChars[Math.floor(Math.random() * specialChars.length)];
+                }
+                
+                words.push(word);
+            }
+            
+            return words.join(' ');
+        }
+
+        function generateCharacters(count, language) {
+            const template = textTemplates[language];
+            const allText = template.words.join('');
+            let result = '';
+            
+            for (let i = 0; i < count; i++) {
+                result += allText.charAt(Math.floor(Math.random() * allText.length));
+            }
+            
+            return result;
+        }
+
+        function displayResult(text) {
+            const resultOutput = document.getElementById('resultOutput');
+            resultOutput.textContent = text;
+            resultOutput.classList.remove('placeholder');
+            
+            updateStats(text);
+        }
+
+        function updateStats(text) {
+            const charCount = text.length;
+            const wordCount = text.trim().split(/\s+/).length;
+            const paragraphCount = text.split(/\n\s*\n/).filter(p => p.trim()).length;
+            
+            document.getElementById('resultStats').textContent = 
+                `${charCount}文字, ${wordCount}単語, ${paragraphCount}段落`;
+        }
+
+        function copyResult() {
+            const resultOutput = document.getElementById('resultOutput');
+            const text = resultOutput.textContent;
+            
+            if (!text || text === '生成されたテキストがここに表示されます') {
+                alert('コピーするテキストがありません');
+                return;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('テキストがクリップボードにコピーされました！');
+            }).catch(err => {
+                console.error('コピーに失敗しました:', err);
+                alert('コピーに失敗しました');
+            });
+        }
+
+        function downloadResult() {
+            const resultOutput = document.getElementById('resultOutput');
+            const text = resultOutput.textContent;
+            
+            if (!text || text === '生成されたテキストがここに表示されます') {
+                alert('ダウンロードするテキストがありません');
+                return;
+            }
+            
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `lorem_ipsum_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function clearResult() {
+            const resultOutput = document.getElementById('resultOutput');
+            resultOutput.textContent = '生成されたテキストがここに表示されます';
+            resultOutput.classList.add('placeholder');
+            document.getElementById('resultStats').textContent = '0文字, 0単語, 0段落';
+        }
+
+        function formatOutput(format) {
+            const resultOutput = document.getElementById('resultOutput');
+            const text = resultOutput.textContent;
+            
+            if (!text || text === '生成されたテキストがここに表示されます') {
+                alert('フォーマットするテキストがありません');
+                return;
+            }
+            
+            let formattedText = '';
+            const paragraphs = text.split('\n\n');
+            
+            switch (format) {
+                case 'html':
+                    formattedText = paragraphs.map(p => `<p>${p}</p>`).join('\n');
+                    break;
+                case 'markdown':
+                    formattedText = paragraphs.map(p => `${p}\n`).join('\n');
+                    break;
+                case 'json':
+                    formattedText = JSON.stringify({ paragraphs: paragraphs }, null, 2);
+                    break;
+                case 'csv':
+                    formattedText = 'paragraph,text\n' + paragraphs.map((p, i) => `${i+1},"${p.replace(/"/g, '""')}"`).join('\n');
+                    break;
+            }
+            
+            const blob = new Blob([formattedText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `lorem_ipsum_${format}_${Date.now()}.${format === 'json' ? 'json' : format === 'csv' ? 'csv' : 'txt'}`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function loadSample(type) {
+            const samples = {
+                classic: {
+                    count: 3,
+                    unit: 'paragraphs',
+                    language: 'latin',
+                    startWith: 'lorem'
+                },
+                short: {
+                    count: 50,
+                    unit: 'words',
+                    language: 'latin',
+                    startWith: 'random'
+                },
+                japanese: {
+                    count: 2,
+                    unit: 'paragraphs',
+                    language: 'japanese',
+                    startWith: 'default'
+                },
+                tech: {
+                    count: 100,
+                    unit: 'words',
+                    language: 'english',
+                    startWith: 'random'
+                }
+            };
+            
+            const sample = samples[type];
+            document.getElementById('textCount').value = sample.count;
+            document.getElementById('textUnit').value = sample.unit;
+            document.getElementById('language').value = sample.language;
+            document.getElementById('startWith').value = sample.startWith;
+            
+            generateText();
+        }
+
+        // 初期設定
+        document.addEventListener('DOMContentLoaded', function() {
+            generateText();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ハッシュ値生成ツール - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .hash-generator {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-modes {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .mode-btn:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        .text-input {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-wrapper:hover {
+            background: #5a6fd8;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-info {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #155724;
+        }
+
+        .generate-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .generate-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .generate-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .results-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .results-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .hash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .hash-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .hash-type {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hash-value {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #e9ecef;
+        }
+
+        .hash-actions {
+            display: flex;
+            gap: 5px;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #218838;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .stats-section {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #155724;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .algorithm-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .algorithm-title {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .algorithm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .algorithm-item {
+            background: white;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .algorithm-name {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 5px;
+        }
+
+        .algorithm-desc {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .algorithm-size {
+            color: #856404;
+            font-size: 0.8rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .hash-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-modes {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hash-generator">
+        <div class="header">
+            <h1>ハッシュ値生成ツール</h1>
+            <p>テキストやファイルからハッシュ値を生成</p>
+        </div>
+
+        <div class="input-section">
+            <div class="input-modes">
+                <button class="mode-btn active" onclick="switchMode('text')">テキスト入力</button>
+                <button class="mode-btn" onclick="switchMode('file')">ファイル入力</button>
+            </div>
+
+            <div id="textMode">
+                <textarea 
+                    id="textInput" 
+                    class="text-input" 
+                    placeholder="ハッシュ値を生成したいテキストを入力してください..."
+                    oninput="updateStats()"
+                ></textarea>
+            </div>
+
+            <div id="fileMode" style="display: none;">
+                <div class="file-input-wrapper">
+                    <input type="file" id="fileInput" onchange="handleFileSelect(this)">
+                    ファイルを選択
+                </div>
+                <div id="fileInfo" class="file-info" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="generate-section">
+            <button class="generate-btn" onclick="generateHashes()">ハッシュ値生成</button>
+        </div>
+
+        <div class="results-section">
+            <div class="results-title">ハッシュ値結果</div>
+            <div class="hash-grid" id="hashGrid">
+                <p style="color: #666; font-style: italic; text-align: center;">ハッシュ値がここに表示されます</p>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="inputLength">0</div>
+                    <div class="stat-label">入力文字数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="inputBytes">0</div>
+                    <div class="stat-label">バイト数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="processTime">-</div>
+                    <div class="stat-label">処理時間 (ms)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="hashCount">0</div>
+                    <div class="stat-label">生成ハッシュ数</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="algorithm-info">
+            <div class="algorithm-title">サポートするハッシュアルゴリズム</div>
+            <div class="algorithm-grid">
+                <div class="algorithm-item">
+                    <div class="algorithm-name">MD5</div>
+                    <div class="algorithm-desc">高速だが脆弱性あり</div>
+                    <div class="algorithm-size">128-bit (32文字)</div>
+                </div>
+                <div class="algorithm-item">
+                    <div class="algorithm-name">SHA-1</div>
+                    <div class="algorithm-desc">広く使用されているが脆弱性あり</div>
+                    <div class="algorithm-size">160-bit (40文字)</div>
+                </div>
+                <div class="algorithm-item">
+                    <div class="algorithm-name">SHA-256</div>
+                    <div class="algorithm-desc">現在推奨される標準</div>
+                    <div class="algorithm-size">256-bit (64文字)</div>
+                </div>
+                <div class="algorithm-item">
+                    <div class="algorithm-name">SHA-512</div>
+                    <div class="algorithm-desc">高度なセキュリティ</div>
+                    <div class="algorithm-size">512-bit (128文字)</div>
+                </div>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        let currentMode = 'text';
+        let currentFile = null;
+
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('textMode').style.display = mode === 'text' ? 'block' : 'none';
+            document.getElementById('fileMode').style.display = mode === 'file' ? 'block' : 'none';
+            
+            updateStats();
+        }
+
+        function handleFileSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            currentFile = file;
+            
+            const fileInfo = document.getElementById('fileInfo');
+            fileInfo.innerHTML = `
+                <strong>ファイル名:</strong> ${file.name}<br>
+                <strong>サイズ:</strong> ${formatBytes(file.size)}<br>
+                <strong>種類:</strong> ${file.type || 'unknown'}
+            `;
+            fileInfo.style.display = 'block';
+            
+            updateStats();
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function updateStats() {
+            if (currentMode === 'text') {
+                const text = document.getElementById('textInput').value;
+                const bytes = new TextEncoder().encode(text).length;
+                
+                document.getElementById('inputLength').textContent = text.length;
+                document.getElementById('inputBytes').textContent = bytes;
+            } else if (currentFile) {
+                document.getElementById('inputLength').textContent = '-';
+                document.getElementById('inputBytes').textContent = currentFile.size;
+            } else {
+                document.getElementById('inputLength').textContent = '0';
+                document.getElementById('inputBytes').textContent = '0';
+            }
+        }
+
+        async function generateHashes() {
+            const startTime = performance.now();
+            
+            let inputData;
+            if (currentMode === 'text') {
+                inputData = document.getElementById('textInput').value;
+                if (!inputData) {
+                    alert('テキストを入力してください');
+                    return;
+                }
+            } else {
+                if (!currentFile) {
+                    alert('ファイルを選択してください');
+                    return;
+                }
+                inputData = await readFileAsArrayBuffer(currentFile);
+            }
+
+            const hashes = await calculateHashes(inputData);
+            displayHashes(hashes);
+            
+            const endTime = performance.now();
+            const processTime = Math.round(endTime - startTime);
+            
+            document.getElementById('processTime').textContent = processTime;
+            document.getElementById('hashCount').textContent = Object.keys(hashes).length;
+        }
+
+        function readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        async function calculateHashes(input) {
+            const hashes = {};
+            
+            if (currentMode === 'text') {
+                // テキストの場合
+                hashes.MD5 = CryptoJS.MD5(input).toString();
+                hashes.SHA1 = CryptoJS.SHA1(input).toString();
+                hashes.SHA256 = CryptoJS.SHA256(input).toString();
+                hashes.SHA512 = CryptoJS.SHA512(input).toString();
+                hashes.SHA224 = CryptoJS.SHA224(input).toString();
+                hashes.SHA384 = CryptoJS.SHA384(input).toString();
+                hashes.SHA3_256 = CryptoJS.SHA3(input, { outputLength: 256 }).toString();
+                hashes.SHA3_512 = CryptoJS.SHA3(input, { outputLength: 512 }).toString();
+            } else {
+                // ファイルの場合
+                const wordArray = CryptoJS.lib.WordArray.create(input);
+                hashes.MD5 = CryptoJS.MD5(wordArray).toString();
+                hashes.SHA1 = CryptoJS.SHA1(wordArray).toString();
+                hashes.SHA256 = CryptoJS.SHA256(wordArray).toString();
+                hashes.SHA512 = CryptoJS.SHA512(wordArray).toString();
+                hashes.SHA224 = CryptoJS.SHA224(wordArray).toString();
+                hashes.SHA384 = CryptoJS.SHA384(wordArray).toString();
+                hashes.SHA3_256 = CryptoJS.SHA3(wordArray, { outputLength: 256 }).toString();
+                hashes.SHA3_512 = CryptoJS.SHA3(wordArray, { outputLength: 512 }).toString();
+            }
+            
+            return hashes;
+        }
+
+        function displayHashes(hashes) {
+            const hashGrid = document.getElementById('hashGrid');
+            hashGrid.innerHTML = '';
+            
+            Object.entries(hashes).forEach(([algorithm, hash]) => {
+                const hashItem = document.createElement('div');
+                hashItem.className = 'hash-item';
+                
+                hashItem.innerHTML = `
+                    <div class="hash-type">
+                        <span>${algorithm}</span>
+                        <span style="font-size: 0.8rem; color: #666;">${hash.length * 4} bit</span>
+                    </div>
+                    <div class="hash-value">${hash}</div>
+                    <div class="hash-actions">
+                        <button class="action-btn" onclick="copyHash('${hash}')">コピー</button>
+                        <button class="action-btn secondary" onclick="compareHash('${algorithm}', '${hash}')">比較</button>
+                    </div>
+                `;
+                
+                hashGrid.appendChild(hashItem);
+            });
+        }
+
+        function copyHash(hash) {
+            navigator.clipboard.writeText(hash).then(() => {
+                alert('ハッシュ値がクリップボードにコピーされました！');
+            }).catch(err => {
+                console.error('コピーに失敗しました:', err);
+                alert('コピーに失敗しました');
+            });
+        }
+
+        function compareHash(algorithm, hash) {
+            const userHash = prompt(`${algorithm}ハッシュ値を入力して比較してください:`);
+            if (userHash === null) return;
+            
+            const normalizedUserHash = userHash.replace(/\s/g, '').toLowerCase();
+            const normalizedHash = hash.toLowerCase();
+            
+            if (normalizedUserHash === normalizedHash) {
+                alert('✅ ハッシュ値が一致しました！');
+            } else {
+                alert('❌ ハッシュ値が一致しません。');
+            }
+        }
+
+        // 初期設定
+        document.getElementById('textInput').value = 'Hello, World!';
+        updateStats();
+    </script>
+</body>
+</html>
