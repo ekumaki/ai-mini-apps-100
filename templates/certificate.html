@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>証明書テンプレート - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .certificate-app {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .certificate-preview {
+            padding: 40px;
+            font-family: 'Times New Roman', serif;
+            color: #333;
+            text-align: center;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: linear-gradient(45deg, #f8f9fa 0%, #fff 100%);
+            border: 8px solid #667eea;
+            border-radius: 15px;
+            margin: 20px;
+            position: relative;
+        }
+
+        .certificate-border {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 2px solid #764ba2;
+            border-radius: 8px;
+        }
+
+        .certificate-header {
+            margin-bottom: 30px;
+        }
+
+        .certificate-title {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .certificate-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .certificate-number {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .certificate-body {
+            margin: 40px 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .recipient-name {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin: 30px 0;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        .certificate-text {
+            font-size: 1.3rem;
+            line-height: 2;
+            margin: 30px 0;
+            text-align: justify;
+            text-align-last: center;
+        }
+
+        .certificate-details {
+            margin: 30px 0;
+            text-align: left;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 5px 0;
+            border-bottom: 1px dotted #ccc;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .detail-value {
+            color: #333;
+        }
+
+        .certificate-footer {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: end;
+        }
+
+        .signature-block {
+            text-align: center;
+        }
+
+        .signature-line {
+            border-bottom: 2px solid #333;
+            height: 60px;
+            margin-bottom: 10px;
+        }
+
+        .signature-label {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .organization-stamp {
+            width: 80px;
+            height: 80px;
+            border: 3px solid #667eea;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+        }
+
+        .control-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .certificate-preview {
+                padding: 20px;
+                margin: 10px;
+                min-height: 400px;
+            }
+            
+            .certificate-title {
+                font-size: 2rem;
+            }
+            
+            .recipient-name {
+                font-size: 1.8rem;
+            }
+            
+            .certificate-text {
+                font-size: 1.1rem;
+            }
+            
+            .certificate-footer {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .certificate-app {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header, .form-section, .controls {
+                display: none;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+                padding: 0;
+                gap: 0;
+            }
+            
+            .preview-section {
+                border: none;
+                max-height: none;
+                overflow: visible;
+            }
+            
+            .certificate-preview {
+                margin: 0;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="certificate-app">
+        <div class="header">
+            <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+            <h1>🏆 証明書テンプレート</h1>
+            <p>各種証明書を美しいデザインで作成</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="section-title">基本情報</div>
+                <div class="form-group">
+                    <label for="certificateType">証明書の種類</label>
+                    <select id="certificateType">
+                        <option value="completion">修了証明書</option>
+                        <option value="achievement">成績証明書</option>
+                        <option value="participation">参加証明書</option>
+                        <option value="award">表彰状</option>
+                        <option value="qualification">資格認定証</option>
+                        <option value="employment">在職証明書</option>
+                        <option value="other">その他</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="certificateNumber">証明書番号</label>
+                    <input type="text" id="certificateNumber" placeholder="No. 2024-001">
+                </div>
+
+                <div class="form-group">
+                    <label for="recipientName">受賞者・対象者氏名</label>
+                    <input type="text" id="recipientName" placeholder="山田 太郎">
+                </div>
+
+                <div class="section-title">証明内容</div>
+                <div class="form-group">
+                    <label for="certificateContent">証明内容・理由</label>
+                    <textarea id="certificateContent" placeholder="上記の方は、○○コースを修了したことを証明します。"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="courseName">コース名・項目名</label>
+                            <input type="text" id="courseName" placeholder="Webデザイン基礎コース">
+                        </div>
+                        <div>
+                            <label for="duration">期間・時間</label>
+                            <input type="text" id="duration" placeholder="2024年1月〜3月">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="score">成績・評価</label>
+                            <input type="text" id="score" placeholder="優秀">
+                        </div>
+                        <div>
+                            <label for="grade">等級・ランク</label>
+                            <input type="text" id="grade" placeholder="A級">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">発行情報</div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="issueDate">発行日</label>
+                            <input type="date" id="issueDate">
+                        </div>
+                        <div>
+                            <label for="validUntil">有効期限</label>
+                            <input type="date" id="validUntil">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="organizationName">発行機関・組織名</label>
+                    <input type="text" id="organizationName" placeholder="○○株式会社">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="authorityName">責任者氏名</label>
+                            <input type="text" id="authorityName" placeholder="代表取締役 佐藤 一郎">
+                        </div>
+                        <div>
+                            <label for="authorityTitle">役職・肩書き</label>
+                            <input type="text" id="authorityTitle" placeholder="代表取締役社長">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="remarks">備考・注意事項</label>
+                    <textarea id="remarks" placeholder="この証明書は再発行できません。"></textarea>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="certificate-preview" id="certificatePreview">
+                    <div class="certificate-border"></div>
+                    
+                    <div class="certificate-header">
+                        <div class="certificate-title" id="previewTitle">修了証明書</div>
+                        <div class="certificate-number" id="previewNumber"></div>
+                    </div>
+
+                    <div class="certificate-body">
+                        <div class="recipient-name" id="previewRecipient">山田 太郎</div>
+                        
+                        <div class="certificate-text" id="previewContent">
+                            上記の方は、所定のコースを修了したことを証明します。
+                        </div>
+
+                        <div class="certificate-details" id="certificateDetails">
+                            <div class="detail-row">
+                                <span class="detail-label">コース名:</span>
+                                <span class="detail-value" id="previewCourseName">--</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">期間:</span>
+                                <span class="detail-value" id="previewDuration">--</span>
+                            </div>
+                            <div class="detail-row" id="scoreRow" style="display: none;">
+                                <span class="detail-label">成績:</span>
+                                <span class="detail-value" id="previewScore">--</span>
+                            </div>
+                            <div class="detail-row" id="gradeRow" style="display: none;">
+                                <span class="detail-label">等級:</span>
+                                <span class="detail-value" id="previewGrade">--</span>
+                            </div>
+                            <div class="detail-row" id="validRow" style="display: none;">
+                                <span class="detail-label">有効期限:</span>
+                                <span class="detail-value" id="previewValidUntil">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="certificate-footer">
+                        <div class="signature-block">
+                            <div class="signature-line"></div>
+                            <div class="signature-label">発行責任者</div>
+                            <div id="previewAuthority">代表取締役 佐藤 一郎</div>
+                        </div>
+                        <div class="signature-block">
+                            <div class="organization-stamp" id="orgStamp">印</div>
+                            <div class="signature-label">発行機関</div>
+                            <div id="previewOrganization">○○株式会社</div>
+                            <div style="margin-top: 10px; font-size: 0.9rem;" id="previewIssueDate">2024年1月1日</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="printCertificate()">🖨️ 印刷</button>
+            <button class="control-btn secondary" onclick="saveCertificate()">💾 保存</button>
+            <button class="control-btn secondary" onclick="loadCertificate()">📂 読み込み</button>
+            <button class="control-btn secondary" onclick="clearForm()">🗑️ クリア</button>
+        </div>
+    </div>
+
+    <script>
+        const certificateTypes = {
+            completion: '修了証明書',
+            achievement: '成績証明書', 
+            participation: '参加証明書',
+            award: '表彰状',
+            qualification: '資格認定証',
+            employment: '在職証明書',
+            other: '証明書'
+        };
+
+        function updatePreview() {
+            const certificateType = document.getElementById('certificateType').value;
+            const certificateNumber = document.getElementById('certificateNumber').value;
+            const recipientName = document.getElementById('recipientName').value;
+            const certificateContent = document.getElementById('certificateContent').value;
+            const courseName = document.getElementById('courseName').value;
+            const duration = document.getElementById('duration').value;
+            const score = document.getElementById('score').value;
+            const grade = document.getElementById('grade').value;
+            const issueDate = document.getElementById('issueDate').value;
+            const validUntil = document.getElementById('validUntil').value;
+            const organizationName = document.getElementById('organizationName').value;
+            const authorityName = document.getElementById('authorityName').value;
+            const authorityTitle = document.getElementById('authorityTitle').value;
+
+            // タイトルの更新
+            document.getElementById('previewTitle').textContent = 
+                certificateTypes[certificateType] || '証明書';
+
+            // 証明書番号の更新
+            document.getElementById('previewNumber').textContent = 
+                certificateNumber ? `証明書番号: ${certificateNumber}` : '';
+
+            // 受賞者名の更新
+            document.getElementById('previewRecipient').textContent = 
+                recipientName || '氏名';
+
+            // 証明内容の更新
+            document.getElementById('previewContent').textContent = 
+                certificateContent || '上記の方は、所定のコースを修了したことを証明します。';
+
+            // 詳細情報の更新
+            document.getElementById('previewCourseName').textContent = courseName || '--';
+            document.getElementById('previewDuration').textContent = duration || '--';
+            
+            // 成績・等級の表示制御
+            if (score) {
+                document.getElementById('previewScore').textContent = score;
+                document.getElementById('scoreRow').style.display = 'flex';
+            } else {
+                document.getElementById('scoreRow').style.display = 'none';
+            }
+
+            if (grade) {
+                document.getElementById('previewGrade').textContent = grade;
+                document.getElementById('gradeRow').style.display = 'flex';
+            } else {
+                document.getElementById('gradeRow').style.display = 'none';
+            }
+
+            // 有効期限の表示制御
+            if (validUntil) {
+                document.getElementById('previewValidUntil').textContent = formatDate(validUntil);
+                document.getElementById('validRow').style.display = 'flex';
+            } else {
+                document.getElementById('validRow').style.display = 'none';
+            }
+
+            // 発行情報の更新
+            document.getElementById('previewIssueDate').textContent = 
+                issueDate ? formatDate(issueDate) : '';
+
+            document.getElementById('previewOrganization').textContent = 
+                organizationName || '発行機関名';
+
+            // 責任者情報の更新
+            let authorityText = '';
+            if (authorityTitle && authorityName) {
+                authorityText = `${authorityTitle} ${authorityName}`;
+            } else if (authorityName) {
+                authorityText = authorityName;
+            } else {
+                authorityText = '発行責任者';
+            }
+            document.getElementById('previewAuthority').textContent = authorityText;
+
+            // 組織印の更新
+            const orgStamp = document.getElementById('orgStamp');
+            if (organizationName && organizationName.length > 0) {
+                orgStamp.textContent = organizationName.charAt(0) + '印';
+            } else {
+                orgStamp.textContent = '印';
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${year}年${month}月${day}日`;
+        }
+
+        function printCertificate() {
+            window.print();
+        }
+
+        function saveCertificate() {
+            const data = {
+                certificateType: document.getElementById('certificateType').value,
+                certificateNumber: document.getElementById('certificateNumber').value,
+                recipientName: document.getElementById('recipientName').value,
+                certificateContent: document.getElementById('certificateContent').value,
+                courseName: document.getElementById('courseName').value,
+                duration: document.getElementById('duration').value,
+                score: document.getElementById('score').value,
+                grade: document.getElementById('grade').value,
+                issueDate: document.getElementById('issueDate').value,
+                validUntil: document.getElementById('validUntil').value,
+                organizationName: document.getElementById('organizationName').value,
+                authorityName: document.getElementById('authorityName').value,
+                authorityTitle: document.getElementById('authorityTitle').value,
+                remarks: document.getElementById('remarks').value
+            };
+
+            localStorage.setItem('certificateData', JSON.stringify(data));
+            alert('証明書を保存しました！');
+        }
+
+        function loadCertificate() {
+            const savedData = localStorage.getItem('certificateData');
+            if (!savedData) {
+                alert('保存されたデータがありません。');
+                return;
+            }
+
+            const data = JSON.parse(savedData);
+            
+            // フォームに保存されたデータを読み込み
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = data[key] || '';
+                }
+            });
+
+            updatePreview();
+            alert('証明書を読み込みました！');
+        }
+
+        function clearForm() {
+            if (confirm('すべての入力内容をクリアしますか？')) {
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    if (element.id === 'certificateType') {
+                        element.value = 'completion';
+                    } else {
+                        element.value = '';
+                    }
+                });
+                updatePreview();
+            }
+        }
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+                input.addEventListener('change', updatePreview);
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            // 現在の日付を設定
+            document.getElementById('issueDate').value = new Date().toISOString().split('T')[0];
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

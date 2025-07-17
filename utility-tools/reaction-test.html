@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反応速度テスト - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .reaction-test {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .test-modes {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .mode-btn {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .test-content {
+            display: none;
+        }
+
+        .test-content.active {
+            display: block;
+        }
+
+        .test-area {
+            background: #f8f9fa;
+            border-radius: 15px;
+            min-height: 400px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 5px solid transparent;
+        }
+
+        .test-area.waiting {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+        }
+
+        .test-area.ready {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            animation: pulse 1s infinite;
+        }
+
+        .test-area.active {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+        }
+
+        .test-area.too-early {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            animation: shake 0.5s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .test-message {
+            font-size: 2rem;
+            font-weight: 600;
+            text-align: center;
+            color: #333;
+        }
+
+        .reaction-target {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #dc3545;
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: none;
+        }
+
+        .reaction-target.show {
+            display: block;
+            animation: targetAppear 0.3s ease;
+        }
+
+        @keyframes targetAppear {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .sequence-display {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .sequence-item {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .sequence-item.active {
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .sequence-item.correct {
+            background: #28a745;
+            color: white;
+        }
+
+        .sequence-item.incorrect {
+            background: #dc3545;
+            color: white;
+        }
+
+        .settings-section {
+            background: #e1ecf4;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .settings-title {
+            color: #0c5460;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .setting-group label {
+            font-weight: 600;
+            color: #0c5460;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .setting-control {
+            padding: 8px 12px;
+            border: 2px solid #b3d4fc;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        .setting-control:focus {
+            outline: none;
+            border-color: #0c5460;
+        }
+
+        .stats-section {
+            background: #d4edda;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stats-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #155724;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .result-section {
+            background: #f3e5f5;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+            text-align: center;
+        }
+
+        .result-section.show {
+            display: block;
+            animation: resultFadeIn 0.5s ease;
+        }
+
+        @keyframes resultFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-title {
+            color: #6a1b9a;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .result-time {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #6a1b9a;
+            margin-bottom: 10px;
+        }
+
+        .result-rating {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .result-rating.excellent { color: #28a745; }
+        .result-rating.good { color: #17a2b8; }
+        .result-rating.average { color: #ffc107; }
+        .result-rating.slow { color: #fd7e14; }
+        .result-rating.very-slow { color: #dc3545; }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .action-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .action-btn.success {
+            background: #28a745;
+        }
+
+        .action-btn.success:hover {
+            background: #218838;
+        }
+
+        .history-section {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .history-title {
+            color: #856404;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: white;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-time {
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .history-details {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .history-date {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .countdown {
+            font-size: 4rem;
+            font-weight: 700;
+            color: #667eea;
+            animation: countdownPulse 1s ease;
+        }
+
+        @keyframes countdownPulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .reaction-test {
+                padding: 20px;
+            }
+            
+            .test-modes {
+                flex-wrap: wrap;
+            }
+            
+            .test-area {
+                min-height: 300px;
+            }
+            
+            .test-message {
+                font-size: 1.5rem;
+            }
+            
+            .reaction-target {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .sequence-item {
+                width: 60px;
+                height: 60px;
+                font-size: 1.2rem;
+            }
+            
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="reaction-test">
+        <div class="header">
+            <h1>反応速度テスト</h1>
+            <p>あなたの反射神経を測定しよう</p>
+        </div>
+
+        <div class="test-modes">
+            <button class="mode-btn active" onclick="switchMode('simple')">シンプル</button>
+            <button class="mode-btn" onclick="switchMode('target')">ターゲット</button>
+            <button class="mode-btn" onclick="switchMode('sequence')">連続</button>
+            <button class="mode-btn" onclick="switchMode('color')">色判別</button>
+        </div>
+
+        <!-- シンプル反応テスト -->
+        <div class="test-content active" id="simpleTest">
+            <div class="test-area" id="simpleArea" onclick="handleSimpleClick()">
+                <div class="test-message" id="simpleMessage">クリックして開始</div>
+            </div>
+        </div>
+
+        <!-- ターゲット反応テスト -->
+        <div class="test-content" id="targetTest">
+            <div class="test-area" id="targetArea">
+                <div class="test-message" id="targetMessage">クリックして開始</div>
+                <div class="reaction-target" id="reactionTarget" onclick="handleTargetClick()"></div>
+            </div>
+        </div>
+
+        <!-- 連続反応テスト -->
+        <div class="test-content" id="sequenceTest">
+            <div class="test-area" id="sequenceArea">
+                <div class="test-message" id="sequenceMessage">クリックして開始</div>
+                <div class="sequence-display" id="sequenceDisplay" style="display: none;">
+                    <!-- 連続ボタンがここに表示されます -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 色判別テスト -->
+        <div class="test-content" id="colorTest">
+            <div class="test-area" id="colorArea" onclick="handleColorClick()">
+                <div class="test-message" id="colorMessage">クリックして開始</div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-title">⚙️ テスト設定</div>
+            <div class="settings-grid">
+                <div class="setting-group">
+                    <label for="difficulty">難易度</label>
+                    <select id="difficulty" class="setting-control">
+                        <option value="easy">簡単</option>
+                        <option value="normal" selected>普通</option>
+                        <option value="hard">難しい</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label for="testCount">テスト回数</label>
+                    <select id="testCount" class="setting-control">
+                        <option value="1">1回</option>
+                        <option value="3">3回</option>
+                        <option value="5" selected>5回</option>
+                        <option value="10">10回</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label for="delayRange">待機時間範囲</label>
+                    <select id="delayRange" class="setting-control">
+                        <option value="1-3">1-3秒</option>
+                        <option value="2-5" selected>2-5秒</option>
+                        <option value="3-7">3-7秒</option>
+                        <option value="5-10">5-10秒</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-title">📊 現在の成績</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="currentAverage">0</div>
+                    <div class="stat-label">平均時間(ms)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="bestTime">0</div>
+                    <div class="stat-label">最速時間(ms)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="accuracy">0</div>
+                    <div class="stat-label">成功率(%)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalTests">0</div>
+                    <div class="stat-label">総テスト数</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" onclick="startTest()" id="startBtn">テスト開始</button>
+            <button class="action-btn secondary" onclick="resetStats()">統計リセット</button>
+            <button class="action-btn secondary" onclick="saveResult()">結果保存</button>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-title">⚡ 反応時間</div>
+            <div class="result-time" id="resultTime">0ms</div>
+            <div class="result-rating" id="resultRating">判定中...</div>
+            <div style="margin-top: 15px;">
+                <button class="action-btn" onclick="nextTest()">次のテスト</button>
+                <button class="action-btn secondary" onclick="hideResult()">続行</button>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <div class="history-title">📚 テスト履歴</div>
+            <div class="history-list" id="historyList">
+                <!-- 履歴がここに表示されます -->
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <button class="action-btn secondary" onclick="clearHistory()">履歴クリア</button>
+                <button class="action-btn secondary" onclick="exportHistory()">履歴出力</button>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let currentMode = 'simple';
+        let testActive = false;
+        let testStartTime = 0;
+        let currentTest = 0;
+        let maxTests = 5;
+        let testResults = [];
+        let testHistory = JSON.parse(localStorage.getItem('reactionTestHistory') || '[]');
+        let waitingForStimulus = false;
+        let stimulusTimeout = null;
+
+        // 連続テスト用変数
+        let sequenceTargets = [];
+        let currentSequenceIndex = 0;
+        let sequenceStartTime = 0;
+
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            // タブの状態更新
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // テストコンテンツの表示切り替え
+            document.querySelectorAll('.test-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(mode + 'Test').classList.add('active');
+            
+            resetTest();
+        }
+
+        function startTest() {
+            if (testActive) return;
+            
+            testActive = true;
+            currentTest = 0;
+            maxTests = parseInt(document.getElementById('testCount').value);
+            testResults = [];
+            
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('resultSection').classList.remove('show');
+            
+            switch(currentMode) {
+                case 'simple':
+                    startSimpleTest();
+                    break;
+                case 'target':
+                    startTargetTest();
+                    break;
+                case 'sequence':
+                    startSequenceTest();
+                    break;
+                case 'color':
+                    startColorTest();
+                    break;
+            }
+        }
+
+        function startSimpleTest() {
+            const area = document.getElementById('simpleArea');
+            const message = document.getElementById('simpleMessage');
+            
+            area.className = 'test-area waiting';
+            message.textContent = '緑色になったらクリック！';
+            
+            const delay = getRandomDelay();
+            waitingForStimulus = true;
+            
+            stimulusTimeout = setTimeout(() => {
+                if (waitingForStimulus) {
+                    area.className = 'test-area ready';
+                    message.textContent = '今だ！クリック！';
+                    testStartTime = Date.now();
+                    waitingForStimulus = false;
+                }
+            }, delay);
+        }
+
+        function handleSimpleClick() {
+            if (!testActive) {
+                startTest();
+                return;
+            }
+            
+            if (waitingForStimulus) {
+                // フライング
+                clearTimeout(stimulusTimeout);
+                const area = document.getElementById('simpleArea');
+                const message = document.getElementById('simpleMessage');
+                
+                area.className = 'test-area too-early';
+                message.textContent = 'フライング！早すぎます';
+                
+                setTimeout(() => {
+                    currentTest++;
+                    if (currentTest < maxTests) {
+                        setTimeout(() => startSimpleTest(), 1000);
+                    } else {
+                        endTest();
+                    }
+                }, 1500);
+                
+                testResults.push({ time: -1, success: false });
+                return;
+            }
+            
+            if (testStartTime > 0) {
+                const reactionTime = Date.now() - testStartTime;
+                testResults.push({ time: reactionTime, success: true });
+                
+                showResult(reactionTime);
+                testStartTime = 0;
+                
+                currentTest++;
+                if (currentTest < maxTests) {
+                    setTimeout(() => {
+                        hideResult();
+                        setTimeout(() => startSimpleTest(), 500);
+                    }, 2000);
+                } else {
+                    setTimeout(() => endTest(), 2000);
+                }
+            }
+        }
+
+        function startTargetTest() {
+            const area = document.getElementById('targetArea');
+            const message = document.getElementById('targetMessage');
+            const target = document.getElementById('reactionTarget');
+            
+            area.className = 'test-area waiting';
+            message.textContent = '赤い円が現れたらクリック！';
+            target.classList.remove('show');
+            
+            const delay = getRandomDelay();
+            waitingForStimulus = true;
+            
+            stimulusTimeout = setTimeout(() => {
+                if (waitingForStimulus) {
+                    showRandomTarget();
+                    testStartTime = Date.now();
+                    waitingForStimulus = false;
+                }
+            }, delay);
+        }
+
+        function showRandomTarget() {
+            const area = document.getElementById('targetArea');
+            const target = document.getElementById('reactionTarget');
+            const areaRect = area.getBoundingClientRect();
+            
+            const maxX = areaRect.width - 100;
+            const maxY = areaRect.height - 100;
+            
+            const x = Math.random() * maxX;
+            const y = Math.random() * maxY;
+            
+            target.style.left = x + 'px';
+            target.style.top = y + 'px';
+            target.classList.add('show');
+            
+            area.className = 'test-area active';
+            document.getElementById('targetMessage').textContent = '';
+        }
+
+        function handleTargetClick() {
+            if (!testActive || testStartTime === 0) return;
+            
+            const reactionTime = Date.now() - testStartTime;
+            testResults.push({ time: reactionTime, success: true });
+            
+            document.getElementById('reactionTarget').classList.remove('show');
+            showResult(reactionTime);
+            testStartTime = 0;
+            
+            currentTest++;
+            if (currentTest < maxTests) {
+                setTimeout(() => {
+                    hideResult();
+                    setTimeout(() => startTargetTest(), 500);
+                }, 2000);
+            } else {
+                setTimeout(() => endTest(), 2000);
+            }
+        }
+
+        function startSequenceTest() {
+            const area = document.getElementById('sequenceArea');
+            const message = document.getElementById('sequenceMessage');
+            const display = document.getElementById('sequenceDisplay');
+            
+            // 連続ボタンを生成
+            display.innerHTML = '';
+            sequenceTargets = [];
+            
+            for (let i = 0; i < 9; i++) {
+                const button = document.createElement('div');
+                button.className = 'sequence-item';
+                button.textContent = i + 1;
+                button.onclick = () => handleSequenceClick(i);
+                display.appendChild(button);
+                sequenceTargets.push(button);
+            }
+            
+            area.className = 'test-area waiting';
+            message.textContent = '光った順番通りにクリック！';
+            display.style.display = 'grid';
+            
+            setTimeout(() => startSequenceStimulus(), 1000);
+        }
+
+        function startSequenceStimulus() {
+            currentSequenceIndex = 0;
+            const targetCount = 3 + Math.floor(currentTest / 2); // レベルが上がるにつれて増加
+            const sequence = [];
+            
+            // ランダムなシーケンスを生成
+            for (let i = 0; i < Math.min(targetCount, 9); i++) {
+                let randomIndex;
+                do {
+                    randomIndex = Math.floor(Math.random() * 9);
+                } while (sequence.includes(randomIndex));
+                sequence.push(randomIndex);
+            }
+            
+            // シーケンスを表示
+            let index = 0;
+            const showNext = () => {
+                if (index < sequence.length) {
+                    const button = sequenceTargets[sequence[index]];
+                    button.classList.add('active');
+                    
+                    setTimeout(() => {
+                        button.classList.remove('active');
+                        index++;
+                        setTimeout(showNext, 500);
+                    }, 800);
+                } else {
+                    // 入力開始
+                    sequenceStartTime = Date.now();
+                    currentSequenceIndex = 0;
+                    testStartTime = Date.now();
+                    
+                    // 期待するシーケンスを保存
+                    window.expectedSequence = sequence;
+                    window.userSequence = [];
+                }
+            };
+            
+            showNext();
+        }
+
+        function handleSequenceClick(index) {
+            if (!testActive || !window.expectedSequence) return;
+            
+            window.userSequence.push(index);
+            const button = sequenceTargets[index];
+            
+            if (window.expectedSequence[window.userSequence.length - 1] === index) {
+                button.classList.add('correct');
+                setTimeout(() => button.classList.remove('correct'), 300);
+                
+                if (window.userSequence.length === window.expectedSequence.length) {
+                    // 完了
+                    const reactionTime = Date.now() - testStartTime;
+                    testResults.push({ time: reactionTime, success: true });
+                    showResult(reactionTime);
+                    
+                    currentTest++;
+                    if (currentTest < maxTests) {
+                        setTimeout(() => {
+                            hideResult();
+                            setTimeout(() => startSequenceTest(), 500);
+                        }, 2000);
+                    } else {
+                        setTimeout(() => endTest(), 2000);
+                    }
+                }
+            } else {
+                button.classList.add('incorrect');
+                setTimeout(() => button.classList.remove('incorrect'), 300);
+                
+                // 失敗
+                testResults.push({ time: -1, success: false });
+                showResult(-1);
+                
+                currentTest++;
+                if (currentTest < maxTests) {
+                    setTimeout(() => {
+                        hideResult();
+                        setTimeout(() => startSequenceTest(), 500);
+                    }, 2000);
+                } else {
+                    setTimeout(() => endTest(), 2000);
+                }
+            }
+        }
+
+        function startColorTest() {
+            const area = document.getElementById('colorArea');
+            const message = document.getElementById('colorMessage');
+            
+            area.className = 'test-area waiting';
+            message.textContent = '指示された色になったらクリック！';
+            
+            const colors = ['red', 'blue', 'green', 'yellow'];
+            const targetColor = colors[Math.floor(Math.random() * colors.length)];
+            const colorNames = { red: '赤', blue: '青', green: '緑', yellow: '黄色' };
+            
+            message.textContent = `${colorNames[targetColor]}色になったらクリック！`;
+            
+            const delay = getRandomDelay();
+            waitingForStimulus = true;
+            
+            stimulusTimeout = setTimeout(() => {
+                if (waitingForStimulus) {
+                    const wrongColors = colors.filter(c => c !== targetColor);
+                    const displayColor = Math.random() < 0.7 ? targetColor : wrongColors[Math.floor(Math.random() * wrongColors.length)];
+                    
+                    area.style.backgroundColor = displayColor;
+                    area.className = 'test-area active';
+                    message.textContent = `${colorNames[targetColor]}色になったらクリック！`;
+                    
+                    testStartTime = Date.now();
+                    waitingForStimulus = false;
+                    
+                    // 正解の色を保存
+                    window.targetColor = targetColor;
+                    window.displayColor = displayColor;
+                }
+            }, delay);
+        }
+
+        function handleColorClick() {
+            if (!testActive) {
+                startTest();
+                return;
+            }
+            
+            if (waitingForStimulus) {
+                // フライング
+                clearTimeout(stimulusTimeout);
+                showFlyingResult();
+                return;
+            }
+            
+            if (testStartTime > 0 && window.targetColor) {
+                const reactionTime = Date.now() - testStartTime;
+                const isCorrect = window.displayColor === window.targetColor;
+                
+                if (isCorrect) {
+                    testResults.push({ time: reactionTime, success: true });
+                    showResult(reactionTime);
+                } else {
+                    testResults.push({ time: -1, success: false });
+                    showResult(-1, '間違った色でクリックしました');
+                }
+                
+                // 背景色をリセット
+                document.getElementById('colorArea').style.backgroundColor = '';
+                testStartTime = 0;
+                
+                currentTest++;
+                if (currentTest < maxTests) {
+                    setTimeout(() => {
+                        hideResult();
+                        setTimeout(() => startColorTest(), 500);
+                    }, 2000);
+                } else {
+                    setTimeout(() => endTest(), 2000);
+                }
+            }
+        }
+
+        function showFlyingResult() {
+            const area = document.getElementById('simpleArea') || document.getElementById('colorArea');
+            const message = document.getElementById('simpleMessage') || document.getElementById('colorMessage');
+            
+            area.className = 'test-area too-early';
+            message.textContent = 'フライング！早すぎます';
+            
+            setTimeout(() => {
+                currentTest++;
+                if (currentTest < maxTests) {
+                    setTimeout(() => {
+                        if (currentMode === 'simple') startSimpleTest();
+                        else if (currentMode === 'color') startColorTest();
+                    }, 1000);
+                } else {
+                    endTest();
+                }
+            }, 1500);
+            
+            testResults.push({ time: -1, success: false });
+        }
+
+        function getRandomDelay() {
+            const range = document.getElementById('delayRange').value;
+            const [min, max] = range.split('-').map(Number);
+            return (min + Math.random() * (max - min)) * 1000;
+        }
+
+        function showResult(time, message = null) {
+            const resultSection = document.getElementById('resultSection');
+            const resultTime = document.getElementById('resultTime');
+            const resultRating = document.getElementById('resultRating');
+            
+            if (time === -1) {
+                resultTime.textContent = '失敗';
+                resultRating.textContent = message || 'フライングまたは不正解';
+                resultRating.className = 'result-rating very-slow';
+            } else {
+                resultTime.textContent = time + 'ms';
+                const rating = getRating(time);
+                resultRating.textContent = rating.text;
+                resultRating.className = 'result-rating ' + rating.class;
+            }
+            
+            resultSection.classList.add('show');
+        }
+
+        function getRating(time) {
+            if (time < 200) {
+                return { text: '神速！人間の限界を超えています！', class: 'excellent' };
+            } else if (time < 250) {
+                return { text: '素晴らしい！とても速い反応です！', class: 'excellent' };
+            } else if (time < 300) {
+                return { text: '良好！平均以上の反応速度です', class: 'good' };
+            } else if (time < 400) {
+                return { text: '普通の反応速度です', class: 'average' };
+            } else if (time < 500) {
+                return { text: '少し遅めです', class: 'slow' };
+            } else {
+                return { text: '練習すれば改善できます', class: 'very-slow' };
+            }
+        }
+
+        function hideResult() {
+            document.getElementById('resultSection').classList.remove('show');
+        }
+
+        function nextTest() {
+            hideResult();
+            if (currentTest < maxTests) {
+                setTimeout(() => {
+                    switch(currentMode) {
+                        case 'simple':
+                            startSimpleTest();
+                            break;
+                        case 'target':
+                            startTargetTest();
+                            break;
+                        case 'sequence':
+                            startSequenceTest();
+                            break;
+                        case 'color':
+                            startColorTest();
+                            break;
+                    }
+                }, 500);
+            } else {
+                endTest();
+            }
+        }
+
+        function endTest() {
+            testActive = false;
+            document.getElementById('startBtn').disabled = false;
+            
+            updateStats();
+            showNotification('テスト完了！');
+        }
+
+        function updateStats() {
+            const successfulTests = testResults.filter(r => r.success && r.time > 0);
+            
+            if (successfulTests.length > 0) {
+                const times = successfulTests.map(r => r.time);
+                const average = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
+                const best = Math.min(...times);
+                
+                document.getElementById('currentAverage').textContent = average;
+                document.getElementById('bestTime').textContent = best;
+            }
+            
+            const accuracy = Math.round((successfulTests.length / testResults.length) * 100);
+            document.getElementById('accuracy').textContent = accuracy;
+            
+            const totalTests = parseInt(document.getElementById('totalTests').textContent) + testResults.length;
+            document.getElementById('totalTests').textContent = totalTests;
+        }
+
+        function resetTest() {
+            testActive = false;
+            clearTimeout(stimulusTimeout);
+            waitingForStimulus = false;
+            testStartTime = 0;
+            currentTest = 0;
+            testResults = [];
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('resultSection').classList.remove('show');
+            
+            // 各テストエリアをリセット
+            const areas = document.querySelectorAll('.test-area');
+            areas.forEach(area => {
+                area.className = 'test-area';
+                area.style.backgroundColor = '';
+            });
+            
+            const messages = document.querySelectorAll('.test-message');
+            messages.forEach(message => {
+                message.textContent = 'クリックして開始';
+            });
+            
+            document.getElementById('reactionTarget').classList.remove('show');
+            document.getElementById('sequenceDisplay').style.display = 'none';
+        }
+
+        function resetStats() {
+            if (confirm('統計をリセットしますか？')) {
+                document.getElementById('currentAverage').textContent = '0';
+                document.getElementById('bestTime').textContent = '0';
+                document.getElementById('accuracy').textContent = '0';
+                document.getElementById('totalTests').textContent = '0';
+                showNotification('統計をリセットしました');
+            }
+        }
+
+        function saveResult() {
+            if (testResults.length === 0) {
+                showNotification('保存する結果がありません', 'error');
+                return;
+            }
+            
+            const successfulTests = testResults.filter(r => r.success && r.time > 0);
+            
+            if (successfulTests.length === 0) {
+                showNotification('保存する有効な結果がありません', 'error');
+                return;
+            }
+            
+            const times = successfulTests.map(r => r.time);
+            const average = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
+            const best = Math.min(...times);
+            const accuracy = Math.round((successfulTests.length / testResults.length) * 100);
+            
+            const modeNames = {
+                simple: 'シンプル',
+                target: 'ターゲット',
+                sequence: '連続',
+                color: '色判別'
+            };
+            
+            const result = {
+                id: Date.now(),
+                mode: modeNames[currentMode],
+                average: average,
+                best: best,
+                accuracy: accuracy,
+                tests: testResults.length,
+                difficulty: document.getElementById('difficulty').value,
+                timestamp: new Date().toLocaleString('ja-JP')
+            };
+            
+            testHistory.unshift(result);
+            
+            // 履歴を50件に制限
+            if (testHistory.length > 50) {
+                testHistory = testHistory.slice(0, 50);
+            }
+            
+            localStorage.setItem('reactionTestHistory', JSON.stringify(testHistory));
+            updateHistoryDisplay();
+            showNotification('結果を保存しました');
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            
+            if (testHistory.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">履歴がありません</p>';
+                return;
+            }
+            
+            historyList.innerHTML = testHistory.slice(0, 10).map(item => `
+                <div class="history-item">
+                    <div>
+                        <div class="history-time">平均: ${item.average}ms (最速: ${item.best}ms)</div>
+                        <div class="history-details">
+                            ${item.mode} | 正答率: ${item.accuracy}% | 難易度: ${item.difficulty}
+                        </div>
+                    </div>
+                    <div class="history-date">${item.timestamp}</div>
+                </div>
+            `).join('');
+        }
+
+        function clearHistory() {
+            if (confirm('全ての履歴を削除しますか？')) {
+                testHistory = [];
+                localStorage.setItem('reactionTestHistory', JSON.stringify(testHistory));
+                updateHistoryDisplay();
+                showNotification('履歴をクリアしました');
+            }
+        }
+
+        function exportHistory() {
+            if (testHistory.length === 0) {
+                showNotification('エクスポートする履歴がありません', 'error');
+                return;
+            }
+            
+            const exportData = testHistory.map(item => ({
+                'モード': item.mode,
+                '平均時間(ms)': item.average,
+                '最速時間(ms)': item.best,
+                '正答率(%)': item.accuracy,
+                'テスト数': item.tests,
+                '難易度': item.difficulty,
+                '日時': item.timestamp
+            }));
+            
+            const csvContent = [
+                Object.keys(exportData[0]).join(','),
+                ...exportData.map(row => Object.values(row).map(v => `"${v}"`).join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `reaction_test_history_${Date.now()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('履歴を出力しました');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        function init() {
+            updateHistoryDisplay();
+            
+            // クリック以外でのテストエリアのクリック防止
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' && testActive) {
+                    e.preventDefault();
+                    
+                    switch(currentMode) {
+                        case 'simple':
+                            handleSimpleClick();
+                            break;
+                        case 'color':
+                            handleColorClick();
+                            break;
+                    }
+                }
+            });
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

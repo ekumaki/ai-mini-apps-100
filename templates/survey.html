@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アンケートフォーム - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .survey-app {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .add-question-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .add-question-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .question-container {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        .option-input {
+            margin-bottom: 8px;
+            padding: 5px;
+            border: 1px solid #e9ecef;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+
+        .add-option-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            margin-top: 5px;
+        }
+
+        .survey-preview {
+            padding: 40px;
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .survey-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .survey-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .survey-info {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .survey-description {
+            font-size: 1rem;
+            color: #555;
+            margin-top: 15px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .survey-question {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .question-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .question-required {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-left: 5px;
+        }
+
+        .question-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .question-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .question-options {
+            margin-top: 10px;
+        }
+
+        .option-item {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .option-input-element {
+            margin-right: 8px;
+        }
+
+        .option-label {
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        .rating-container {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .rating-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .rating-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+        }
+
+        .control-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .survey-preview {
+                padding: 20px;
+                font-size: 0.9rem;
+            }
+            
+            .rating-container {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .survey-app {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header, .form-section, .controls {
+                display: none;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+                padding: 0;
+                gap: 0;
+            }
+            
+            .preview-section {
+                border: none;
+                max-height: none;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="survey-app">
+        <div class="header">
+            <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+            <h1>📊 アンケートフォーム</h1>
+            <p>効果的なアンケート調査を作成</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="section-title">基本情報</div>
+                <div class="form-group">
+                    <label for="surveyTitle">アンケートタイトル</label>
+                    <input type="text" id="surveyTitle" placeholder="顧客満足度調査">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="organizer">主催者・団体名</label>
+                            <input type="text" id="organizer" placeholder="株式会社○○">
+                        </div>
+                        <div>
+                            <label for="surveyDate">実施期間</label>
+                            <input type="text" id="surveyDate" placeholder="2024年1月1日〜1月31日">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="targetAudience">対象者</label>
+                            <input type="text" id="targetAudience" placeholder="当社サービス利用者">
+                        </div>
+                        <div>
+                            <label for="estimatedTime">所要時間</label>
+                            <input type="text" id="estimatedTime" placeholder="約5分">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="purpose">目的・説明</label>
+                    <textarea id="purpose" placeholder="このアンケートの目的や回答者へのメッセージを記載してください"></textarea>
+                </div>
+
+                <div class="section-title">質問作成</div>
+                <div id="questionsList"></div>
+                <button class="add-question-btn" onclick="addQuestion()">+ 質問を追加</button>
+
+                <div class="section-title">お礼・注意事項</div>
+                <div class="form-group">
+                    <label for="thankYouMessage">お礼メッセージ</label>
+                    <textarea id="thankYouMessage" placeholder="ご協力いただき、ありがとうございました。"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="privacyNotice">プライバシー・注意事項</label>
+                    <textarea id="privacyNotice" placeholder="取得した情報は適切に管理し、調査目的以外には使用いたしません。"></textarea>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="survey-preview" id="surveyPreview">
+                    <div class="survey-header">
+                        <div class="survey-title" id="previewTitle">アンケート調査</div>
+                        <div id="previewInfo"></div>
+                        <div class="survey-description" id="previewDescription" style="display: none;"></div>
+                    </div>
+
+                    <div id="previewQuestions">
+                        <div style="text-align: center; color: #666; padding: 30px;">
+                            質問を追加してください
+                        </div>
+                    </div>
+
+                    <div id="previewFooter" style="display: none;">
+                        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #667eea;">
+                            <div id="previewThankYou" style="margin-bottom: 15px; font-weight: 600; color: #667eea;"></div>
+                            <div id="previewPrivacy" style="font-size: 0.9rem; color: #666;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="printSurvey()">🖨️ 印刷</button>
+            <button class="control-btn secondary" onclick="saveSurvey()">💾 保存</button>
+            <button class="control-btn secondary" onclick="loadSurvey()">📂 読み込み</button>
+            <button class="control-btn secondary" onclick="clearForm()">🗑️ クリア</button>
+        </div>
+    </div>
+
+    <script>
+        let questionCount = 0;
+
+        function addQuestion() {
+            questionCount++;
+            const questionsList = document.getElementById('questionsList');
+            const div = document.createElement('div');
+            div.className = 'question-container';
+            div.innerHTML = `
+                <div class="question-header">
+                    <strong>質問 ${questionCount}</strong>
+                    <button class="remove-btn" onclick="removeQuestion(this)">削除</button>
+                </div>
+                <div class="form-group">
+                    <label>質問文</label>
+                    <input type="text" id="questionText${questionCount}" placeholder="質問内容を入力してください">
+                </div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label>質問タイプ</label>
+                            <select id="questionType${questionCount}" onchange="updateQuestionOptions(${questionCount})">
+                                <option value="text">テキスト入力</option>
+                                <option value="textarea">長文入力</option>
+                                <option value="radio">単一選択</option>
+                                <option value="checkbox">複数選択</option>
+                                <option value="rating">評価（1-5）</option>
+                                <option value="yesno">はい/いいえ</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>必須回答</label>
+                            <select id="questionRequired${questionCount}">
+                                <option value="no">任意</option>
+                                <option value="yes">必須</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" id="optionsContainer${questionCount}" style="display: none;">
+                    <label>選択肢</label>
+                    <div id="optionsList${questionCount}"></div>
+                    <button type="button" class="add-option-btn" onclick="addOption(${questionCount})">+ 選択肢追加</button>
+                </div>
+            `;
+            questionsList.appendChild(div);
+            
+            // イベントリスナーを追加
+            document.getElementById(`questionText${questionCount}`).addEventListener('input', updatePreview);
+            document.getElementById(`questionType${questionCount}`).addEventListener('change', updatePreview);
+            document.getElementById(`questionRequired${questionCount}`).addEventListener('change', updatePreview);
+            
+            updatePreview();
+        }
+
+        function removeQuestion(button) {
+            button.closest('.question-container').remove();
+            updatePreview();
+        }
+
+        function updateQuestionOptions(questionId) {
+            const type = document.getElementById(`questionType${questionId}`).value;
+            const optionsContainer = document.getElementById(`optionsContainer${questionId}`);
+            
+            if (type === 'radio' || type === 'checkbox') {
+                optionsContainer.style.display = 'block';
+                // デフォルトの選択肢を追加
+                const optionsList = document.getElementById(`optionsList${questionId}`);
+                if (optionsList.children.length === 0) {
+                    addOption(questionId, '選択肢1');
+                    addOption(questionId, '選択肢2');
+                }
+            } else {
+                optionsContainer.style.display = 'none';
+            }
+            updatePreview();
+        }
+
+        function addOption(questionId, defaultText = '') {
+            const optionsList = document.getElementById(`optionsList${questionId}`);
+            const optionIndex = optionsList.children.length;
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <input type="text" class="option-input" placeholder="選択肢を入力" 
+                       value="${defaultText}" onchange="updatePreview()">
+                <button type="button" onclick="removeOption(this)" style="background: #dc3545; color: white; border: none; padding: 2px 6px; border-radius: 3px; font-size: 0.7rem; margin-left: 5px;">削除</button>
+            `;
+            optionsList.appendChild(div);
+            updatePreview();
+        }
+
+        function removeOption(button) {
+            button.parentElement.remove();
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const surveyTitle = document.getElementById('surveyTitle').value;
+            const organizer = document.getElementById('organizer').value;
+            const surveyDate = document.getElementById('surveyDate').value;
+            const targetAudience = document.getElementById('targetAudience').value;
+            const estimatedTime = document.getElementById('estimatedTime').value;
+            const purpose = document.getElementById('purpose').value;
+            const thankYouMessage = document.getElementById('thankYouMessage').value;
+            const privacyNotice = document.getElementById('privacyNotice').value;
+
+            // タイトルの更新
+            document.getElementById('previewTitle').textContent = 
+                surveyTitle || 'アンケート調査';
+
+            // 基本情報の更新
+            let infoLines = [];
+            if (organizer) infoLines.push(`主催: ${organizer}`);
+            if (surveyDate) infoLines.push(`実施期間: ${surveyDate}`);
+            if (targetAudience) infoLines.push(`対象: ${targetAudience}`);
+            if (estimatedTime) infoLines.push(`所要時間: ${estimatedTime}`);
+            
+            document.getElementById('previewInfo').innerHTML = infoLines.join('<br>');
+
+            // 説明の更新
+            if (purpose) {
+                document.getElementById('previewDescription').textContent = purpose;
+                document.getElementById('previewDescription').style.display = 'block';
+            } else {
+                document.getElementById('previewDescription').style.display = 'none';
+            }
+
+            // 質問の更新
+            updateQuestions();
+
+            // フッターの更新
+            if (thankYouMessage || privacyNotice) {
+                document.getElementById('previewThankYou').textContent = thankYouMessage;
+                document.getElementById('previewPrivacy').textContent = privacyNotice;
+                document.getElementById('previewFooter').style.display = 'block';
+            } else {
+                document.getElementById('previewFooter').style.display = 'none';
+            }
+        }
+
+        function updateQuestions() {
+            const questionsList = document.getElementById('questionsList');
+            const questions = questionsList.querySelectorAll('.question-container');
+            const previewQuestions = document.getElementById('previewQuestions');
+            
+            let html = '';
+
+            if (questions.length === 0) {
+                html = '<div style="text-align: center; color: #666; padding: 30px;">質問を追加してください</div>';
+            } else {
+                questions.forEach((question, index) => {
+                    const text = question.querySelector('input[id^="questionText"]').value;
+                    const type = question.querySelector('select[id^="questionType"]').value;
+                    const required = question.querySelector('select[id^="questionRequired"]').value;
+                    
+                    if (text) {
+                        html += `<div class="survey-question">
+                            <div class="question-title">
+                                Q${index + 1}. ${text}
+                                ${required === 'yes' ? '<span class="question-required">*</span>' : ''}
+                            </div>
+                            ${generateQuestionInput(type, question, index + 1)}
+                        </div>`;
+                    }
+                });
+            }
+
+            previewQuestions.innerHTML = html;
+        }
+
+        function generateQuestionInput(type, questionElement, questionNumber) {
+            switch (type) {
+                case 'text':
+                    return '<input type="text" class="question-input" placeholder="回答を入力してください">';
+                
+                case 'textarea':
+                    return '<textarea class="question-textarea" placeholder="詳細な回答を入力してください"></textarea>';
+                
+                case 'radio':
+                case 'checkbox':
+                    const options = questionElement.querySelectorAll('.option-input');
+                    let optionsHtml = '<div class="question-options">';
+                    options.forEach((option, index) => {
+                        if (option.value) {
+                            const inputType = type === 'radio' ? 'radio' : 'checkbox';
+                            const name = type === 'radio' ? `q${questionNumber}` : `q${questionNumber}_${index}`;
+                            optionsHtml += `
+                                <div class="option-item">
+                                    <input type="${inputType}" name="${name}" class="option-input-element" id="q${questionNumber}_opt${index}">
+                                    <label for="q${questionNumber}_opt${index}" class="option-label">${option.value}</label>
+                                </div>
+                            `;
+                        }
+                    });
+                    optionsHtml += '</div>';
+                    return optionsHtml;
+                
+                case 'rating':
+                    return `
+                        <div class="rating-container">
+                            ${[1,2,3,4,5].map(i => `
+                                <div class="rating-option">
+                                    <input type="radio" name="q${questionNumber}" value="${i}" id="q${questionNumber}_r${i}">
+                                    <label for="q${questionNumber}_r${i}" class="rating-label">${i}</label>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.8rem; color: #666;">
+                            <span>全く満足していない</span>
+                            <span>非常に満足している</span>
+                        </div>
+                    `;
+                
+                case 'yesno':
+                    return `
+                        <div class="question-options">
+                            <div class="option-item">
+                                <input type="radio" name="q${questionNumber}" value="yes" id="q${questionNumber}_yes">
+                                <label for="q${questionNumber}_yes" class="option-label">はい</label>
+                            </div>
+                            <div class="option-item">
+                                <input type="radio" name="q${questionNumber}" value="no" id="q${questionNumber}_no">
+                                <label for="q${questionNumber}_no" class="option-label">いいえ</label>
+                            </div>
+                        </div>
+                    `;
+                
+                default:
+                    return '<input type="text" class="question-input" placeholder="回答を入力してください">';
+            }
+        }
+
+        function printSurvey() {
+            window.print();
+        }
+
+        function saveSurvey() {
+            const data = {
+                surveyTitle: document.getElementById('surveyTitle').value,
+                organizer: document.getElementById('organizer').value,
+                surveyDate: document.getElementById('surveyDate').value,
+                targetAudience: document.getElementById('targetAudience').value,
+                estimatedTime: document.getElementById('estimatedTime').value,
+                purpose: document.getElementById('purpose').value,
+                thankYouMessage: document.getElementById('thankYouMessage').value,
+                privacyNotice: document.getElementById('privacyNotice').value,
+                questions: []
+            };
+
+            // 質問データの収集
+            const questions = document.getElementById('questionsList').querySelectorAll('.question-container');
+            questions.forEach(question => {
+                const questionData = {
+                    text: question.querySelector('input[id^="questionText"]').value,
+                    type: question.querySelector('select[id^="questionType"]').value,
+                    required: question.querySelector('select[id^="questionRequired"]').value,
+                    options: []
+                };
+
+                // 選択肢がある場合は収集
+                const options = question.querySelectorAll('.option-input');
+                options.forEach(option => {
+                    if (option.value) {
+                        questionData.options.push(option.value);
+                    }
+                });
+
+                data.questions.push(questionData);
+            });
+
+            localStorage.setItem('surveyData', JSON.stringify(data));
+            alert('アンケートを保存しました！');
+        }
+
+        function loadSurvey() {
+            const savedData = localStorage.getItem('surveyData');
+            if (!savedData) {
+                alert('保存されたデータがありません。');
+                return;
+            }
+
+            const data = JSON.parse(savedData);
+            
+            // 基本情報の読み込み
+            Object.keys(data).forEach(key => {
+                if (key !== 'questions') {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.value = data[key] || '';
+                    }
+                }
+            });
+
+            // 質問リストをクリア
+            document.getElementById('questionsList').innerHTML = '';
+            questionCount = 0;
+
+            // 質問の読み込み
+            if (data.questions) {
+                data.questions.forEach(questionData => {
+                    addQuestion();
+                    const container = document.getElementById('questionsList').lastElementChild;
+                    
+                    container.querySelector('input[id^="questionText"]').value = questionData.text || '';
+                    container.querySelector('select[id^="questionType"]').value = questionData.type || 'text';
+                    container.querySelector('select[id^="questionRequired"]').value = questionData.required || 'no';
+                    
+                    // 質問タイプに応じた選択肢の設定
+                    updateQuestionOptions(questionCount);
+                    
+                    // 選択肢の読み込み
+                    if (questionData.options && questionData.options.length > 0) {
+                        const optionsList = container.querySelector(`#optionsList${questionCount}`);
+                        optionsList.innerHTML = ''; // デフォルト選択肢をクリア
+                        
+                        questionData.options.forEach(optionText => {
+                            addOption(questionCount, optionText);
+                        });
+                    }
+                });
+            }
+
+            updatePreview();
+            alert('アンケートを読み込みました！');
+        }
+
+        function clearForm() {
+            if (confirm('すべての入力内容をクリアしますか？')) {
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    element.value = '';
+                });
+                document.getElementById('questionsList').innerHTML = '';
+                questionCount = 0;
+                updatePreview();
+            }
+        }
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+                input.addEventListener('change', updatePreview);
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

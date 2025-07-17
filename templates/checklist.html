@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>チェックリスト - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .checklist-app {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .add-item-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .add-item-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .item-container {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        .priority-select {
+            width: auto;
+            padding: 5px;
+            font-size: 0.8rem;
+        }
+
+        .checklist-preview {
+            padding: 40px;
+            font-family: 'Times New Roman', serif;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .checklist-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .checklist-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .checklist-info {
+            font-size: 0.95rem;
+            color: #666;
+        }
+
+        .checklist-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .checklist-section {
+            margin-bottom: 25px;
+        }
+
+        .checklist-section h3 {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 1px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding: 10px;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .checklist-item:hover {
+            background: #f8f9fa;
+            border-color: #667eea;
+        }
+
+        .checklist-item.completed {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .checklist-item.completed .item-text {
+            text-decoration: line-through;
+            color: #666;
+        }
+
+        .item-checkbox {
+            margin-right: 10px;
+            margin-top: 2px;
+            cursor: pointer;
+            transform: scale(1.2);
+        }
+
+        .item-text {
+            flex: 1;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        .item-priority {
+            margin-left: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .priority-high {
+            background: #dc3545;
+            color: white;
+        }
+
+        .priority-medium {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .priority-low {
+            background: #28a745;
+            color: white;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+        }
+
+        .control-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .checklist-preview {
+                padding: 20px;
+                font-size: 0.9rem;
+            }
+            
+            .checklist-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .checklist-app {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header, .form-section, .controls {
+                display: none;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+                padding: 0;
+                gap: 0;
+            }
+            
+            .preview-section {
+                border: none;
+                max-height: none;
+                overflow: visible;
+            }
+
+            .item-checkbox {
+                appearance: none;
+                border: 2px solid #333;
+                border-radius: 3px;
+                width: 15px;
+                height: 15px;
+                position: relative;
+            }
+
+            .item-checkbox:checked::after {
+                content: '✓';
+                position: absolute;
+                top: -2px;
+                left: 1px;
+                font-size: 12px;
+                font-weight: bold;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="checklist-app">
+        <div class="header">
+            <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+            <h1>✅ チェックリスト</h1>
+            <p>効率的なタスク管理とチェックリスト作成</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="section-title">基本情報</div>
+                <div class="form-group">
+                    <label for="checklistTitle">チェックリストタイトル</label>
+                    <input type="text" id="checklistTitle" placeholder="プロジェクト準備チェックリスト">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="checklistDate">作成日</label>
+                            <input type="date" id="checklistDate">
+                        </div>
+                        <div>
+                            <label for="dueDate">期限</label>
+                            <input type="date" id="dueDate">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="assignee">担当者</label>
+                            <input type="text" id="assignee" placeholder="山田 太郎">
+                        </div>
+                        <div>
+                            <label for="category">カテゴリ</label>
+                            <select id="category">
+                                <option value="">選択してください</option>
+                                <option value="business">ビジネス</option>
+                                <option value="personal">個人</option>
+                                <option value="project">プロジェクト</option>
+                                <option value="event">イベント</option>
+                                <option value="travel">旅行</option>
+                                <option value="other">その他</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">説明・目的</label>
+                    <textarea id="description" placeholder="このチェックリストの目的や概要を記載してください"></textarea>
+                </div>
+
+                <div class="section-title">チェック項目</div>
+                <div id="itemsList"></div>
+                <button class="add-item-btn" onclick="addItem()">+ 項目を追加</button>
+
+                <div class="section-title">備考</div>
+                <div class="form-group">
+                    <label for="notes">備考・注意事項</label>
+                    <textarea id="notes" placeholder="注意事項や備考があれば記載してください"></textarea>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="checklist-preview" id="checklistPreview">
+                    <div class="checklist-header">
+                        <div class="checklist-title" id="previewTitle">チェックリスト</div>
+                        <div class="checklist-info" id="previewInfo"></div>
+                    </div>
+
+                    <div class="checklist-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalItems">0</div>
+                            <div class="stat-label">総項目数</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="completedItems">0</div>
+                            <div class="stat-label">完了項目数</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="progressPercent">0%</div>
+                            <div class="stat-label">進捗率</div>
+                        </div>
+                    </div>
+
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%;">0%</div>
+                    </div>
+
+                    <div class="checklist-section" id="previewItemsSection">
+                        <h3>チェック項目</h3>
+                        <div id="previewItems">
+                            <div style="text-align: center; color: #666; padding: 20px;">
+                                項目を追加してください
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-section" id="previewNotesSection" style="display: none;">
+                        <h3>備考・注意事項</h3>
+                        <div id="previewNotes"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="printChecklist()">🖨️ 印刷</button>
+            <button class="control-btn secondary" onclick="saveChecklist()">💾 保存</button>
+            <button class="control-btn secondary" onclick="loadChecklist()">📂 読み込み</button>
+            <button class="control-btn secondary" onclick="clearForm()">🗑️ クリア</button>
+        </div>
+    </div>
+
+    <script>
+        let itemCount = 0;
+
+        function addItem() {
+            itemCount++;
+            const itemsList = document.getElementById('itemsList');
+            const div = document.createElement('div');
+            div.className = 'item-container';
+            div.innerHTML = `
+                <div class="item-header">
+                    <strong>項目 ${itemCount}</strong>
+                    <button class="remove-btn" onclick="removeItem(this)">削除</button>
+                </div>
+                <div class="form-group">
+                    <label>チェック項目</label>
+                    <input type="text" id="itemText${itemCount}" placeholder="実行すべき項目を記載してください">
+                </div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label>優先度</label>
+                            <select id="itemPriority${itemCount}" class="priority-select">
+                                <option value="medium">中</option>
+                                <option value="high">高</option>
+                                <option value="low">低</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>完了状態</label>
+                            <select id="itemStatus${itemCount}">
+                                <option value="pending">未完了</option>
+                                <option value="completed">完了</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+            itemsList.appendChild(div);
+            
+            // イベントリスナーを追加
+            document.getElementById(`itemText${itemCount}`).addEventListener('input', updatePreview);
+            document.getElementById(`itemPriority${itemCount}`).addEventListener('change', updatePreview);
+            document.getElementById(`itemStatus${itemCount}`).addEventListener('change', updatePreview);
+            
+            updatePreview();
+        }
+
+        function removeItem(button) {
+            button.closest('.item-container').remove();
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const checklistTitle = document.getElementById('checklistTitle').value;
+            const checklistDate = document.getElementById('checklistDate').value;
+            const dueDate = document.getElementById('dueDate').value;
+            const assignee = document.getElementById('assignee').value;
+            const category = document.getElementById('category').value;
+            const description = document.getElementById('description').value;
+            const notes = document.getElementById('notes').value;
+
+            // タイトルの更新
+            document.getElementById('previewTitle').textContent = 
+                checklistTitle || 'チェックリスト';
+
+            // 基本情報の更新
+            let infoLines = [];
+            if (checklistDate) infoLines.push(`作成日: ${formatDate(checklistDate)}`);
+            if (dueDate) infoLines.push(`期限: ${formatDate(dueDate)}`);
+            if (assignee) infoLines.push(`担当者: ${assignee}`);
+            if (category) infoLines.push(`カテゴリ: ${getCategoryName(category)}`);
+            if (description) infoLines.push(`説明: ${description}`);
+            
+            document.getElementById('previewInfo').innerHTML = infoLines.join('<br>');
+
+            // チェック項目の更新
+            updateItems();
+
+            // 備考の更新
+            if (notes) {
+                document.getElementById('previewNotes').textContent = notes;
+                document.getElementById('previewNotesSection').style.display = 'block';
+            } else {
+                document.getElementById('previewNotesSection').style.display = 'none';
+            }
+        }
+
+        function updateItems() {
+            const itemsList = document.getElementById('itemsList');
+            const items = itemsList.querySelectorAll('.item-container');
+            const previewItems = document.getElementById('previewItems');
+            
+            let html = '';
+            let totalItems = 0;
+            let completedItems = 0;
+
+            if (items.length === 0) {
+                html = '<div style="text-align: center; color: #666; padding: 20px;">項目を追加してください</div>';
+            } else {
+                items.forEach((item, index) => {
+                    const text = item.querySelector('input[id^="itemText"]').value;
+                    const priority = item.querySelector('select[id^="itemPriority"]').value;
+                    const status = item.querySelector('select[id^="itemStatus"]').value;
+                    
+                    if (text) {
+                        totalItems++;
+                        if (status === 'completed') completedItems++;
+                        
+                        const isCompleted = status === 'completed';
+                        const itemClass = isCompleted ? 'checklist-item completed' : 'checklist-item';
+                        
+                        html += `
+                            <div class="${itemClass}">
+                                <input type="checkbox" class="item-checkbox" ${isCompleted ? 'checked' : ''} 
+                                       onchange="toggleItemStatus(this, ${index})">
+                                <div class="item-text">${text}</div>
+                                <div class="item-priority priority-${priority}">${getPriorityText(priority)}</div>
+                            </div>
+                        `;
+                    }
+                });
+            }
+
+            previewItems.innerHTML = html;
+
+            // 統計の更新
+            const progressPercent = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+            
+            document.getElementById('totalItems').textContent = totalItems;
+            document.getElementById('completedItems').textContent = completedItems;
+            document.getElementById('progressPercent').textContent = `${progressPercent}%`;
+            
+            // プログレスバーの更新
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = `${progressPercent}%`;
+            progressFill.textContent = `${progressPercent}%`;
+        }
+
+        function toggleItemStatus(checkbox, itemIndex) {
+            const itemsList = document.getElementById('itemsList');
+            const items = itemsList.querySelectorAll('.item-container');
+            const statusSelect = items[itemIndex].querySelector('select[id^="itemStatus"]');
+            
+            statusSelect.value = checkbox.checked ? 'completed' : 'pending';
+            updatePreview();
+        }
+
+        function getCategoryName(category) {
+            const categories = {
+                'business': 'ビジネス',
+                'personal': '個人',
+                'project': 'プロジェクト',
+                'event': 'イベント',
+                'travel': '旅行',
+                'other': 'その他'
+            };
+            return categories[category] || category;
+        }
+
+        function getPriorityText(priority) {
+            const priorities = {
+                'high': '高',
+                'medium': '中',
+                'low': '低'
+            };
+            return priorities[priority] || priority;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${year}年${month}月${day}日`;
+        }
+
+        function printChecklist() {
+            window.print();
+        }
+
+        function saveChecklist() {
+            const data = {
+                checklistTitle: document.getElementById('checklistTitle').value,
+                checklistDate: document.getElementById('checklistDate').value,
+                dueDate: document.getElementById('dueDate').value,
+                assignee: document.getElementById('assignee').value,
+                category: document.getElementById('category').value,
+                description: document.getElementById('description').value,
+                notes: document.getElementById('notes').value,
+                items: []
+            };
+
+            // 項目データの収集
+            const items = document.getElementById('itemsList').querySelectorAll('.item-container');
+            items.forEach(item => {
+                data.items.push({
+                    text: item.querySelector('input[id^="itemText"]').value,
+                    priority: item.querySelector('select[id^="itemPriority"]').value,
+                    status: item.querySelector('select[id^="itemStatus"]').value
+                });
+            });
+
+            localStorage.setItem('checklistData', JSON.stringify(data));
+            alert('チェックリストを保存しました！');
+        }
+
+        function loadChecklist() {
+            const savedData = localStorage.getItem('checklistData');
+            if (!savedData) {
+                alert('保存されたデータがありません。');
+                return;
+            }
+
+            const data = JSON.parse(savedData);
+            
+            // 基本情報の読み込み
+            Object.keys(data).forEach(key => {
+                if (key !== 'items') {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.value = data[key] || '';
+                    }
+                }
+            });
+
+            // 項目リストをクリア
+            document.getElementById('itemsList').innerHTML = '';
+            itemCount = 0;
+
+            // 項目の読み込み
+            if (data.items) {
+                data.items.forEach(item => {
+                    addItem();
+                    const container = document.getElementById('itemsList').lastElementChild;
+                    container.querySelector('input[id^="itemText"]').value = item.text || '';
+                    container.querySelector('select[id^="itemPriority"]').value = item.priority || 'medium';
+                    container.querySelector('select[id^="itemStatus"]').value = item.status || 'pending';
+                });
+            }
+
+            updatePreview();
+            alert('チェックリストを読み込みました！');
+        }
+
+        function clearForm() {
+            if (confirm('すべての入力内容をクリアしますか？')) {
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    if (element.id === 'category') {
+                        element.value = '';
+                    } else {
+                        element.value = '';
+                    }
+                });
+                document.getElementById('itemsList').innerHTML = '';
+                itemCount = 0;
+                updatePreview();
+            }
+        }
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+                input.addEventListener('change', updatePreview);
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            // 現在の日付を設定
+            document.getElementById('checklistDate').value = new Date().toISOString().split('T')[0];
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

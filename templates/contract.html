@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>契約書テンプレート - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .contract-app {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .contract-preview {
+            padding: 40px;
+            font-family: 'Times New Roman', serif;
+            color: #333;
+            line-height: 2;
+        }
+
+        .contract-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #333;
+        }
+
+        .contract-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .contract-number {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .contract-parties {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .party-info {
+            text-align: center;
+        }
+
+        .party-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .party-details {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .contract-section {
+            margin-bottom: 25px;
+        }
+
+        .contract-section h3 {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .contract-article {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+        }
+
+        .article-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .article-content {
+            text-align: justify;
+            margin-bottom: 10px;
+        }
+
+        .signature-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #333;
+        }
+
+        .signature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            margin-top: 30px;
+        }
+
+        .signature-block {
+            text-align: center;
+        }
+
+        .signature-line {
+            border-bottom: 1px solid #333;
+            height: 60px;
+            margin-bottom: 10px;
+        }
+
+        .signature-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+        }
+
+        .control-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+
+        .warning-box .warning-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .contract-preview {
+                padding: 20px;
+                font-size: 0.9rem;
+            }
+            
+            .contract-parties {
+                grid-template-columns: 1fr;
+            }
+            
+            .signature-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .contract-app {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header, .form-section, .controls {
+                display: none;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+                padding: 0;
+                gap: 0;
+            }
+            
+            .preview-section {
+                border: none;
+                max-height: none;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="contract-app">
+        <div class="header">
+            <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+            <h1>📄 契約書テンプレート</h1>
+            <p>基本的な契約書を作成</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="warning-box">
+                    <div class="warning-title">⚠️ 重要な注意事項</div>
+                    <div>このテンプレートは基本的な契約書の構成例です。実際の契約では法的アドバイスを受けることを強く推奨します。</div>
+                </div>
+
+                <div class="section-title">基本情報</div>
+                <div class="form-group">
+                    <label for="contractTitle">契約書タイトル</label>
+                    <input type="text" id="contractTitle" placeholder="業務委託契約書">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="contractNumber">契約番号</label>
+                            <input type="text" id="contractNumber" placeholder="Contract-2024-001">
+                        </div>
+                        <div>
+                            <label for="contractDate">契約日</label>
+                            <input type="date" id="contractDate">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">甲（委託者）情報</div>
+                <div class="form-group">
+                    <label for="partyAName">会社名・氏名</label>
+                    <input type="text" id="partyAName" placeholder="株式会社○○">
+                </div>
+
+                <div class="form-group">
+                    <label for="partyAAddress">住所</label>
+                    <input type="text" id="partyAAddress" placeholder="〒000-0000 東京都○○区○○ 1-2-3">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="partyARepresentative">代表者</label>
+                            <input type="text" id="partyARepresentative" placeholder="代表取締役 山田太郎">
+                        </div>
+                        <div>
+                            <label for="partyAContact">連絡先</label>
+                            <input type="text" id="partyAContact" placeholder="03-0000-0000">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">乙（受託者）情報</div>
+                <div class="form-group">
+                    <label for="partyBName">会社名・氏名</label>
+                    <input type="text" id="partyBName" placeholder="株式会社△△">
+                </div>
+
+                <div class="form-group">
+                    <label for="partyBAddress">住所</label>
+                    <input type="text" id="partyBAddress" placeholder="〒111-1111 大阪府○○市○○ 4-5-6">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="partyBRepresentative">代表者</label>
+                            <input type="text" id="partyBRepresentative" placeholder="代表取締役 佐藤花子">
+                        </div>
+                        <div>
+                            <label for="partyBContact">連絡先</label>
+                            <input type="text" id="partyBContact" placeholder="06-0000-0000">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">契約内容</div>
+                <div class="form-group">
+                    <label for="contractPurpose">契約の目的</label>
+                    <textarea id="contractPurpose" placeholder="この契約の目的を記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="workContent">業務内容</label>
+                    <textarea id="workContent" placeholder="具体的な業務内容を記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="contractPeriodStart">契約期間（開始）</label>
+                            <input type="date" id="contractPeriodStart">
+                        </div>
+                        <div>
+                            <label for="contractPeriodEnd">契約期間（終了）</label>
+                            <input type="date" id="contractPeriodEnd">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="payment">報酬・支払条件</label>
+                    <textarea id="payment" placeholder="報酬額と支払条件を記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="deliverables">成果物</label>
+                    <textarea id="deliverables" placeholder="納品物や成果物について記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="confidentiality">機密保持</label>
+                    <textarea id="confidentiality" placeholder="機密保持に関する条項を記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="responsibilities">責任の範囲</label>
+                    <textarea id="responsibilities" placeholder="各当事者の責任範囲を記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="termination">契約の解除</label>
+                    <textarea id="termination" placeholder="契約解除の条件を記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="disputeResolution">紛争解決</label>
+                    <textarea id="disputeResolution" placeholder="紛争が生じた場合の解決方法を記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="additionalTerms">その他の条項</label>
+                    <textarea id="additionalTerms" placeholder="その他必要な条項があれば記載してください"></textarea>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="contract-preview" id="contractPreview">
+                    <div class="contract-header">
+                        <div class="contract-title" id="previewTitle">契約書</div>
+                        <div class="contract-number" id="previewNumber"></div>
+                    </div>
+
+                    <div class="contract-parties">
+                        <div class="party-info">
+                            <div class="party-title">甲（委託者）</div>
+                            <div class="party-details" id="previewPartyA"></div>
+                        </div>
+                        <div class="party-info">
+                            <div class="party-title">乙（受託者）</div>
+                            <div class="party-details" id="previewPartyB"></div>
+                        </div>
+                    </div>
+
+                    <div id="previewMainContent">
+                        <div class="contract-section" id="previewPurposeSection" style="display: none;">
+                            <div class="contract-article">
+                                <div class="article-title">第1条（目的）</div>
+                                <div class="article-content" id="previewPurpose"></div>
+                            </div>
+                        </div>
+
+                        <div class="contract-section" id="previewWorkSection" style="display: none;">
+                            <div class="contract-article">
+                                <div class="article-title">第2条（業務内容）</div>
+                                <div class="article-content" id="previewWork"></div>
+                            </div>
+                        </div>
+
+                        <div class="contract-section" id="previewPeriodSection" style="display: none;">
+                            <div class="contract-article">
+                                <div class="article-title">第3条（契約期間）</div>
+                                <div class="article-content" id="previewPeriod"></div>
+                            </div>
+                        </div>
+
+                        <div class="contract-section" id="previewPaymentSection" style="display: none;">
+                            <div class="contract-article">
+                                <div class="article-title">第4条（報酬・支払条件）</div>
+                                <div class="article-content" id="previewPayment"></div>
+                            </div>
+                        </div>
+
+                        <div class="contract-section" id="previewDeliverablesSection" style="display: none;">
+                            <div class="contract-article">
+                                <div class="article-title">第5条（成果物）</div>
+                                <div class="article-content" id="previewDeliverables"></div>
+                            </div>
+                        </div>
+
+                        <div class="contract-section" id="previewConfidentialitySection" style="display: none;">
+                            <div class="contract-article">
+                                <div class="article-title">第6条（機密保持）</div>
+                                <div class="article-content" id="previewConfidentiality"></div>
+                            </div>
+                        </div>
+
+                        <div class="contract-section" id="previewResponsibilitiesSection" style="display: none;">
+                            <div class="contract-article">
+                                <div class="article-title">第7条（責任の範囲）</div>
+                                <div class="article-content" id="previewResponsibilities"></div>
+                            </div>
+                        </div>
+
+                        <div class="contract-section" id="previewTerminationSection" style="display: none;">
+                            <div class="contract-article">
+                                <div class="article-title">第8条（契約の解除）</div>
+                                <div class="article-content" id="previewTermination"></div>
+                            </div>
+                        </div>
+
+                        <div class="contract-section" id="previewDisputeSection" style="display: none;">
+                            <div class="contract-article">
+                                <div class="article-title">第9条（紛争解決）</div>
+                                <div class="article-content" id="previewDispute"></div>
+                            </div>
+                        </div>
+
+                        <div class="contract-section" id="previewAdditionalSection" style="display: none;">
+                            <div class="contract-article">
+                                <div class="article-title">第10条（その他）</div>
+                                <div class="article-content" id="previewAdditional"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="signature-section">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <strong>以上、本契約の成立を証するため、本書2通を作成し、甲乙各1通を保有する。</strong>
+                        </div>
+                        <div style="text-align: center; margin-bottom: 30px;" id="previewContractDate"></div>
+                        
+                        <div class="signature-grid">
+                            <div class="signature-block">
+                                <div class="signature-line"></div>
+                                <div class="signature-label">甲（委託者）</div>
+                                <div style="margin-top: 10px;" id="previewSignatureA"></div>
+                            </div>
+                            <div class="signature-block">
+                                <div class="signature-line"></div>
+                                <div class="signature-label">乙（受託者）</div>
+                                <div style="margin-top: 10px;" id="previewSignatureB"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="printContract()">🖨️ 印刷</button>
+            <button class="control-btn secondary" onclick="saveContract()">💾 保存</button>
+            <button class="control-btn secondary" onclick="loadContract()">📂 読み込み</button>
+            <button class="control-btn secondary" onclick="clearForm()">🗑️ クリア</button>
+        </div>
+    </div>
+
+    <script>
+        function updatePreview() {
+            const contractTitle = document.getElementById('contractTitle').value;
+            const contractNumber = document.getElementById('contractNumber').value;
+            const contractDate = document.getElementById('contractDate').value;
+
+            // 当事者情報
+            const partyAName = document.getElementById('partyAName').value;
+            const partyAAddress = document.getElementById('partyAAddress').value;
+            const partyARepresentative = document.getElementById('partyARepresentative').value;
+            const partyAContact = document.getElementById('partyAContact').value;
+
+            const partyBName = document.getElementById('partyBName').value;
+            const partyBAddress = document.getElementById('partyBAddress').value;
+            const partyBRepresentative = document.getElementById('partyBRepresentative').value;
+            const partyBContact = document.getElementById('partyBContact').value;
+
+            // 契約内容
+            const contractPurpose = document.getElementById('contractPurpose').value;
+            const workContent = document.getElementById('workContent').value;
+            const contractPeriodStart = document.getElementById('contractPeriodStart').value;
+            const contractPeriodEnd = document.getElementById('contractPeriodEnd').value;
+            const payment = document.getElementById('payment').value;
+            const deliverables = document.getElementById('deliverables').value;
+            const confidentiality = document.getElementById('confidentiality').value;
+            const responsibilities = document.getElementById('responsibilities').value;
+            const termination = document.getElementById('termination').value;
+            const disputeResolution = document.getElementById('disputeResolution').value;
+            const additionalTerms = document.getElementById('additionalTerms').value;
+
+            // タイトルの更新
+            if (contractTitle) {
+                document.getElementById('previewTitle').textContent = contractTitle;
+            } else {
+                document.getElementById('previewTitle').textContent = '契約書';
+            }
+
+            // 契約番号の更新
+            if (contractNumber) {
+                document.getElementById('previewNumber').textContent = `契約番号: ${contractNumber}`;
+            } else {
+                document.getElementById('previewNumber').textContent = '';
+            }
+
+            // 当事者情報の更新
+            updatePartyInfo('A', partyAName, partyAAddress, partyARepresentative, partyAContact);
+            updatePartyInfo('B', partyBName, partyBAddress, partyBRepresentative, partyBContact);
+
+            // 契約期間の更新
+            if (contractPeriodStart || contractPeriodEnd) {
+                let periodText = '本契約の期間は、';
+                if (contractPeriodStart) {
+                    periodText += `${formatDate(contractPeriodStart)}から`;
+                }
+                if (contractPeriodEnd) {
+                    periodText += `${formatDate(contractPeriodEnd)}まで`;
+                }
+                periodText += 'とする。';
+                
+                document.getElementById('previewPeriod').textContent = periodText;
+                document.getElementById('previewPeriodSection').style.display = 'block';
+            } else {
+                document.getElementById('previewPeriodSection').style.display = 'none';
+            }
+
+            // 各条項の更新
+            updateArticle('Purpose', contractPurpose);
+            updateArticle('Work', workContent);
+            updateArticle('Payment', payment);
+            updateArticle('Deliverables', deliverables);
+            updateArticle('Confidentiality', confidentiality);
+            updateArticle('Responsibilities', responsibilities);
+            updateArticle('Termination', termination);
+            updateArticle('Dispute', disputeResolution);
+            updateArticle('Additional', additionalTerms);
+
+            // 署名欄の更新
+            if (contractDate) {
+                document.getElementById('previewContractDate').textContent = formatDate(contractDate);
+            } else {
+                document.getElementById('previewContractDate').textContent = '';
+            }
+
+            updateSignature('A', partyAName, partyARepresentative);
+            updateSignature('B', partyBName, partyBRepresentative);
+        }
+
+        function updatePartyInfo(party, name, address, representative, contact) {
+            let html = '';
+            if (name) html += `<div><strong>${name}</strong></div>`;
+            if (address) html += `<div>${address}</div>`;
+            if (representative) html += `<div>${representative}</div>`;
+            if (contact) html += `<div>TEL: ${contact}</div>`;
+
+            document.getElementById(`previewParty${party}`).innerHTML = html;
+        }
+
+        function updateArticle(sectionName, content) {
+            if (content) {
+                document.getElementById(`preview${sectionName}`).textContent = content;
+                document.getElementById(`preview${sectionName}Section`).style.display = 'block';
+            } else {
+                document.getElementById(`preview${sectionName}Section`).style.display = 'none';
+            }
+        }
+
+        function updateSignature(party, name, representative) {
+            let html = '';
+            if (name) html += `<div>${name}</div>`;
+            if (representative) html += `<div>${representative}</div>`;
+            document.getElementById(`previewSignature${party}`).innerHTML = html;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${year}年${month}月${day}日`;
+        }
+
+        function printContract() {
+            window.print();
+        }
+
+        function saveContract() {
+            const data = {
+                contractTitle: document.getElementById('contractTitle').value,
+                contractNumber: document.getElementById('contractNumber').value,
+                contractDate: document.getElementById('contractDate').value,
+                partyAName: document.getElementById('partyAName').value,
+                partyAAddress: document.getElementById('partyAAddress').value,
+                partyARepresentative: document.getElementById('partyARepresentative').value,
+                partyAContact: document.getElementById('partyAContact').value,
+                partyBName: document.getElementById('partyBName').value,
+                partyBAddress: document.getElementById('partyBAddress').value,
+                partyBRepresentative: document.getElementById('partyBRepresentative').value,
+                partyBContact: document.getElementById('partyBContact').value,
+                contractPurpose: document.getElementById('contractPurpose').value,
+                workContent: document.getElementById('workContent').value,
+                contractPeriodStart: document.getElementById('contractPeriodStart').value,
+                contractPeriodEnd: document.getElementById('contractPeriodEnd').value,
+                payment: document.getElementById('payment').value,
+                deliverables: document.getElementById('deliverables').value,
+                confidentiality: document.getElementById('confidentiality').value,
+                responsibilities: document.getElementById('responsibilities').value,
+                termination: document.getElementById('termination').value,
+                disputeResolution: document.getElementById('disputeResolution').value,
+                additionalTerms: document.getElementById('additionalTerms').value
+            };
+
+            localStorage.setItem('contractData', JSON.stringify(data));
+            alert('契約書を保存しました！');
+        }
+
+        function loadContract() {
+            const savedData = localStorage.getItem('contractData');
+            if (!savedData) {
+                alert('保存されたデータがありません。');
+                return;
+            }
+
+            const data = JSON.parse(savedData);
+            
+            // フォームに保存されたデータを読み込み
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = data[key] || '';
+                }
+            });
+
+            updatePreview();
+            alert('契約書を読み込みました！');
+        }
+
+        function clearForm() {
+            if (confirm('すべての入力内容をクリアしますか？')) {
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    element.value = '';
+                });
+                updatePreview();
+            }
+        }
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

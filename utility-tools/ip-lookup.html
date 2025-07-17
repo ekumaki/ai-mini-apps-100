@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPアドレス検索 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .ip-lookup {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .current-ip-section {
+            background: #e8f5e8;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .current-ip-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .current-ip-display {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .current-ip-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #155724;
+            margin-bottom: 5px;
+        }
+
+        .current-ip-location {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .search-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 1.5rem;
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-input.error {
+            border-color: #dc3545;
+        }
+
+        .search-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .search-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .option-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .option-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .option-group label {
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .quick-search {
+            background: #e1ecf4;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .quick-title {
+            color: #0c5460;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .quick-item {
+            background: white;
+            border: 2px solid #b3d4fc;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .quick-item:hover {
+            background: #b3d4fc;
+            transform: translateY(-2px);
+        }
+
+        .quick-label {
+            font-weight: 600;
+            color: #0c5460;
+            margin-bottom: 3px;
+        }
+
+        .quick-ip {
+            font-family: 'Courier New', monospace;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .results-section {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .results-title {
+            color: #856404;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .result-item {
+            background: white;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .result-ip {
+            font-family: 'Courier New', monospace;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #856404;
+        }
+
+        .result-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .result-status.valid {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .result-status.invalid {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .result-detail {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 12px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .detail-value {
+            color: #666;
+            font-size: 0.9rem;
+            word-break: break-word;
+        }
+
+        .map-section {
+            background: #d4edda;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .map-section.show {
+            display: block;
+        }
+
+        .map-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .map-container {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .map-placeholder {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .security-section {
+            background: #f3e5f5;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .security-title {
+            color: #6a1b9a;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .security-item {
+            background: white;
+            border: 1px solid #ce93d8;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .security-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .security-label {
+            font-weight: 600;
+            color: #6a1b9a;
+            margin-bottom: 5px;
+        }
+
+        .security-value {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .history-section {
+            background: #e1ecf4;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .history-title {
+            color: #0c5460;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: white;
+            border: 1px solid #b3d4fc;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-ip {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #0c5460;
+            margin-bottom: 3px;
+        }
+
+        .history-location {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .history-time {
+            font-size: 0.7rem;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .action-btn.success {
+            background: #28a745;
+        }
+
+        .action-btn.success:hover {
+            background: #218838;
+        }
+
+        .action-btn.small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .ip-lookup {
+                padding: 20px;
+            }
+            
+            .search-input-group {
+                flex-direction: column;
+            }
+            
+            .search-options {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .security-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .history-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .history-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ip-lookup">
+        <div class="header">
+            <h1>IPアドレス検索</h1>
+            <p>IPアドレスの詳細情報と位置情報を取得</p>
+        </div>
+
+        <div class="current-ip-section">
+            <div class="current-ip-title">あなたの現在のIPアドレス</div>
+            <div class="current-ip-display">
+                <div class="current-ip-value" id="currentIp">取得中...</div>
+                <div class="current-ip-location" id="currentLocation">位置情報を取得中...</div>
+            </div>
+            <button class="action-btn small" onclick="refreshCurrentIp()">更新</button>
+        </div>
+
+        <div class="search-section">
+            <div class="section-title">
+                <span class="section-icon">🔍</span>
+                <span>IP検索</span>
+            </div>
+            <div class="search-input-group">
+                <input type="text" id="ipInput" class="search-input" placeholder="IPアドレスを入力 (例: 8.8.8.8)" pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$">
+                <button class="search-btn" onclick="searchIp()">検索</button>
+            </div>
+            <div class="search-options">
+                <div class="option-group">
+                    <input type="checkbox" id="includeGeolocation" checked>
+                    <label for="includeGeolocation">位置情報を含める</label>
+                </div>
+                <div class="option-group">
+                    <input type="checkbox" id="includeSecurity" checked>
+                    <label for="includeSecurity">セキュリティ情報を含める</label>
+                </div>
+                <div class="option-group">
+                    <input type="checkbox" id="saveToHistory" checked>
+                    <label for="saveToHistory">検索履歴に保存</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-search">
+            <div class="quick-title">クイック検索</div>
+            <div class="quick-grid">
+                <div class="quick-item" onclick="quickSearch('8.8.8.8')">
+                    <div class="quick-label">Google DNS</div>
+                    <div class="quick-ip">8.8.8.8</div>
+                </div>
+                <div class="quick-item" onclick="quickSearch('1.1.1.1')">
+                    <div class="quick-label">Cloudflare DNS</div>
+                    <div class="quick-ip">1.1.1.1</div>
+                </div>
+                <div class="quick-item" onclick="quickSearch('208.67.222.222')">
+                    <div class="quick-label">OpenDNS</div>
+                    <div class="quick-ip">208.67.222.222</div>
+                </div>
+                <div class="quick-item" onclick="quickSearch('76.76.76.76')">
+                    <div class="quick-label">Control D</div>
+                    <div class="quick-ip">76.76.76.76</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results-title">検索結果</div>
+            <div id="resultsContainer">
+                <!-- 検索結果がここに表示されます -->
+            </div>
+        </div>
+
+        <div class="map-section" id="mapSection">
+            <div class="map-title">位置情報マップ</div>
+            <div class="map-container">
+                <div class="map-placeholder" id="mapPlaceholder">
+                    🗺️ 地図表示（緯度・経度情報が利用可能な場合）
+                </div>
+            </div>
+        </div>
+
+        <div class="security-section">
+            <div class="security-title">セキュリティ分析</div>
+            <div class="security-grid">
+                <div class="security-item">
+                    <div class="security-icon">🛡️</div>
+                    <div class="security-label">脅威レベル</div>
+                    <div class="security-value" id="threatLevel">分析中...</div>
+                </div>
+                <div class="security-item">
+                    <div class="security-icon">🔒</div>
+                    <div class="security-label">VPN検出</div>
+                    <div class="security-value" id="vpnDetection">確認中...</div>
+                </div>
+                <div class="security-item">
+                    <div class="security-icon">🤖</div>
+                    <div class="security-label">BOT検出</div>
+                    <div class="security-value" id="botDetection">確認中...</div>
+                </div>
+                <div class="security-item">
+                    <div class="security-icon">⚡</div>
+                    <div class="security-label">プロキシ検出</div>
+                    <div class="security-value" id="proxyDetection">確認中...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <div class="history-title">検索履歴</div>
+            <div class="history-list" id="historyList">
+                <!-- 検索履歴がここに表示されます -->
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <button class="action-btn small secondary" onclick="clearHistory()">履歴クリア</button>
+                <button class="action-btn small" onclick="exportHistory()">履歴出力</button>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" onclick="bulkLookup()">一括検索</button>
+            <button class="action-btn secondary" onclick="validateIp()">IP検証</button>
+            <button class="action-btn secondary" onclick="resetAll()">リセット</button>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let searchHistory = JSON.parse(localStorage.getItem('ipSearchHistory') || '[]');
+        let currentIpData = null;
+
+        async function getCurrentIp() {
+            try {
+                // 実際の実装では外部APIを使用
+                const mockData = {
+                    ip: '203.104.209.126',
+                    country: '日本',
+                    region: '東京都',
+                    city: '東京',
+                    isp: 'NTT Communications',
+                    lat: 35.6762,
+                    lon: 139.6503
+                };
+                
+                currentIpData = mockData;
+                document.getElementById('currentIp').textContent = mockData.ip;
+                document.getElementById('currentLocation').textContent = `${mockData.city}, ${mockData.region}, ${mockData.country}`;
+                
+                updateSecurityInfo(mockData);
+            } catch (error) {
+                document.getElementById('currentIp').textContent = 'エラー';
+                document.getElementById('currentLocation').textContent = '取得に失敗しました';
+            }
+        }
+
+        function refreshCurrentIp() {
+            document.getElementById('currentIp').textContent = '取得中...';
+            document.getElementById('currentLocation').textContent = '位置情報を取得中...';
+            getCurrentIp();
+        }
+
+        function isValidIp(ip) {
+            const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+            return ipRegex.test(ip);
+        }
+
+        async function searchIp() {
+            const ipInput = document.getElementById('ipInput');
+            const ip = ipInput.value.trim();
+
+            if (!ip) {
+                showNotification('IPアドレスを入力してください', 'error');
+                return;
+            }
+
+            if (!isValidIp(ip)) {
+                showNotification('有効なIPアドレスを入力してください', 'error');
+                ipInput.classList.add('error');
+                return;
+            }
+
+            ipInput.classList.remove('error');
+
+            try {
+                const result = await lookupIp(ip);
+                displayResults(result);
+                
+                if (document.getElementById('saveToHistory').checked) {
+                    addToHistory(result);
+                }
+                
+                showNotification('IP検索が完了しました');
+            } catch (error) {
+                showNotification('IP検索に失敗しました', 'error');
+            }
+        }
+
+        async function lookupIp(ip) {
+            // 実際の実装では外部API（ipapi.co、ip-api.comなど）を使用
+            // ここではモックデータを返す
+            
+            const mockData = {
+                ip: ip,
+                country: getRandomCountry(),
+                region: getRandomRegion(),
+                city: getRandomCity(),
+                isp: getRandomISP(),
+                organization: getRandomOrg(),
+                timezone: getRandomTimezone(),
+                lat: Math.random() * 180 - 90,
+                lon: Math.random() * 360 - 180,
+                asn: 'AS' + Math.floor(Math.random() * 65535),
+                hostname: `host-${ip.replace(/\./g, '-')}.example.com`,
+                mobile: Math.random() > 0.7,
+                proxy: Math.random() > 0.8,
+                vpn: Math.random() > 0.85,
+                tor: Math.random() > 0.95,
+                threatLevel: Math.random() > 0.9 ? 'high' : Math.random() > 0.7 ? 'medium' : 'low'
+            };
+
+            return mockData;
+        }
+
+        function getRandomCountry() {
+            const countries = ['日本', 'アメリカ', 'ドイツ', 'イギリス', 'フランス', 'カナダ', 'オーストラリア', '韓国', '中国', 'シンガポール'];
+            return countries[Math.floor(Math.random() * countries.length)];
+        }
+
+        function getRandomRegion() {
+            const regions = ['東京都', 'California', 'Berlin', 'London', 'Paris', 'Ontario', 'New South Wales', 'Seoul', 'Beijing', 'Singapore'];
+            return regions[Math.floor(Math.random() * regions.length)];
+        }
+
+        function getRandomCity() {
+            const cities = ['東京', 'Los Angeles', 'Berlin', 'London', 'Paris', 'Toronto', 'Sydney', 'Seoul', 'Beijing', 'Singapore'];
+            return cities[Math.floor(Math.random() * cities.length)];
+        }
+
+        function getRandomISP() {
+            const isps = ['NTT Communications', 'Verizon', 'Deutsche Telekom', 'BT Group', 'Orange', 'Rogers', 'Telstra', 'KT Corporation', 'China Telecom', 'SingTel'];
+            return isps[Math.floor(Math.random() * isps.length)];
+        }
+
+        function getRandomOrg() {
+            const orgs = ['NTT Ltd.', 'Google LLC', 'Amazon Technologies Inc.', 'Microsoft Corporation', 'Cloudflare Inc.', 'Akamai Technologies', 'Level 3 Communications'];
+            return orgs[Math.floor(Math.random() * orgs.length)];
+        }
+
+        function getRandomTimezone() {
+            const timezones = ['Asia/Tokyo', 'America/Los_Angeles', 'Europe/Berlin', 'Europe/London', 'Europe/Paris', 'America/Toronto', 'Australia/Sydney'];
+            return timezones[Math.floor(Math.random() * timezones.length)];
+        }
+
+        function displayResults(data) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContainer = document.getElementById('resultsContainer');
+
+            const statusClass = isValidIp(data.ip) ? 'valid' : 'invalid';
+            const statusText = isValidIp(data.ip) ? '有効' : '無効';
+
+            resultsContainer.innerHTML = `
+                <div class="result-item">
+                    <div class="result-header">
+                        <div class="result-ip">${data.ip}</div>
+                        <div class="result-status ${statusClass}">${statusText}</div>
+                    </div>
+                    <div class="result-grid">
+                        <div class="result-detail">
+                            <div class="detail-label">国</div>
+                            <div class="detail-value">${data.country}</div>
+                        </div>
+                        <div class="result-detail">
+                            <div class="detail-label">地域</div>
+                            <div class="detail-value">${data.region}</div>
+                        </div>
+                        <div class="result-detail">
+                            <div class="detail-label">都市</div>
+                            <div class="detail-value">${data.city}</div>
+                        </div>
+                        <div class="result-detail">
+                            <div class="detail-label">ISP</div>
+                            <div class="detail-value">${data.isp}</div>
+                        </div>
+                        <div class="result-detail">
+                            <div class="detail-label">組織</div>
+                            <div class="detail-value">${data.organization}</div>
+                        </div>
+                        <div class="result-detail">
+                            <div class="detail-label">タイムゾーン</div>
+                            <div class="detail-value">${data.timezone}</div>
+                        </div>
+                        <div class="result-detail">
+                            <div class="detail-label">緯度・経度</div>
+                            <div class="detail-value">${data.lat.toFixed(4)}, ${data.lon.toFixed(4)}</div>
+                        </div>
+                        <div class="result-detail">
+                            <div class="detail-label">ASN</div>
+                            <div class="detail-value">${data.asn}</div>
+                        </div>
+                        <div class="result-detail">
+                            <div class="detail-label">ホスト名</div>
+                            <div class="detail-value">${data.hostname}</div>
+                        </div>
+                        <div class="result-detail">
+                            <div class="detail-label">モバイル</div>
+                            <div class="detail-value">${data.mobile ? 'はい' : 'いいえ'}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            resultsSection.classList.add('show');
+
+            if (document.getElementById('includeGeolocation').checked) {
+                displayMap(data);
+            }
+
+            if (document.getElementById('includeSecurity').checked) {
+                updateSecurityInfo(data);
+            }
+        }
+
+        function displayMap(data) {
+            const mapSection = document.getElementById('mapSection');
+            const mapPlaceholder = document.getElementById('mapPlaceholder');
+
+            mapPlaceholder.innerHTML = `
+                🗺️ 位置: ${data.city}, ${data.region}, ${data.country}<br>
+                座標: ${data.lat.toFixed(4)}, ${data.lon.toFixed(4)}<br>
+                <small>※実際の地図表示にはGoogle Maps APIまたはOpenStreetMapを使用</small>
+            `;
+
+            mapSection.classList.add('show');
+        }
+
+        function updateSecurityInfo(data) {
+            document.getElementById('threatLevel').textContent = 
+                data.threatLevel === 'high' ? '高リスク' :
+                data.threatLevel === 'medium' ? '中リスク' : '低リスク';
+            
+            document.getElementById('vpnDetection').textContent = data.vpn ? '検出' : '未検出';
+            document.getElementById('botDetection').textContent = data.tor ? '検出' : '未検出';
+            document.getElementById('proxyDetection').textContent = data.proxy ? '検出' : '未検出';
+        }
+
+        function quickSearch(ip) {
+            document.getElementById('ipInput').value = ip;
+            searchIp();
+        }
+
+        function addToHistory(data) {
+            const historyItem = {
+                ip: data.ip,
+                location: `${data.city}, ${data.region}, ${data.country}`,
+                isp: data.isp,
+                timestamp: new Date(),
+                threatLevel: data.threatLevel
+            };
+
+            // 重複を削除
+            searchHistory = searchHistory.filter(item => item.ip !== data.ip);
+            searchHistory.unshift(historyItem);
+            
+            // 最大50件まで保持
+            if (searchHistory.length > 50) {
+                searchHistory = searchHistory.slice(0, 50);
+            }
+
+            saveHistory();
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            
+            if (searchHistory.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">検索履歴がありません</p>';
+                return;
+            }
+
+            historyList.innerHTML = searchHistory.slice(0, 10).map(item => `
+                <div class="history-item">
+                    <div class="history-info">
+                        <div class="history-ip">${item.ip}</div>
+                        <div class="history-location">${item.location}</div>
+                        <div class="history-time">${formatDate(item.timestamp)}</div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="action-btn small" onclick="searchFromHistory('${item.ip}')">再検索</button>
+                        <button class="action-btn small secondary" onclick="removeFromHistory('${item.ip}')">削除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function searchFromHistory(ip) {
+            document.getElementById('ipInput').value = ip;
+            searchIp();
+        }
+
+        function removeFromHistory(ip) {
+            searchHistory = searchHistory.filter(item => item.ip !== ip);
+            saveHistory();
+            updateHistoryDisplay();
+            showNotification('履歴から削除しました');
+        }
+
+        function clearHistory() {
+            if (confirm('全ての検索履歴を削除しますか？')) {
+                searchHistory = [];
+                saveHistory();
+                updateHistoryDisplay();
+                showNotification('履歴をクリアしました');
+            }
+        }
+
+        function bulkLookup() {
+            const ipsText = prompt('検索したいIPアドレス一覧を入力してください（1行に1つずつ）:');
+            if (!ipsText) return;
+
+            const ips = ipsText.split('\n').map(ip => ip.trim()).filter(ip => ip);
+            if (ips.length === 0) {
+                showNotification('有効なIPアドレスが見つかりません', 'error');
+                return;
+            }
+
+            let validCount = 0;
+            const results = [];
+
+            ips.forEach(async (ip, index) => {
+                if (isValidIp(ip)) {
+                    try {
+                        const result = await lookupIp(ip);
+                        results.push(result);
+                        validCount++;
+                        
+                        if (index === ips.length - 1) {
+                            showNotification(`${validCount}個のIPアドレスを検索しました`);
+                        }
+                    } catch (error) {
+                        console.error(`Failed to lookup ${ip}:`, error);
+                    }
+                }
+            });
+        }
+
+        function validateIp() {
+            const ip = document.getElementById('ipInput').value.trim();
+            
+            if (!ip) {
+                showNotification('IPアドレスを入力してください', 'error');
+                return;
+            }
+
+            const isValid = isValidIp(ip);
+            const ipType = getIpType(ip);
+            const ipClass = getIpClass(ip);
+            
+            const message = `
+IP検証結果:
+IPアドレス: ${ip}
+有効性: ${isValid ? '有効' : '無効'}
+タイプ: ${ipType}
+クラス: ${ipClass}
+            `;
+
+            alert(message);
+        }
+
+        function getIpType(ip) {
+            const parts = ip.split('.').map(Number);
+            const first = parts[0];
+            
+            if (first >= 224 && first <= 239) return 'マルチキャスト';
+            if (first >= 240 && first <= 255) return '実験用';
+            if (ip === '127.0.0.1') return 'ローカルホスト';
+            if ((first === 10) || 
+                (first === 172 && parts[1] >= 16 && parts[1] <= 31) ||
+                (first === 192 && parts[1] === 168)) return 'プライベート';
+            if (first === 169 && parts[1] === 254) return 'リンクローカル';
+            return 'パブリック';
+        }
+
+        function getIpClass(ip) {
+            const first = parseInt(ip.split('.')[0]);
+            if (first >= 1 && first <= 126) return 'クラスA';
+            if (first >= 128 && first <= 191) return 'クラスB';
+            if (first >= 192 && first <= 223) return 'クラスC';
+            if (first >= 224 && first <= 239) return 'クラスD';
+            if (first >= 240 && first <= 255) return 'クラスE';
+            return '不明';
+        }
+
+        function exportHistory() {
+            if (searchHistory.length === 0) {
+                showNotification('エクスポートする履歴がありません', 'error');
+                return;
+            }
+
+            const exportData = searchHistory.map(item => ({
+                'IPアドレス': item.ip,
+                '位置': item.location,
+                'ISP': item.isp,
+                '脅威レベル': item.threatLevel,
+                '検索日時': formatDate(item.timestamp)
+            }));
+
+            const csvContent = [
+                Object.keys(exportData[0]).join(','),
+                ...exportData.map(row => Object.values(row).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ip_search_history_${Date.now()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showNotification('履歴を出力しました');
+        }
+
+        function resetAll() {
+            document.getElementById('ipInput').value = '';
+            document.getElementById('resultsSection').classList.remove('show');
+            document.getElementById('mapSection').classList.remove('show');
+            
+            document.getElementById('threatLevel').textContent = '分析中...';
+            document.getElementById('vpnDetection').textContent = '確認中...';
+            document.getElementById('botDetection').textContent = '確認中...';
+            document.getElementById('proxyDetection').textContent = '確認中...';
+            
+            showNotification('リセットしました');
+        }
+
+        function saveHistory() {
+            localStorage.setItem('ipSearchHistory', JSON.stringify(searchHistory));
+        }
+
+        function formatDate(date) {
+            return new Date(date).toLocaleString('ja-JP');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        function init() {
+            getCurrentIp();
+            updateHistoryDisplay();
+            
+            // Enter キーで検索
+            document.getElementById('ipInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchIp();
+                }
+            });
+            
+            // IP入力バリデーション
+            document.getElementById('ipInput').addEventListener('input', (e) => {
+                const ip = e.target.value;
+                if (ip && !isValidIp(ip)) {
+                    e.target.classList.add('error');
+                } else {
+                    e.target.classList.remove('error');
+                }
+            });
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

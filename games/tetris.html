@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>テトリス - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .tetris-game {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .game-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .game-board-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .game-board {
+            width: 300px;
+            height: 600px;
+            border: 4px solid #333;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            min-width: 200px;
+        }
+
+        .score-section {
+            margin-bottom: 20px;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+        }
+
+        .score-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .score-value {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .next-piece {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .next-piece-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .next-piece-display {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+        }
+
+        .controls-info {
+            background: #e1ecf4;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .controls-title {
+            font-weight: 600;
+            color: #0c5460;
+            margin-bottom: 10px;
+        }
+
+        .control-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .key {
+            background: #333;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+
+        .game-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .action-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .action-btn.danger {
+            background: #dc3545;
+        }
+
+        .action-btn.danger:hover {
+            background: #c82333;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            z-index: 1000;
+        }
+
+        .game-over.show {
+            display: block;
+            animation: gameOverSlide 0.5s ease;
+        }
+
+        @keyframes gameOverSlide {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .game-over-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #ff6b6b;
+        }
+
+        .game-over-score {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .settings-section {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .settings-title {
+            color: #856404;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .setting-group label {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .setting-control {
+            padding: 8px 12px;
+            border: 2px solid #ffeaa7;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        .setting-control:focus {
+            outline: none;
+            border-color: #856404;
+        }
+
+        .stats-section {
+            background: #d4edda;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stats-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #155724;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* テトリスブロック色 */
+        .block {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .block-I { background: #00f5ff; }
+        .block-O { background: #ffff00; }
+        .block-T { background: #800080; }
+        .block-S { background: #00ff00; }
+        .block-Z { background: #ff0000; }
+        .block-J { background: #0000ff; }
+        .block-L { background: #ffa500; }
+        .block-ghost { background: rgba(255, 255, 255, 0.3) !important; }
+
+        @media (max-width: 768px) {
+            .tetris-game {
+                padding: 20px;
+            }
+            
+            .game-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .game-board {
+                width: 250px;
+                height: 500px;
+            }
+            
+            .block {
+                width: 25px;
+                height: 25px;
+            }
+            
+            .game-info {
+                min-width: auto;
+                width: 100%;
+                margin-top: 20px;
+            }
+            
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="tetris-game">
+        <div class="header">
+            <h1>テトリス</h1>
+            <p>ブロックを積み重ねてラインを消そう！</p>
+        </div>
+
+        <div class="game-container">
+            <div class="game-board-container">
+                <canvas id="gameBoard" class="game-board" width="300" height="600"></canvas>
+                <div class="game-over" id="gameOver">
+                    <div class="game-over-title">GAME OVER</div>
+                    <div class="game-over-score" id="finalScore">スコア: 0</div>
+                    <button class="action-btn" onclick="startNewGame()">もう一度</button>
+                </div>
+            </div>
+
+            <div class="game-info">
+                <div class="score-section">
+                    <div class="score-item">
+                        <span class="score-label">スコア</span>
+                        <span class="score-value" id="score">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-label">レベル</span>
+                        <span class="score-value" id="level">1</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-label">ライン</span>
+                        <span class="score-value" id="lines">0</span>
+                    </div>
+                </div>
+
+                <div class="next-piece">
+                    <div class="next-piece-title">次のピース</div>
+                    <canvas id="nextPieceCanvas" class="next-piece-display" width="80" height="80"></canvas>
+                </div>
+
+                <div class="controls-info">
+                    <div class="controls-title">操作方法</div>
+                    <div class="control-item">
+                        <span>左右移動</span>
+                        <span><span class="key">←</span> <span class="key">→</span></span>
+                    </div>
+                    <div class="control-item">
+                        <span>回転</span>
+                        <span><span class="key">↑</span></span>
+                    </div>
+                    <div class="control-item">
+                        <span>高速落下</span>
+                        <span><span class="key">↓</span></span>
+                    </div>
+                    <div class="control-item">
+                        <span>瞬間落下</span>
+                        <span><span class="key">Space</span></span>
+                    </div>
+                    <div class="control-item">
+                        <span>一時停止</span>
+                        <span><span class="key">P</span></span>
+                    </div>
+                </div>
+
+                <div class="game-actions">
+                    <button class="action-btn" onclick="toggleGame()" id="playBtn">開始</button>
+                    <button class="action-btn secondary" onclick="pauseGame()" id="pauseBtn" disabled>一時停止</button>
+                    <button class="action-btn danger" onclick="resetGame()">リセット</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-title">⚙️ ゲーム設定</div>
+            <div class="settings-grid">
+                <div class="setting-group">
+                    <label for="startLevel">開始レベル</label>
+                    <select id="startLevel" class="setting-control">
+                        <option value="1" selected>1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label for="ghostPiece">ゴーストピース</label>
+                    <select id="ghostPiece" class="setting-control">
+                        <option value="true" selected>表示</option>
+                        <option value="false">非表示</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label for="difficulty">難易度</label>
+                    <select id="difficulty" class="setting-control">
+                        <option value="easy">簡単</option>
+                        <option value="normal" selected>普通</option>
+                        <option value="hard">難しい</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-title">📊 統計</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalGames">0</div>
+                    <div class="stat-label">総ゲーム数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="bestScore">0</div>
+                    <div class="stat-label">最高スコア</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalLines">0</div>
+                    <div class="stat-label">総ライン数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="maxLevel">1</div>
+                    <div class="stat-label">最高レベル</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgScore">0</div>
+                    <div class="stat-label">平均スコア</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="playTime">0</div>
+                    <div class="stat-label">プレイ時間(分)</div>
+                </div>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        // ゲーム状態
+        let gameState = {
+            board: [],
+            currentPiece: null,
+            nextPiece: null,
+            score: 0,
+            level: 1,
+            lines: 0,
+            isPlaying: false,
+            isPaused: false,
+            gameStartTime: 0
+        };
+
+        // ゲーム設定
+        const BOARD_WIDTH = 10;
+        const BOARD_HEIGHT = 20;
+        const BLOCK_SIZE = 30;
+
+        // テトリスピース定義
+        const PIECES = {
+            I: {
+                shape: [
+                    [1, 1, 1, 1]
+                ],
+                color: '#00f5ff'
+            },
+            O: {
+                shape: [
+                    [1, 1],
+                    [1, 1]
+                ],
+                color: '#ffff00'
+            },
+            T: {
+                shape: [
+                    [0, 1, 0],
+                    [1, 1, 1]
+                ],
+                color: '#800080'
+            },
+            S: {
+                shape: [
+                    [0, 1, 1],
+                    [1, 1, 0]
+                ],
+                color: '#00ff00'
+            },
+            Z: {
+                shape: [
+                    [1, 1, 0],
+                    [0, 1, 1]
+                ],
+                color: '#ff0000'
+            },
+            J: {
+                shape: [
+                    [1, 0, 0],
+                    [1, 1, 1]
+                ],
+                color: '#0000ff'
+            },
+            L: {
+                shape: [
+                    [0, 0, 1],
+                    [1, 1, 1]
+                ],
+                color: '#ffa500'
+            }
+        };
+
+        // Canvas要素
+        let canvas = null;
+        let ctx = null;
+        let nextCanvas = null;
+        let nextCtx = null;
+
+        // ゲーム統計
+        let gameStats = {
+            totalGames: 0,
+            bestScore: 0,
+            totalLines: 0,
+            maxLevel: 1,
+            totalScore: 0,
+            totalPlayTime: 0
+        };
+
+        // ゲームループ
+        let gameLoop = null;
+        let dropInterval = 1000;
+
+        function initializeGame() {
+            canvas = document.getElementById('gameBoard');
+            ctx = canvas.getContext('2d');
+            nextCanvas = document.getElementById('nextPieceCanvas');
+            nextCtx = nextCanvas.getContext('2d');
+
+            // ボードの初期化
+            resetBoard();
+            
+            // 統計の読み込み
+            loadStats();
+            
+            // キーボードイベント
+            setupKeyboardEvents();
+            
+            // 初期描画
+            draw();
+            drawNextPiece();
+        }
+
+        function resetBoard() {
+            gameState.board = Array(BOARD_HEIGHT).fill(null).map(() => Array(BOARD_WIDTH).fill(0));
+            gameState.score = 0;
+            gameState.level = parseInt(document.getElementById('startLevel').value);
+            gameState.lines = 0;
+            gameState.currentPiece = null;
+            gameState.nextPiece = null;
+            
+            updateDisplay();
+        }
+
+        function createPiece() {
+            const pieceTypes = Object.keys(PIECES);
+            const randomType = pieceTypes[Math.floor(Math.random() * pieceTypes.length)];
+            const piece = PIECES[randomType];
+            
+            return {
+                type: randomType,
+                shape: piece.shape,
+                color: piece.color,
+                x: Math.floor((BOARD_WIDTH - piece.shape[0].length) / 2),
+                y: 0
+            };
+        }
+
+        function startNewGame() {
+            resetBoard();
+            gameState.nextPiece = createPiece();
+            spawnNewPiece();
+            gameState.isPlaying = true;
+            gameState.isPaused = false;
+            gameState.gameStartTime = Date.now();
+            
+            document.getElementById('playBtn').textContent = '停止';
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('gameOver').classList.remove('show');
+            
+            // 難易度に応じた落下速度
+            const difficulty = document.getElementById('difficulty').value;
+            const baseSpeed = {
+                easy: 1200,
+                normal: 1000,
+                hard: 800
+            };
+            dropInterval = Math.max(100, baseSpeed[difficulty] - (gameState.level - 1) * 50);
+            
+            startGameLoop();
+            showNotification('ゲーム開始！');
+        }
+
+        function spawnNewPiece() {
+            gameState.currentPiece = gameState.nextPiece;
+            gameState.nextPiece = createPiece();
+            
+            // ゲームオーバーチェック
+            if (isCollision(gameState.currentPiece, 0, 0)) {
+                gameOver();
+                return false;
+            }
+            
+            return true;
+        }
+
+        function gameOver() {
+            gameState.isPlaying = false;
+            stopGameLoop();
+            
+            // 統計更新
+            updateGameStats();
+            
+            document.getElementById('finalScore').textContent = `スコア: ${gameState.score}`;
+            document.getElementById('gameOver').classList.add('show');
+            document.getElementById('playBtn').textContent = '開始';
+            document.getElementById('pauseBtn').disabled = true;
+            
+            showNotification('ゲームオーバー！', 'error');
+        }
+
+        function toggleGame() {
+            if (gameState.isPlaying) {
+                stopGame();
+            } else {
+                startNewGame();
+            }
+        }
+
+        function stopGame() {
+            gameState.isPlaying = false;
+            gameState.isPaused = false;
+            stopGameLoop();
+            
+            document.getElementById('playBtn').textContent = '開始';
+            document.getElementById('pauseBtn').disabled = true;
+            
+            showNotification('ゲーム停止');
+        }
+
+        function pauseGame() {
+            if (!gameState.isPlaying) return;
+            
+            gameState.isPaused = !gameState.isPaused;
+            
+            if (gameState.isPaused) {
+                stopGameLoop();
+                document.getElementById('pauseBtn').textContent = '再開';
+                showNotification('一時停止中');
+            } else {
+                startGameLoop();
+                document.getElementById('pauseBtn').textContent = '一時停止';
+                showNotification('ゲーム再開');
+            }
+        }
+
+        function resetGame() {
+            if (confirm('ゲームをリセットしますか？')) {
+                stopGame();
+                resetBoard();
+                draw();
+                drawNextPiece();
+                showNotification('ゲームをリセットしました');
+            }
+        }
+
+        function startGameLoop() {
+            if (gameLoop) clearInterval(gameLoop);
+            
+            gameLoop = setInterval(() => {
+                if (gameState.isPlaying && !gameState.isPaused) {
+                    if (!movePiece(0, 1)) {
+                        placePiece();
+                        clearLines();
+                        if (!spawnNewPiece()) {
+                            return;
+                        }
+                    }
+                    draw();
+                }
+            }, dropInterval);
+        }
+
+        function stopGameLoop() {
+            if (gameLoop) {
+                clearInterval(gameLoop);
+                gameLoop = null;
+            }
+        }
+
+        function movePiece(dx, dy) {
+            if (!gameState.currentPiece) return false;
+            
+            if (!isCollision(gameState.currentPiece, dx, dy)) {
+                gameState.currentPiece.x += dx;
+                gameState.currentPiece.y += dy;
+                return true;
+            }
+            return false;
+        }
+
+        function rotatePiece() {
+            if (!gameState.currentPiece) return;
+            
+            const rotated = rotateMatrix(gameState.currentPiece.shape);
+            const originalShape = gameState.currentPiece.shape;
+            
+            gameState.currentPiece.shape = rotated;
+            
+            // 壁キック（回転時の位置調整）
+            let adjustX = 0;
+            if (gameState.currentPiece.x < 0) {
+                adjustX = -gameState.currentPiece.x;
+            } else if (gameState.currentPiece.x + rotated[0].length > BOARD_WIDTH) {
+                adjustX = BOARD_WIDTH - gameState.currentPiece.x - rotated[0].length;
+            }
+            
+            if (isCollision(gameState.currentPiece, adjustX, 0)) {
+                // 回転できない場合は元に戻す
+                gameState.currentPiece.shape = originalShape;
+            } else {
+                gameState.currentPiece.x += adjustX;
+            }
+        }
+
+        function rotateMatrix(matrix) {
+            const rows = matrix.length;
+            const cols = matrix[0].length;
+            const rotated = Array(cols).fill(null).map(() => Array(rows).fill(0));
+            
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    rotated[c][rows - 1 - r] = matrix[r][c];
+                }
+            }
+            
+            return rotated;
+        }
+
+        function isCollision(piece, dx, dy) {
+            const newX = piece.x + dx;
+            const newY = piece.y + dy;
+            
+            for (let r = 0; r < piece.shape.length; r++) {
+                for (let c = 0; c < piece.shape[r].length; c++) {
+                    if (piece.shape[r][c]) {
+                        const x = newX + c;
+                        const y = newY + r;
+                        
+                        // 境界チェック
+                        if (x < 0 || x >= BOARD_WIDTH || y >= BOARD_HEIGHT) {
+                            return true;
+                        }
+                        
+                        // ボードとの衝突チェック
+                        if (y >= 0 && gameState.board[y][x]) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            
+            return false;
+        }
+
+        function placePiece() {
+            if (!gameState.currentPiece) return;
+            
+            const piece = gameState.currentPiece;
+            
+            for (let r = 0; r < piece.shape.length; r++) {
+                for (let c = 0; c < piece.shape[r].length; c++) {
+                    if (piece.shape[r][c]) {
+                        const x = piece.x + c;
+                        const y = piece.y + r;
+                        
+                        if (y >= 0) {
+                            gameState.board[y][x] = piece.color;
+                        }
+                    }
+                }
+            }
+        }
+
+        function clearLines() {
+            let linesCleared = 0;
+            
+            for (let y = BOARD_HEIGHT - 1; y >= 0; y--) {
+                if (gameState.board[y].every(cell => cell !== 0)) {
+                    // ライン削除
+                    gameState.board.splice(y, 1);
+                    gameState.board.unshift(Array(BOARD_WIDTH).fill(0));
+                    linesCleared++;
+                    y++; // 同じ行を再チェック
+                }
+            }
+            
+            if (linesCleared > 0) {
+                // スコア計算
+                const lineScore = [0, 100, 300, 500, 800];
+                gameState.score += lineScore[linesCleared] * gameState.level;
+                gameState.lines += linesCleared;
+                
+                // レベルアップ
+                const newLevel = Math.floor(gameState.lines / 10) + parseInt(document.getElementById('startLevel').value);
+                if (newLevel > gameState.level) {
+                    gameState.level = newLevel;
+                    // 落下速度アップ
+                    const difficulty = document.getElementById('difficulty').value;
+                    const baseSpeed = {
+                        easy: 1200,
+                        normal: 1000,
+                        hard: 800
+                    };
+                    dropInterval = Math.max(100, baseSpeed[difficulty] - (gameState.level - 1) * 50);
+                    
+                    if (gameLoop) {
+                        stopGameLoop();
+                        startGameLoop();
+                    }
+                    
+                    showNotification(`レベル ${gameState.level} に上がりました！`);
+                }
+                
+                updateDisplay();
+                
+                if (linesCleared === 4) {
+                    showNotification('テトリス！素晴らしい！');
+                } else {
+                    showNotification(`${linesCleared}ライン消去！`);
+                }
+            }
+        }
+
+        function hardDrop() {
+            if (!gameState.currentPiece) return;
+            
+            let dropDistance = 0;
+            while (movePiece(0, 1)) {
+                dropDistance++;
+            }
+            
+            // スコアボーナス
+            gameState.score += dropDistance * 2;
+            
+            placePiece();
+            clearLines();
+            spawnNewPiece();
+            draw();
+            
+            updateDisplay();
+        }
+
+        function getGhostPiece() {
+            if (!gameState.currentPiece) return null;
+            
+            const ghost = {
+                ...gameState.currentPiece,
+                y: gameState.currentPiece.y
+            };
+            
+            while (!isCollision(ghost, 0, 1)) {
+                ghost.y++;
+            }
+            
+            return ghost;
+        }
+
+        function draw() {
+            // 背景をクリア
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // ボードを描画
+            for (let y = 0; y < BOARD_HEIGHT; y++) {
+                for (let x = 0; x < BOARD_WIDTH; x++) {
+                    if (gameState.board[y][x]) {
+                        ctx.fillStyle = gameState.board[y][x];
+                        ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                        
+                        // ブロックの境界線
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                        ctx.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                    }
+                }
+            }
+            
+            // ゴーストピースを描画
+            if (document.getElementById('ghostPiece').value === 'true' && gameState.currentPiece) {
+                const ghost = getGhostPiece();
+                if (ghost) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                    drawPiece(ghost, ctx);
+                }
+            }
+            
+            // 現在のピースを描画
+            if (gameState.currentPiece) {
+                ctx.fillStyle = gameState.currentPiece.color;
+                drawPiece(gameState.currentPiece, ctx);
+            }
+        }
+
+        function drawPiece(piece, context) {
+            for (let r = 0; r < piece.shape.length; r++) {
+                for (let c = 0; c < piece.shape[r].length; c++) {
+                    if (piece.shape[r][c]) {
+                        const x = piece.x + c;
+                        const y = piece.y + r;
+                        
+                        if (y >= 0) {
+                            context.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                            context.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                            context.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                        }
+                    }
+                }
+            }
+        }
+
+        function drawNextPiece() {
+            nextCtx.fillStyle = '#f8f9fa';
+            nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+            
+            if (gameState.nextPiece) {
+                nextCtx.fillStyle = gameState.nextPiece.color;
+                
+                const blockSize = 16;
+                const offsetX = (nextCanvas.width - gameState.nextPiece.shape[0].length * blockSize) / 2;
+                const offsetY = (nextCanvas.height - gameState.nextPiece.shape.length * blockSize) / 2;
+                
+                for (let r = 0; r < gameState.nextPiece.shape.length; r++) {
+                    for (let c = 0; c < gameState.nextPiece.shape[r].length; c++) {
+                        if (gameState.nextPiece.shape[r][c]) {
+                            nextCtx.fillRect(
+                                offsetX + c * blockSize,
+                                offsetY + r * blockSize,
+                                blockSize,
+                                blockSize
+                            );
+                            
+                            nextCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                            nextCtx.strokeRect(
+                                offsetX + c * blockSize,
+                                offsetY + r * blockSize,
+                                blockSize,
+                                blockSize
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('level').textContent = gameState.level;
+            document.getElementById('lines').textContent = gameState.lines;
+            
+            drawNextPiece();
+        }
+
+        function setupKeyboardEvents() {
+            document.addEventListener('keydown', (e) => {
+                if (!gameState.isPlaying || gameState.isPaused) return;
+                
+                switch(e.key) {
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        movePiece(-1, 0);
+                        draw();
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        movePiece(1, 0);
+                        draw();
+                        break;
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        if (movePiece(0, 1)) {
+                            gameState.score += 1;
+                            updateDisplay();
+                        }
+                        draw();
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        rotatePiece();
+                        draw();
+                        break;
+                    case ' ':
+                        e.preventDefault();
+                        hardDrop();
+                        break;
+                    case 'p':
+                    case 'P':
+                        e.preventDefault();
+                        pauseGame();
+                        break;
+                }
+            });
+        }
+
+        function updateGameStats() {
+            gameStats.totalGames++;
+            gameStats.bestScore = Math.max(gameStats.bestScore, gameState.score);
+            gameStats.totalLines += gameState.lines;
+            gameStats.maxLevel = Math.max(gameStats.maxLevel, gameState.level);
+            gameStats.totalScore += gameState.score;
+            
+            if (gameState.gameStartTime) {
+                const playTime = Math.floor((Date.now() - gameState.gameStartTime) / 60000);
+                gameStats.totalPlayTime += playTime;
+            }
+            
+            updateStatsDisplay();
+            saveStats();
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('totalGames').textContent = gameStats.totalGames;
+            document.getElementById('bestScore').textContent = gameStats.bestScore;
+            document.getElementById('totalLines').textContent = gameStats.totalLines;
+            document.getElementById('maxLevel').textContent = gameStats.maxLevel;
+            
+            const avgScore = gameStats.totalGames > 0 ? 
+                Math.round(gameStats.totalScore / gameStats.totalGames) : 0;
+            document.getElementById('avgScore').textContent = avgScore;
+            document.getElementById('playTime').textContent = gameStats.totalPlayTime;
+        }
+
+        function loadStats() {
+            const saved = localStorage.getItem('tetrisStats');
+            if (saved) {
+                try {
+                    gameStats = { ...gameStats, ...JSON.parse(saved) };
+                    updateStatsDisplay();
+                } catch (error) {
+                    console.warn('統計の読み込みに失敗しました');
+                }
+            }
+        }
+
+        function saveStats() {
+            localStorage.setItem('tetrisStats', JSON.stringify(gameStats));
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeGame();
+            
+            // 設定変更の監視
+            document.getElementById('startLevel').addEventListener('change', () => {
+                if (!gameState.isPlaying) {
+                    gameState.level = parseInt(document.getElementById('startLevel').value);
+                    updateDisplay();
+                }
+            });
+        });
+
+        // ページを離れる前に統計を保存
+        window.addEventListener('beforeunload', () => {
+            if (gameState.isPlaying) {
+                updateGameStats();
+            }
+        });
+    </script>
+</body>
+</html>

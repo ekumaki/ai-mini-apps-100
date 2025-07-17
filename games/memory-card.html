@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メモリーカード - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .memory-game {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .game-controls {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .game-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px 15px;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .info-value {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .score {
+            color: #28a745 !important;
+        }
+
+        .timer {
+            color: #dc3545 !important;
+        }
+
+        .game-area {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .cards-grid {
+            display: grid;
+            gap: 15px;
+            max-width: 700px;
+            margin: 0 auto;
+            justify-content: center;
+        }
+
+        .card {
+            width: 100px;
+            height: 120px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card.matched {
+            animation: matchPulse 0.5s ease;
+            pointer-events: none;
+        }
+
+        @keyframes matchPulse {
+            0% { transform: scale(1) rotateY(180deg); }
+            50% { transform: scale(1.1) rotateY(180deg); }
+            100% { transform: scale(1) rotateY(180deg); }
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .card-back {
+            background: white;
+            border: 2px solid #e9ecef;
+            transform: rotateY(180deg);
+        }
+
+        .card-back.type-fruit {
+            background: #fff3cd;
+        }
+
+        .card-back.type-animal {
+            background: #d4edda;
+        }
+
+        .card-back.type-emoji {
+            background: #cce5ff;
+        }
+
+        .game-status {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .status-text.win {
+            color: #28a745;
+        }
+
+        .status-text.playing {
+            color: #ffc107;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .action-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .action-btn.danger {
+            background: #dc3545;
+        }
+
+        .action-btn.danger:hover {
+            background: #c82333;
+        }
+
+        .stats-section {
+            background: #d4edda;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stats-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #155724;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .instructions-title {
+            color: #856404;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .instruction-list {
+            color: #856404;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .instruction-list li {
+            margin-bottom: 8px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .celebration {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5rem;
+            animation: celebrate 1s ease;
+            pointer-events: none;
+            display: none;
+        }
+
+        @keyframes celebrate {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1.5); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .memory-game {
+                padding: 20px;
+            }
+            
+            .game-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .game-info {
+                justify-content: center;
+            }
+            
+            .card {
+                width: 70px;
+                height: 90px;
+            }
+            
+            .card-face {
+                font-size: 1.8rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                width: 60px;
+                height: 80px;
+            }
+            
+            .card-face {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="memory-game">
+        <div class="header">
+            <h1>🎴 メモリーカード</h1>
+            <p>同じペアを見つけて全てのカードをマッチさせよう！</p>
+        </div>
+
+        <div class="game-controls">
+            <div class="control-buttons">
+                <button class="control-btn active" onclick="setDifficulty('easy')">簡単 (4×3)</button>
+                <button class="control-btn" onclick="setDifficulty('medium')">普通 (4×4)</button>
+                <button class="control-btn" onclick="setDifficulty('hard')">難しい (6×4)</button>
+                <button class="control-btn" onclick="setCardType('emoji')">絵文字</button>
+                <button class="control-btn" onclick="setCardType('fruit')">フルーツ</button>
+                <button class="control-btn" onclick="setCardType('animal')">動物</button>
+            </div>
+            
+            <div class="game-info">
+                <div class="info-item">
+                    <div class="info-value score" id="score">0</div>
+                    <div class="info-label">スコア</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value" id="moves">0</div>
+                    <div class="info-label">試行回数</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value timer" id="timer">00:00</div>
+                    <div class="info-label">経過時間</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value" id="pairs">0/6</div>
+                    <div class="info-label">ペア</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="cards-grid" id="cardsGrid">
+                <!-- カードがここに生成されます -->
+            </div>
+        </div>
+
+        <div class="game-status" id="gameStatus">
+            <div class="status-text">ゲーム開始ボタンを押してスタート！</div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" onclick="startGame()">ゲーム開始</button>
+            <button class="action-btn secondary" onclick="resetGame()">リセット</button>
+            <button class="action-btn secondary" onclick="showHint()">ヒント</button>
+            <button class="action-btn danger" onclick="resetStats()">統計リセット</button>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-title">📊 統計</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="gamesPlayed">0</div>
+                    <div class="stat-label">プレイ回数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="gamesWon">0</div>
+                    <div class="stat-label">クリア回数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="winRate">0</div>
+                    <div class="stat-label">クリア率(%)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="bestTime">-</div>
+                    <div class="stat-label">最速記録</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgMoves">0</div>
+                    <div class="stat-label">平均試行数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="perfectGames">0</div>
+                    <div class="stat-label">パーフェクト</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <div class="instructions-title">🎯 遊び方</div>
+            <ul class="instruction-list">
+                <li><strong>操作:</strong> カードをクリックして裏返す</li>
+                <li><strong>目標:</strong> 全ての同じペアを見つけてマッチさせる</li>
+                <li><strong>ルール:</strong> 一度に2枚まで開ける、同じなら開いたまま</li>
+                <li><strong>スコア:</strong> 少ない試行回数でクリアするほど高得点</li>
+                <li><strong>難易度:</strong> カード枚数が増えるほど難しくなる</li>
+                <li><strong>パーフェクト:</strong> 最小試行回数でクリアすると達成</li>
+            </ul>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="celebration" id="celebration">🎉</div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let gameState = {
+            cards: [],
+            flippedCards: [],
+            matchedPairs: 0,
+            moves: 0,
+            score: 0,
+            isGameRunning: false,
+            canFlip: true,
+            startTime: null,
+            timerInterval: null,
+            difficulty: 'easy',
+            cardType: 'emoji',
+            totalPairs: 6
+        };
+
+        let gameStats = {
+            gamesPlayed: 0,
+            gamesWon: 0,
+            totalMoves: 0,
+            perfectGames: 0,
+            bestTimes: {
+                easy: null,
+                medium: null,
+                hard: null
+            }
+        };
+
+        const cardSets = {
+            emoji: ['😀', '😎', '🥳', '🤔', '😴', '🤖', '👻', '🦄', '🌈', '⭐', '🎨', '🎯', '🎪', '🎭', '🎪', '🎲'],
+            fruit: ['🍎', '🍌', '🍇', '🍓', '🍑', '🥝', '🍊', '🍉', '🍒', '🥥', '🍍', '🥭', '🍋', '🍈', '🫐', '🍐'],
+            animal: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🦝']
+        };
+
+        const difficulties = {
+            easy: { rows: 3, cols: 4 },
+            medium: { rows: 4, cols: 4 },
+            hard: { rows: 4, cols: 6 }
+        };
+
+        function loadStats() {
+            const saved = localStorage.getItem('memoryCardStats');
+            if (saved) {
+                gameStats = { ...gameStats, ...JSON.parse(saved) };
+                updateStatsDisplay();
+            }
+        }
+
+        function saveStats() {
+            localStorage.setItem('memoryCardStats', JSON.stringify(gameStats));
+        }
+
+        function setDifficulty(difficulty) {
+            gameState.difficulty = difficulty;
+            
+            // ボタンの状態更新
+            document.querySelectorAll('.control-btn').forEach(btn => {
+                if (btn.textContent.includes('簡単') || btn.textContent.includes('普通') || btn.textContent.includes('難しい')) {
+                    btn.classList.remove('active');
+                }
+            });
+            event.target.classList.add('active');
+            
+            resetGame();
+            showNotification(`難易度を${difficulty === 'easy' ? '簡単' : difficulty === 'medium' ? '普通' : '難しい'}に設定`);
+        }
+
+        function setCardType(type) {
+            gameState.cardType = type;
+            
+            // ボタンの状態更新
+            document.querySelectorAll('.control-btn').forEach(btn => {
+                if (btn.textContent.includes('絵文字') || btn.textContent.includes('フルーツ') || btn.textContent.includes('動物')) {
+                    btn.classList.remove('active');
+                }
+            });
+            event.target.classList.add('active');
+            
+            resetGame();
+            showNotification(`カードタイプを${type === 'emoji' ? '絵文字' : type === 'fruit' ? 'フルーツ' : '動物'}に設定`);
+        }
+
+        function createCards() {
+            const { rows, cols } = difficulties[gameState.difficulty];
+            gameState.totalPairs = (rows * cols) / 2;
+            
+            const selectedSymbols = cardSets[gameState.cardType].slice(0, gameState.totalPairs);
+            const cardPairs = [...selectedSymbols, ...selectedSymbols];
+            
+            // シャッフル
+            for (let i = cardPairs.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cardPairs[i], cardPairs[j]] = [cardPairs[j], cardPairs[i]];
+            }
+            
+            gameState.cards = cardPairs.map((symbol, index) => ({
+                id: index,
+                symbol: symbol,
+                isFlipped: false,
+                isMatched: false
+            }));
+        }
+
+        function renderCards() {
+            const grid = document.getElementById('cardsGrid');
+            const { rows, cols } = difficulties[gameState.difficulty];
+            
+            grid.innerHTML = '';
+            grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            
+            gameState.cards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card';
+                cardElement.dataset.index = index;
+                
+                if (card.isFlipped || card.isMatched) {
+                    cardElement.classList.add('flipped');
+                }
+                
+                if (card.isMatched) {
+                    cardElement.classList.add('matched');
+                }
+                
+                cardElement.innerHTML = `
+                    <div class="card-face card-front">?</div>
+                    <div class="card-face card-back type-${gameState.cardType}">${card.symbol}</div>
+                `;
+                
+                cardElement.addEventListener('click', () => handleCardClick(index));
+                grid.appendChild(cardElement);
+            });
+        }
+
+        function handleCardClick(index) {
+            if (!gameState.isGameRunning || !gameState.canFlip) return;
+            
+            const card = gameState.cards[index];
+            
+            if (card.isFlipped || card.isMatched) return;
+            if (gameState.flippedCards.length >= 2) return;
+            
+            // カードを裏返す
+            card.isFlipped = true;
+            gameState.flippedCards.push(index);
+            renderCards();
+            
+            // 2枚目のカードを開いた場合
+            if (gameState.flippedCards.length === 2) {
+                gameState.moves++;
+                updateDisplay();
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            gameState.canFlip = false;
+            
+            const [first, second] = gameState.flippedCards;
+            const firstCard = gameState.cards[first];
+            const secondCard = gameState.cards[second];
+            
+            if (firstCard.symbol === secondCard.symbol) {
+                // マッチした場合
+                setTimeout(() => {
+                    firstCard.isMatched = true;
+                    secondCard.isMatched = true;
+                    gameState.matchedPairs++;
+                    gameState.score += 100;
+                    
+                    renderCards();
+                    updateDisplay();
+                    
+                    // 全てマッチしたかチェック
+                    if (gameState.matchedPairs === gameState.totalPairs) {
+                        gameWon();
+                    }
+                    
+                    gameState.flippedCards = [];
+                    gameState.canFlip = true;
+                    
+                    showNotification('マッチ！ +100点');
+                }, 500);
+            } else {
+                // マッチしなかった場合
+                setTimeout(() => {
+                    firstCard.isFlipped = false;
+                    secondCard.isFlipped = false;
+                    gameState.flippedCards = [];
+                    gameState.canFlip = true;
+                    renderCards();
+                }, 1000);
+            }
+        }
+
+        function startGame() {
+            if (gameState.isGameRunning) {
+                showNotification('ゲームは既に開始されています', 'error');
+                return;
+            }
+            
+            gameState.isGameRunning = true;
+            gameState.moves = 0;
+            gameState.score = 0;
+            gameState.matchedPairs = 0;
+            gameState.flippedCards = [];
+            gameState.canFlip = true;
+            
+            createCards();
+            renderCards();
+            startTimer();
+            updateDisplay();
+            updateGameStatus('カードをクリックしてペアを見つけよう！', 'playing');
+            
+            gameStats.gamesPlayed++;
+            showNotification('ゲーム開始！');
+        }
+
+        function resetGame() {
+            stopTimer();
+            gameState.isGameRunning = false;
+            gameState.moves = 0;
+            gameState.score = 0;
+            gameState.matchedPairs = 0;
+            gameState.flippedCards = [];
+            gameState.canFlip = true;
+            
+            createCards();
+            renderCards();
+            updateDisplay();
+            updateGameStatus('ゲーム開始ボタンを押してスタート！');
+            showNotification('ゲームをリセットしました');
+        }
+
+        function gameWon() {
+            stopTimer();
+            gameState.isGameRunning = false;
+            gameStats.gamesWon++;
+            gameStats.totalMoves += gameState.moves;
+            
+            const time = Math.floor((Date.now() - gameState.startTime) / 1000);
+            const minMoves = gameState.totalPairs;
+            
+            // パーフェクトゲームチェック
+            if (gameState.moves === minMoves) {
+                gameStats.perfectGames++;
+                gameState.score += 500;
+                showNotification('パーフェクト！ ボーナス +500点');
+            }
+            
+            // ベスト記録の更新
+            if (!gameStats.bestTimes[gameState.difficulty] || time < gameStats.bestTimes[gameState.difficulty]) {
+                gameStats.bestTimes[gameState.difficulty] = time;
+                showNotification(`新記録！ ${formatTime(time)}`);
+            }
+            
+            // 最終スコア計算
+            const timeBonus = Math.max(0, 300 - time) * 10;
+            const moveBonus = Math.max(0, (gameState.totalPairs * 2) - gameState.moves) * 50;
+            gameState.score += timeBonus + moveBonus;
+            
+            updateDisplay();
+            updateStatsDisplay();
+            saveStats();
+            
+            updateGameStatus(`🎉 全ペア発見！ スコア: ${gameState.score}点`, 'win');
+            celebrate();
+        }
+
+        function showHint() {
+            if (!gameState.isGameRunning) {
+                showNotification('ゲームを開始してください', 'error');
+                return;
+            }
+            
+            if (gameState.score < 50) {
+                showNotification('ヒントには50点必要です', 'error');
+                return;
+            }
+            
+            gameState.score -= 50;
+            updateDisplay();
+            
+            // マッチしていないカードから2枚を一時的に表示
+            const unmatchedCards = gameState.cards
+                .map((card, index) => ({ ...card, index }))
+                .filter(card => !card.isMatched && !card.isFlipped);
+            
+            if (unmatchedCards.length >= 2) {
+                const sameSymbolCards = unmatchedCards.filter(card => 
+                    unmatchedCards.some(other => 
+                        other.index !== card.index && other.symbol === card.symbol
+                    )
+                );
+                
+                if (sameSymbolCards.length >= 2) {
+                    const hint1 = sameSymbolCards[0];
+                    const hint2 = sameSymbolCards.find(card => 
+                        card.symbol === hint1.symbol && card.index !== hint1.index
+                    );
+                    
+                    gameState.cards[hint1.index].isFlipped = true;
+                    gameState.cards[hint2.index].isFlipped = true;
+                    renderCards();
+                    
+                    setTimeout(() => {
+                        gameState.cards[hint1.index].isFlipped = false;
+                        gameState.cards[hint2.index].isFlipped = false;
+                        renderCards();
+                    }, 1500);
+                    
+                    showNotification('ヒント表示（-50点）');
+                }
+            }
+        }
+
+        function startTimer() {
+            gameState.startTime = Date.now();
+            gameState.timerInterval = setInterval(updateTimer, 100);
+        }
+
+        function stopTimer() {
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+                gameState.timerInterval = null;
+            }
+        }
+
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+            document.getElementById('timer').textContent = formatTime(elapsed);
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('moves').textContent = gameState.moves;
+            document.getElementById('pairs').textContent = `${gameState.matchedPairs}/${gameState.totalPairs}`;
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('gamesPlayed').textContent = gameStats.gamesPlayed;
+            document.getElementById('gamesWon').textContent = gameStats.gamesWon;
+            
+            const winRate = gameStats.gamesPlayed > 0 ? 
+                Math.round((gameStats.gamesWon / gameStats.gamesPlayed) * 100) : 0;
+            document.getElementById('winRate').textContent = winRate;
+            
+            const bestTime = gameStats.bestTimes[gameState.difficulty];
+            document.getElementById('bestTime').textContent = bestTime ? formatTime(bestTime) : '-';
+            
+            const avgMoves = gameStats.gamesWon > 0 ? 
+                Math.round(gameStats.totalMoves / gameStats.gamesWon) : 0;
+            document.getElementById('avgMoves').textContent = avgMoves;
+            
+            document.getElementById('perfectGames').textContent = gameStats.perfectGames;
+        }
+
+        function updateGameStatus(message, type = '') {
+            const statusElement = document.getElementById('gameStatus');
+            statusElement.innerHTML = `<div class="status-text ${type}">${message}</div>`;
+        }
+
+        function celebrate() {
+            const celebration = document.getElementById('celebration');
+            celebration.style.display = 'block';
+            
+            setTimeout(() => {
+                celebration.style.display = 'none';
+            }, 1000);
+        }
+
+        function resetStats() {
+            if (confirm('統計をリセットしますか？この操作は取り消せません。')) {
+                gameStats = {
+                    gamesPlayed: 0,
+                    gamesWon: 0,
+                    totalMoves: 0,
+                    perfectGames: 0,
+                    bestTimes: {
+                        easy: null,
+                        medium: null,
+                        hard: null
+                    }
+                };
+                updateStatsDisplay();
+                localStorage.removeItem('memoryCardStats');
+                showNotification('統計をリセットしました');
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        function init() {
+            loadStats();
+            createCards();
+            renderCards();
+            updateDisplay();
+            updateStatsDisplay();
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // ページを離れる前に自動保存
+        window.addEventListener('beforeunload', saveStats);
+    </script>
+</body>
+</html>

@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>色コード変換 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .color-converter {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .color-picker-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 1.5rem;
+        }
+
+        .color-display {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .color-preview {
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+            border: 3px solid #e9ecef;
+            margin-bottom: 20px;
+            background: #ffffff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .color-value {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .color-value:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .value-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .value-text {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: #667eea;
+            word-break: break-all;
+        }
+
+        .input-methods {
+            background: #e1ecf4;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .input-title {
+            color: #0c5460;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .input-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .input-tab {
+            background: white;
+            border: 2px solid #b3d4fc;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .input-tab.active {
+            background: #0c5460;
+            color: white;
+            border-color: #0c5460;
+        }
+
+        .input-tab:hover:not(.active) {
+            background: #b3d4fc;
+        }
+
+        .input-panel {
+            display: none;
+        }
+
+        .input-panel.active {
+            display: block;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #0c5460;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .input-control {
+            padding: 10px;
+            border: 2px solid #b3d4fc;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-control:focus {
+            outline: none;
+            border-color: #0c5460;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0c5460;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0c5460;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 600;
+            color: #0c5460;
+        }
+
+        .preset-colors {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .preset-title {
+            color: #856404;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+        }
+
+        .preset-color {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            position: relative;
+        }
+
+        .preset-color:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .preset-color.selected {
+            border-color: #856404;
+        }
+
+        .color-name {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .gradient-section {
+            background: #d4edda;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .gradient-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .gradient-preview {
+            width: 100%;
+            height: 60px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 2px solid #c3e6cb;
+        }
+
+        .gradient-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .gradient-btn {
+            background: #155724;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .gradient-btn:hover {
+            background: #0f4419;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .color-converter {
+                padding: 20px;
+            }
+            
+            .input-tabs {
+                flex-direction: column;
+            }
+            
+            .color-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .preset-grid {
+                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            }
+            
+            .preset-color {
+                width: 60px;
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="color-converter">
+        <div class="header">
+            <h1>色コード変換</h1>
+            <p>HEX、RGB、HSL形式を相互変換</p>
+        </div>
+
+        <div class="color-picker-section">
+            <div class="section-title">
+                <span class="section-icon">🎨</span>
+                <span>色の表示</span>
+            </div>
+            <div class="color-display">
+                <div class="color-preview" id="colorPreview"></div>
+                <div class="color-info">
+                    <div class="color-value" onclick="copyToClipboard('hexValue')">
+                        <div class="value-label">HEX</div>
+                        <div class="value-text" id="hexValue">#000000</div>
+                    </div>
+                    <div class="color-value" onclick="copyToClipboard('rgbValue')">
+                        <div class="value-label">RGB</div>
+                        <div class="value-text" id="rgbValue">rgb(0, 0, 0)</div>
+                    </div>
+                    <div class="color-value" onclick="copyToClipboard('hslValue')">
+                        <div class="value-label">HSL</div>
+                        <div class="value-text" id="hslValue">hsl(0, 0%, 0%)</div>
+                    </div>
+                    <div class="color-value" onclick="copyToClipboard('cmykValue')">
+                        <div class="value-label">CMYK</div>
+                        <div class="value-text" id="cmykValue">cmyk(0, 0, 0, 100)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-methods">
+            <div class="input-title">色の入力方法</div>
+            <div class="input-tabs">
+                <button class="input-tab active" onclick="setInputMethod('hex')">HEX</button>
+                <button class="input-tab" onclick="setInputMethod('rgb')">RGB</button>
+                <button class="input-tab" onclick="setInputMethod('hsl')">HSL</button>
+                <button class="input-tab" onclick="setInputMethod('picker')">カラーピッカー</button>
+            </div>
+
+            <div class="input-panel active" id="hexPanel">
+                <div class="input-group">
+                    <label for="hexInput">HEXコード</label>
+                    <input type="text" id="hexInput" class="input-control" placeholder="#000000" maxlength="7">
+                </div>
+            </div>
+
+            <div class="input-panel" id="rgbPanel">
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="rInput">Red (0-255)</label>
+                        <div class="slider-container">
+                            <input type="range" id="rSlider" class="slider" min="0" max="255" value="0" style="background: linear-gradient(to right, #000, #f00);">
+                            <input type="number" id="rInput" class="input-control slider-value" min="0" max="255" value="0">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="gInput">Green (0-255)</label>
+                        <div class="slider-container">
+                            <input type="range" id="gSlider" class="slider" min="0" max="255" value="0" style="background: linear-gradient(to right, #000, #0f0);">
+                            <input type="number" id="gInput" class="input-control slider-value" min="0" max="255" value="0">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="bInput">Blue (0-255)</label>
+                        <div class="slider-container">
+                            <input type="range" id="bSlider" class="slider" min="0" max="255" value="0" style="background: linear-gradient(to right, #000, #00f);">
+                            <input type="number" id="bInput" class="input-control slider-value" min="0" max="255" value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-panel" id="hslPanel">
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="hInput">Hue (0-360)</label>
+                        <div class="slider-container">
+                            <input type="range" id="hSlider" class="slider" min="0" max="360" value="0" style="background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);">
+                            <input type="number" id="hInput" class="input-control slider-value" min="0" max="360" value="0">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="sInput">Saturation (0-100%)</label>
+                        <div class="slider-container">
+                            <input type="range" id="sSlider" class="slider" min="0" max="100" value="0">
+                            <input type="number" id="sInput" class="input-control slider-value" min="0" max="100" value="0">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="lInput">Lightness (0-100%)</label>
+                        <div class="slider-container">
+                            <input type="range" id="lSlider" class="slider" min="0" max="100" value="0">
+                            <input type="number" id="lInput" class="input-control slider-value" min="0" max="100" value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-panel" id="pickerPanel">
+                <div class="input-group">
+                    <label for="colorPicker">カラーピッカー</label>
+                    <input type="color" id="colorPicker" class="input-control" value="#000000" style="height: 50px;">
+                </div>
+            </div>
+        </div>
+
+        <div class="preset-colors">
+            <div class="preset-title">プリセットカラー</div>
+            <div class="preset-grid" id="presetGrid">
+                <!-- プリセットカラーがここに表示されます -->
+            </div>
+        </div>
+
+        <div class="gradient-section">
+            <div class="gradient-title">グラデーション生成</div>
+            <div class="gradient-preview" id="gradientPreview"></div>
+            <div class="gradient-controls">
+                <button class="gradient-btn" onclick="generateRandomGradient()">ランダムグラデーション</button>
+                <button class="gradient-btn" onclick="generateComplementaryGradient()">補色グラデーション</button>
+                <button class="gradient-btn" onclick="copyGradientCSS()">CSS コピー</button>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" onclick="generateRandomColor()">ランダム色生成</button>
+            <button class="action-btn" onclick="generatePalette()">パレット生成</button>
+            <button class="action-btn" onclick="exportColors()">色データ出力</button>
+            <button class="action-btn secondary" onclick="resetAll()">リセット</button>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let currentColor = { r: 0, g: 0, b: 0 };
+        let currentInputMethod = 'hex';
+
+        const presetColors = [
+            { name: '赤', hex: '#FF0000' },
+            { name: '緑', hex: '#00FF00' },
+            { name: '青', hex: '#0000FF' },
+            { name: '黄', hex: '#FFFF00' },
+            { name: 'シアン', hex: '#00FFFF' },
+            { name: 'マゼンタ', hex: '#FF00FF' },
+            { name: '黒', hex: '#000000' },
+            { name: '白', hex: '#FFFFFF' },
+            { name: 'グレー', hex: '#808080' },
+            { name: 'オレンジ', hex: '#FFA500' },
+            { name: 'ピンク', hex: '#FFC0CB' },
+            { name: '紫', hex: '#800080' },
+            { name: 'ブラウン', hex: '#A52A2A' },
+            { name: 'ライム', hex: '#32CD32' },
+            { name: 'ネイビー', hex: '#000080' },
+            { name: 'ゴールド', hex: '#FFD700' },
+            { name: 'シルバー', hex: '#C0C0C0' },
+            { name: 'インディゴ', hex: '#4B0082' }
+        ];
+
+        function setInputMethod(method) {
+            currentInputMethod = method;
+            
+            // タブの状態を更新
+            document.querySelectorAll('.input-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // パネルの表示を切り替え
+            document.querySelectorAll('.input-panel').forEach(panel => panel.classList.remove('active'));
+            document.getElementById(method + 'Panel').classList.add('active');
+        }
+
+        function updateColor(color) {
+            currentColor = color;
+            
+            // 色プレビューを更新
+            const colorPreview = document.getElementById('colorPreview');
+            colorPreview.style.backgroundColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
+            
+            // 各形式の値を更新
+            updateColorValues(color);
+            
+            // 入力フィールドを更新
+            updateInputFields(color);
+        }
+
+        function updateColorValues(color) {
+            const hex = rgbToHex(color.r, color.g, color.b);
+            const hsl = rgbToHsl(color.r, color.g, color.b);
+            const cmyk = rgbToCmyk(color.r, color.g, color.b);
+            
+            document.getElementById('hexValue').textContent = hex;
+            document.getElementById('rgbValue').textContent = `rgb(${color.r}, ${color.g}, ${color.b})`;
+            document.getElementById('hslValue').textContent = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+            document.getElementById('cmykValue').textContent = `cmyk(${cmyk.c}%, ${cmyk.m}%, ${cmyk.y}%, ${cmyk.k}%)`;
+        }
+
+        function updateInputFields(color) {
+            // HEX入力
+            document.getElementById('hexInput').value = rgbToHex(color.r, color.g, color.b);
+            
+            // RGB入力
+            document.getElementById('rInput').value = color.r;
+            document.getElementById('gInput').value = color.g;
+            document.getElementById('bInput').value = color.b;
+            document.getElementById('rSlider').value = color.r;
+            document.getElementById('gSlider').value = color.g;
+            document.getElementById('bSlider').value = color.b;
+            
+            // HSL入力
+            const hsl = rgbToHsl(color.r, color.g, color.b);
+            document.getElementById('hInput').value = hsl.h;
+            document.getElementById('sInput').value = hsl.s;
+            document.getElementById('lInput').value = hsl.l;
+            document.getElementById('hSlider').value = hsl.h;
+            document.getElementById('sSlider').value = hsl.s;
+            document.getElementById('lSlider').value = hsl.l;
+            
+            // カラーピッカー
+            document.getElementById('colorPicker').value = rgbToHex(color.r, color.g, color.b);
+        }
+
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        function rgbToHsl(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+            
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+            
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+            
+            return {
+                h: Math.round(h * 360),
+                s: Math.round(s * 100),
+                l: Math.round(l * 100)
+            };
+        }
+
+        function hslToRgb(h, s, l) {
+            h /= 360;
+            s /= 100;
+            l /= 100;
+            
+            const hue2rgb = (p, q, t) => {
+                if (t < 0) t += 1;
+                if (t > 1) t -= 1;
+                if (t < 1/6) return p + (q - p) * 6 * t;
+                if (t < 1/2) return q;
+                if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                return p;
+            };
+            
+            let r, g, b;
+            
+            if (s === 0) {
+                r = g = b = l;
+            } else {
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+            
+            return {
+                r: Math.round(r * 255),
+                g: Math.round(g * 255),
+                b: Math.round(b * 255)
+            };
+        }
+
+        function rgbToCmyk(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+            
+            const k = 1 - Math.max(r, Math.max(g, b));
+            const c = (1 - r - k) / (1 - k) || 0;
+            const m = (1 - g - k) / (1 - k) || 0;
+            const y = (1 - b - k) / (1 - k) || 0;
+            
+            return {
+                c: Math.round(c * 100),
+                m: Math.round(m * 100),
+                y: Math.round(y * 100),
+                k: Math.round(k * 100)
+            };
+        }
+
+        function setupEventListeners() {
+            // HEX入力
+            document.getElementById('hexInput').addEventListener('input', (e) => {
+                const hex = e.target.value;
+                if (hex.match(/^#[0-9A-Fa-f]{6}$/)) {
+                    const rgb = hexToRgb(hex);
+                    if (rgb) updateColor(rgb);
+                }
+            });
+            
+            // RGB入力
+            ['r', 'g', 'b'].forEach(channel => {
+                const input = document.getElementById(channel + 'Input');
+                const slider = document.getElementById(channel + 'Slider');
+                
+                input.addEventListener('input', () => {
+                    const value = Math.max(0, Math.min(255, parseInt(input.value) || 0));
+                    slider.value = value;
+                    updateRgbColor();
+                });
+                
+                slider.addEventListener('input', () => {
+                    input.value = slider.value;
+                    updateRgbColor();
+                });
+            });
+            
+            // HSL入力
+            ['h', 's', 'l'].forEach(channel => {
+                const input = document.getElementById(channel + 'Input');
+                const slider = document.getElementById(channel + 'Slider');
+                
+                input.addEventListener('input', () => {
+                    const max = channel === 'h' ? 360 : 100;
+                    const value = Math.max(0, Math.min(max, parseInt(input.value) || 0));
+                    slider.value = value;
+                    updateHslColor();
+                });
+                
+                slider.addEventListener('input', () => {
+                    input.value = slider.value;
+                    updateHslColor();
+                });
+            });
+            
+            // カラーピッカー
+            document.getElementById('colorPicker').addEventListener('input', (e) => {
+                const rgb = hexToRgb(e.target.value);
+                if (rgb) updateColor(rgb);
+            });
+        }
+
+        function updateRgbColor() {
+            const r = parseInt(document.getElementById('rInput').value) || 0;
+            const g = parseInt(document.getElementById('gInput').value) || 0;
+            const b = parseInt(document.getElementById('bInput').value) || 0;
+            updateColor({ r, g, b });
+        }
+
+        function updateHslColor() {
+            const h = parseInt(document.getElementById('hInput').value) || 0;
+            const s = parseInt(document.getElementById('sInput').value) || 0;
+            const l = parseInt(document.getElementById('lInput').value) || 0;
+            const rgb = hslToRgb(h, s, l);
+            updateColor(rgb);
+        }
+
+        function renderPresetColors() {
+            const presetGrid = document.getElementById('presetGrid');
+            presetGrid.innerHTML = '';
+            
+            presetColors.forEach(preset => {
+                const colorElement = document.createElement('div');
+                colorElement.className = 'preset-color';
+                colorElement.style.backgroundColor = preset.hex;
+                colorElement.onclick = () => selectPresetColor(preset.hex);
+                
+                const nameElement = document.createElement('div');
+                nameElement.className = 'color-name';
+                nameElement.textContent = preset.name;
+                colorElement.appendChild(nameElement);
+                
+                presetGrid.appendChild(colorElement);
+            });
+        }
+
+        function selectPresetColor(hex) {
+            const rgb = hexToRgb(hex);
+            if (rgb) updateColor(rgb);
+            
+            // 選択状態を更新
+            document.querySelectorAll('.preset-color').forEach(el => el.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+
+        function generateRandomColor() {
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+            updateColor({ r, g, b });
+            showNotification('ランダム色を生成しました');
+        }
+
+        function generateRandomGradient() {
+            const color1 = `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`;
+            const color2 = `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`;
+            const gradient = `linear-gradient(45deg, ${color1}, ${color2})`;
+            
+            document.getElementById('gradientPreview').style.background = gradient;
+            showNotification('ランダムグラデーションを生成しました');
+        }
+
+        function generateComplementaryGradient() {
+            const complementaryR = 255 - currentColor.r;
+            const complementaryG = 255 - currentColor.g;
+            const complementaryB = 255 - currentColor.b;
+            
+            const color1 = `rgb(${currentColor.r}, ${currentColor.g}, ${currentColor.b})`;
+            const color2 = `rgb(${complementaryR}, ${complementaryG}, ${complementaryB})`;
+            const gradient = `linear-gradient(45deg, ${color1}, ${color2})`;
+            
+            document.getElementById('gradientPreview').style.background = gradient;
+            showNotification('補色グラデーションを生成しました');
+        }
+
+        function copyGradientCSS() {
+            const gradientElement = document.getElementById('gradientPreview');
+            const background = gradientElement.style.background;
+            
+            if (background) {
+                copyToClipboard(null, background);
+                showNotification('グラデーションCSSをコピーしました');
+            } else {
+                showNotification('グラデーションが生成されていません', 'error');
+            }
+        }
+
+        function generatePalette() {
+            const baseHsl = rgbToHsl(currentColor.r, currentColor.g, currentColor.b);
+            const palette = [];
+            
+            // 類似色パレット
+            for (let i = -2; i <= 2; i++) {
+                const h = (baseHsl.h + i * 30) % 360;
+                const rgb = hslToRgb(h, baseHsl.s, baseHsl.l);
+                palette.push(rgbToHex(rgb.r, rgb.g, rgb.b));
+            }
+            
+            // パレットを表示（簡易版）
+            let paletteText = 'カラーパレット:\n';
+            palette.forEach((color, index) => {
+                paletteText += `${index + 1}: ${color}\n`;
+            });
+            
+            showNotification('カラーパレットを生成しました');
+        }
+
+        function copyToClipboard(elementId, text = null) {
+            const copyText = text || document.getElementById(elementId).textContent;
+            
+            navigator.clipboard.writeText(copyText).then(() => {
+                showNotification(`${copyText} をコピーしました`);
+            }).catch(() => {
+                showNotification('コピーに失敗しました', 'error');
+            });
+        }
+
+        function exportColors() {
+            const exportData = {
+                currentColor: currentColor,
+                hex: rgbToHex(currentColor.r, currentColor.g, currentColor.b),
+                rgb: `rgb(${currentColor.r}, ${currentColor.g}, ${currentColor.b})`,
+                hsl: (() => {
+                    const hsl = rgbToHsl(currentColor.r, currentColor.g, currentColor.b);
+                    return `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+                })(),
+                cmyk: (() => {
+                    const cmyk = rgbToCmyk(currentColor.r, currentColor.g, currentColor.b);
+                    return `cmyk(${cmyk.c}%, ${cmyk.m}%, ${cmyk.y}%, ${cmyk.k}%)`;
+                })(),
+                exportedAt: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `color_data_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('色データを出力しました');
+        }
+
+        function resetAll() {
+            updateColor({ r: 0, g: 0, b: 0 });
+            document.getElementById('gradientPreview').style.background = '';
+            document.querySelectorAll('.preset-color').forEach(el => el.classList.remove('selected'));
+            showNotification('リセットしました');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        function init() {
+            renderPresetColors();
+            setupEventListeners();
+            updateColor({ r: 0, g: 0, b: 0 });
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

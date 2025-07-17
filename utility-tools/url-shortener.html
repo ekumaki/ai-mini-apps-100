@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL短縮 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .url-shortener {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .shortener-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 1.5rem;
+        }
+
+        .url-input-group {
+            margin-bottom: 20px;
+        }
+
+        .url-input-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .url-input.error {
+            border-color: #dc3545;
+        }
+
+        .options-section {
+            background: #e1ecf4;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .options-title {
+            color: #0c5460;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .option-group label {
+            font-weight: 600;
+            color: #0c5460;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .option-control {
+            padding: 8px;
+            border: 2px solid #b3d4fc;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        .option-control:focus {
+            outline: none;
+            border-color: #0c5460;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+        }
+
+        .results-section {
+            background: #d4edda;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .results-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .result-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #155724;
+            margin-bottom: 5px;
+        }
+
+        .result-url {
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            word-break: break-all;
+            margin-bottom: 10px;
+            border: 1px solid #e9ecef;
+        }
+
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: #155724;
+            font-size: 1.1rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .url-list-section {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .list-title {
+            color: #856404;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .url-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .url-item {
+            background: white;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .url-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .url-original {
+            font-size: 0.9rem;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 3px;
+        }
+
+        .url-short {
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .url-date {
+            font-size: 0.7rem;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        .url-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .action-btn.success {
+            background: #28a745;
+        }
+
+        .action-btn.success:hover {
+            background: #218838;
+        }
+
+        .action-btn.danger {
+            background: #dc3545;
+        }
+
+        .action-btn.danger:hover {
+            background: #c82333;
+        }
+
+        .action-btn.small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .qr-section {
+            background: #f3e5f5;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .qr-section.show {
+            display: block;
+        }
+
+        .qr-title {
+            color: #6a1b9a;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .qr-container {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .qr-code {
+            background: white;
+            border: 1px solid #ce93d8;
+            border-radius: 8px;
+            padding: 20px;
+            display: inline-block;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .url-shortener {
+                padding: 20px;
+            }
+            
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .result-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .url-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .url-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="url-shortener">
+        <div class="header">
+            <h1>URL短縮</h1>
+            <p>長いURLを短縮してシェアしやすく</p>
+        </div>
+
+        <div class="shortener-section">
+            <div class="section-title">
+                <span class="section-icon">🔗</span>
+                <span>URL短縮</span>
+            </div>
+            <div class="url-input-group">
+                <label for="originalUrl">短縮したいURL</label>
+                <input type="url" id="originalUrl" class="url-input" placeholder="https://example.com/very/long/url/path" required>
+            </div>
+        </div>
+
+        <div class="options-section">
+            <div class="options-title">オプション設定</div>
+            <div class="options-grid">
+                <div class="option-group">
+                    <label for="customAlias">カスタムエイリアス</label>
+                    <input type="text" id="customAlias" class="option-control" placeholder="custom-name">
+                </div>
+                <div class="option-group">
+                    <label for="expirationDays">有効期限（日）</label>
+                    <select id="expirationDays" class="option-control">
+                        <option value="">無期限</option>
+                        <option value="1">1日</option>
+                        <option value="7">1週間</option>
+                        <option value="30">1ヶ月</option>
+                        <option value="365">1年</option>
+                    </select>
+                </div>
+                <div class="option-group">
+                    <label for="domain">ドメイン</label>
+                    <select id="domain" class="option-control">
+                        <option value="short.ly">short.ly</option>
+                        <option value="tinyurl.com">tinyurl.com</option>
+                        <option value="bit.ly">bit.ly</option>
+                        <option value="custom.link">custom.link</option>
+                    </select>
+                </div>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="passwordProtect">
+                <label for="passwordProtect">パスワード保護</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="enableAnalytics" checked>
+                <label for="enableAnalytics">アクセス解析を有効にする</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="generateQR">
+                <label for="generateQR">QRコードを生成</label>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" onclick="shortenUrl()">URL短縮</button>
+            <button class="action-btn secondary" onclick="generateBulk()">一括短縮</button>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results-title">短縮結果</div>
+            <div id="resultsContainer">
+                <!-- 短縮結果がここに表示されます -->
+            </div>
+        </div>
+
+        <div class="qr-section" id="qrSection">
+            <div class="qr-title">QRコード</div>
+            <div class="qr-container">
+                <div class="qr-code" id="qrCode">
+                    <!-- QRコードがここに表示されます -->
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <button class="action-btn small" onclick="downloadQR()">QRコード保存</button>
+            </div>
+        </div>
+
+        <div class="url-list-section">
+            <div class="list-title">短縮履歴</div>
+            <div class="url-list" id="urlList">
+                <!-- 短縮履歴がここに表示されます -->
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <button class="action-btn small secondary" onclick="clearHistory()">履歴クリア</button>
+                <button class="action-btn small" onclick="exportHistory()">履歴出力</button>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn secondary" onclick="validateUrls()">URL検証</button>
+            <button class="action-btn secondary" onclick="resetAll()">リセット</button>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let urlHistory = JSON.parse(localStorage.getItem('urlShortenerHistory') || '[]');
+        let currentQRUrl = null;
+
+        function shortenUrl() {
+            const originalUrl = document.getElementById('originalUrl').value.trim();
+            const customAlias = document.getElementById('customAlias').value.trim();
+            const expirationDays = document.getElementById('expirationDays').value;
+            const domain = document.getElementById('domain').value;
+            const passwordProtect = document.getElementById('passwordProtect').checked;
+            const enableAnalytics = document.getElementById('enableAnalytics').checked;
+            const generateQR = document.getElementById('generateQR').checked;
+
+            if (!originalUrl) {
+                showNotification('URLを入力してください', 'error');
+                return;
+            }
+
+            if (!isValidUrl(originalUrl)) {
+                showNotification('有効なURLを入力してください', 'error');
+                document.getElementById('originalUrl').classList.add('error');
+                return;
+            }
+
+            document.getElementById('originalUrl').classList.remove('error');
+
+            // 短縮URLを生成（シミュレーション）
+            const shortUrl = generateShortUrl(domain, customAlias);
+            const createdAt = new Date();
+            const expiresAt = expirationDays ? new Date(Date.now() + (parseInt(expirationDays) * 24 * 60 * 60 * 1000)) : null;
+
+            const urlData = {
+                id: Date.now(),
+                originalUrl: originalUrl,
+                shortUrl: shortUrl,
+                alias: customAlias || shortUrl.split('/').pop(),
+                domain: domain,
+                createdAt: createdAt,
+                expiresAt: expiresAt,
+                passwordProtect: passwordProtect,
+                enableAnalytics: enableAnalytics,
+                clicks: Math.floor(Math.random() * 50), // シミュレーション
+                uniqueClicks: Math.floor(Math.random() * 30),
+                lastAccessed: new Date(Date.now() - Math.random() * 86400000)
+            };
+
+            // 履歴に追加
+            urlHistory.unshift(urlData);
+            saveHistory();
+
+            // 結果を表示
+            displayResult(urlData);
+
+            // QRコード生成
+            if (generateQR) {
+                generateQRCode(shortUrl);
+            }
+
+            // 統計情報を更新
+            updateAnalytics();
+
+            showNotification('URL短縮が完了しました');
+        }
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function generateShortUrl(domain, customAlias) {
+            if (customAlias) {
+                return `https://${domain}/${customAlias}`;
+            }
+            
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < 6; i++) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return `https://${domain}/${result}`;
+        }
+
+        function displayResult(urlData) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContainer = document.getElementById('resultsContainer');
+
+            const originalLength = urlData.originalUrl.length;
+            const shortLength = urlData.shortUrl.length;
+            const reduction = Math.round((1 - shortLength / originalLength) * 100);
+
+            resultsContainer.innerHTML = `
+                <div class="result-item">
+                    <div class="result-label">元のURL</div>
+                    <div class="result-url">${urlData.originalUrl}</div>
+                    
+                    <div class="result-label">短縮URL</div>
+                    <div class="result-url">${urlData.shortUrl}</div>
+                    
+                    <div class="result-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">${originalLength}</div>
+                            <div class="stat-label">元の文字数</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${shortLength}</div>
+                            <div class="stat-label">短縮後文字数</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${reduction}%</div>
+                            <div class="stat-label">短縮率</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${urlData.clicks}</div>
+                            <div class="stat-label">クリック数</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px; text-align: center;">
+                        <button class="action-btn small success" onclick="copyToClipboard('${urlData.shortUrl}')">コピー</button>
+                        <button class="action-btn small" onclick="previewUrl('${urlData.shortUrl}')">プレビュー</button>
+                        <button class="action-btn small secondary" onclick="shareUrl('${urlData.shortUrl}')">シェア</button>
+                    </div>
+                </div>
+            `;
+
+            resultsSection.classList.add('show');
+            updateUrlList();
+        }
+
+        function generateQRCode(url) {
+            currentQRUrl = url;
+            const qrSection = document.getElementById('qrSection');
+            const qrCode = document.getElementById('qrCode');
+
+            // QRコードをシミュレート（実際はQRコードライブラリを使用）
+            qrCode.innerHTML = `
+                <div style="width: 200px; height: 200px; background: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="white"/><g fill="black"><rect x="0" y="0" width="10" height="10"/><rect x="20" y="0" width="10" height="10"/><rect x="40" y="0" width="10" height="10"/><rect x="60" y="0" width="10" height="10"/><rect x="80" y="0" width="10" height="10"/><rect x="100" y="0" width="10" height="10"/><rect x="120" y="0" width="10" height="10"/><rect x="140" y="0" width="10" height="10"/><rect x="160" y="0" width="10" height="10"/><rect x="180" y="0" width="10" height="10"/></g></svg>') center/contain no-repeat; margin: 0 auto;"></div>
+                <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">QRコード: ${url}</p>
+            `;
+
+            qrSection.classList.add('show');
+        }
+
+        function generateBulk() {
+            const urlsText = prompt('短縮したいURL一覧を入力してください（1行に1つずつ）:');
+            if (!urlsText) return;
+
+            const urls = urlsText.split('\n').map(url => url.trim()).filter(url => url);
+            if (urls.length === 0) {
+                showNotification('有効なURLが見つかりません', 'error');
+                return;
+            }
+
+            let successCount = 0;
+            const domain = document.getElementById('domain').value;
+
+            urls.forEach(url => {
+                if (isValidUrl(url)) {
+                    const shortUrl = generateShortUrl(domain);
+                    const urlData = {
+                        id: Date.now() + Math.random(),
+                        originalUrl: url,
+                        shortUrl: shortUrl,
+                        alias: shortUrl.split('/').pop(),
+                        domain: domain,
+                        createdAt: new Date(),
+                        expiresAt: null,
+                        passwordProtect: false,
+                        enableAnalytics: true,
+                        clicks: Math.floor(Math.random() * 20),
+                        uniqueClicks: Math.floor(Math.random() * 15),
+                        lastAccessed: new Date()
+                    };
+                    urlHistory.unshift(urlData);
+                    successCount++;
+                }
+            });
+
+            saveHistory();
+            updateUrlList();
+            showNotification(`${successCount}個のURLを短縮しました`);
+        }
+
+        function updateUrlList() {
+            const urlList = document.getElementById('urlList');
+            
+            if (urlHistory.length === 0) {
+                urlList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">短縮履歴がありません</p>';
+                return;
+            }
+
+            urlList.innerHTML = urlHistory.slice(0, 10).map(item => `
+                <div class="url-item">
+                    <div class="url-info">
+                        <div class="url-original">${item.originalUrl}</div>
+                        <div class="url-short">${item.shortUrl}</div>
+                        <div class="url-date">${formatDate(item.createdAt)} | ${item.clicks}クリック</div>
+                    </div>
+                    <div class="url-actions">
+                        <button class="action-btn small success" onclick="copyToClipboard('${item.shortUrl}')">コピー</button>
+                        <button class="action-btn small" onclick="showDetails(${item.id})">詳細</button>
+                        <button class="action-btn small danger" onclick="deleteUrl(${item.id})">削除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showDetails(id) {
+            const urlData = urlHistory.find(item => item.id === id);
+            if (!urlData) return;
+
+            const details = `
+URL詳細情報:
+元のURL: ${urlData.originalUrl}
+短縮URL: ${urlData.shortUrl}
+作成日時: ${formatDate(urlData.createdAt)}
+有効期限: ${urlData.expiresAt ? formatDate(urlData.expiresAt) : '無期限'}
+クリック数: ${urlData.clicks}
+ユニーククリック: ${urlData.uniqueClicks}
+最終アクセス: ${formatDate(urlData.lastAccessed)}
+パスワード保護: ${urlData.passwordProtect ? 'あり' : 'なし'}
+解析有効: ${urlData.enableAnalytics ? 'はい' : 'いいえ'}
+            `;
+
+            alert(details);
+        }
+
+        function deleteUrl(id) {
+            if (confirm('この短縮URLを削除しますか？')) {
+                urlHistory = urlHistory.filter(item => item.id !== id);
+                saveHistory();
+                updateUrlList();
+                showNotification('短縮URLを削除しました');
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('URLをクリップボードにコピーしました');
+            }).catch(() => {
+                showNotification('コピーに失敗しました', 'error');
+            });
+        }
+
+        function previewUrl(url) {
+            window.open(url, '_blank');
+        }
+
+        function shareUrl(url) {
+            if (navigator.share) {
+                navigator.share({
+                    title: '短縮URL',
+                    url: url
+                });
+            } else {
+                copyToClipboard(url);
+                showNotification('URLをコピーしました（シェア機能は未対応）');
+            }
+        }
+
+        function downloadQR() {
+            if (!currentQRUrl) {
+                showNotification('QRコードが生成されていません', 'error');
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 200;
+            canvas.height = 200;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, 200, 200);
+            ctx.fillStyle = 'black';
+            
+            // シンプルなQRコードパターンをシミュレート
+            for (let x = 0; x < 200; x += 10) {
+                for (let y = 0; y < 200; y += 10) {
+                    if (Math.random() > 0.5) {
+                        ctx.fillRect(x, y, 10, 10);
+                    }
+                }
+            }
+
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `qr_code_${Date.now()}.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showNotification('QRコードをダウンロードしました');
+            });
+        }
+
+        function validateUrls() {
+            if (urlHistory.length === 0) {
+                showNotification('検証するURLがありません', 'error');
+                return;
+            }
+
+            let validCount = 0;
+            let invalidCount = 0;
+
+            urlHistory.forEach(item => {
+                if (isValidUrl(item.originalUrl)) {
+                    validCount++;
+                } else {
+                    invalidCount++;
+                }
+
+                // 有効期限チェック
+                if (item.expiresAt && new Date() > new Date(item.expiresAt)) {
+                    invalidCount++;
+                }
+            });
+
+            showNotification(`検証完了: 有効 ${validCount}件, 無効 ${invalidCount}件`);
+        }
+
+        function updateAnalytics() {
+            // 簡単な統計情報を更新
+            const totalUrls = urlHistory.length;
+            const totalClicks = urlHistory.reduce((sum, item) => sum + item.clicks, 0);
+            const avgClicks = totalUrls > 0 ? (totalClicks / totalUrls).toFixed(1) : 0;
+            
+            console.log(`統計情報 - 総URL数: ${totalUrls}, 総クリック数: ${totalClicks}, 平均クリック数: ${avgClicks}`);
+        }
+
+        function exportHistory() {
+            if (urlHistory.length === 0) {
+                showNotification('エクスポートする履歴がありません', 'error');
+                return;
+            }
+
+            const exportData = urlHistory.map(item => ({
+                '元のURL': item.originalUrl,
+                '短縮URL': item.shortUrl,
+                'エイリアス': item.alias,
+                'ドメイン': item.domain,
+                '作成日時': formatDate(item.createdAt),
+                '有効期限': item.expiresAt ? formatDate(item.expiresAt) : '無期限',
+                'クリック数': item.clicks,
+                'ユニーククリック': item.uniqueClicks,
+                '最終アクセス': formatDate(item.lastAccessed)
+            }));
+
+            const csvContent = [
+                Object.keys(exportData[0]).join(','),
+                ...exportData.map(row => Object.values(row).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `url_shortener_history_${Date.now()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showNotification('履歴を出力しました');
+        }
+
+        function clearHistory() {
+            if (confirm('全ての短縮履歴を削除しますか？')) {
+                urlHistory = [];
+                saveHistory();
+                updateUrlList();
+                showNotification('履歴をクリアしました');
+            }
+        }
+
+        function resetAll() {
+            document.getElementById('originalUrl').value = '';
+            document.getElementById('customAlias').value = '';
+            document.getElementById('expirationDays').value = '';
+            document.getElementById('passwordProtect').checked = false;
+            document.getElementById('enableAnalytics').checked = true;
+            document.getElementById('generateQR').checked = false;
+            
+            document.getElementById('resultsSection').classList.remove('show');
+            document.getElementById('qrSection').classList.remove('show');
+            
+            currentQRUrl = null;
+            showNotification('リセットしました');
+        }
+
+        function saveHistory() {
+            localStorage.setItem('urlShortenerHistory', JSON.stringify(urlHistory));
+        }
+
+        function formatDate(date) {
+            return new Date(date).toLocaleString('ja-JP');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        function init() {
+            updateUrlList();
+            
+            // URLバリデーション
+            document.getElementById('originalUrl').addEventListener('input', () => {
+                const url = document.getElementById('originalUrl').value;
+                if (url && !isValidUrl(url)) {
+                    document.getElementById('originalUrl').classList.add('error');
+                } else {
+                    document.getElementById('originalUrl').classList.remove('error');
+                }
+            });
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

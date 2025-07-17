@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企画書テンプレート - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .proposal-app {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .proposal-preview {
+            padding: 40px;
+            font-family: 'Times New Roman', serif;
+            color: #333;
+            line-height: 1.8;
+        }
+
+        .proposal-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .proposal-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .proposal-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .proposal-info {
+            font-size: 1rem;
+            color: #888;
+        }
+
+        .proposal-section {
+            margin-bottom: 35px;
+            page-break-inside: avoid;
+        }
+
+        .proposal-section h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        .proposal-section h3 {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .proposal-content {
+            text-align: justify;
+            margin-bottom: 15px;
+        }
+
+        .proposal-list {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .proposal-list li {
+            margin-bottom: 8px;
+        }
+
+        .timeline-table, .budget-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .timeline-table th, .timeline-table td,
+        .budget-table th, .budget-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .timeline-table th, .budget-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .budget-total {
+            background-color: #e3f2fd;
+            font-weight: bold;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+        }
+
+        .control-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .proposal-preview {
+                padding: 20px;
+                font-size: 0.9rem;
+            }
+            
+            .proposal-title {
+                font-size: 2rem;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .proposal-app {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header, .form-section, .controls {
+                display: none;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+                padding: 0;
+                gap: 0;
+            }
+            
+            .preview-section {
+                border: none;
+                max-height: none;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="proposal-app">
+        <div class="header">
+            <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+            <h1>💡 企画書テンプレート</h1>
+            <p>魅力的な企画書を簡単に作成</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="section-title">基本情報</div>
+                <div class="form-group">
+                    <label for="projectTitle">企画タイトル</label>
+                    <input type="text" id="projectTitle" placeholder="新商品開発プロジェクト">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="proposer">提案者</label>
+                            <input type="text" id="proposer" placeholder="山田 太郎">
+                        </div>
+                        <div>
+                            <label for="department">所属部署</label>
+                            <input type="text" id="department" placeholder="企画開発部">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="proposalDate">企画日</label>
+                            <input type="date" id="proposalDate">
+                        </div>
+                        <div>
+                            <label for="recipient">提出先</label>
+                            <input type="text" id="recipient" placeholder="取締役会">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">企画概要</div>
+                <div class="form-group">
+                    <label for="summary">企画概要</label>
+                    <textarea id="summary" placeholder="この企画の概要を簡潔に記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="background">背景・課題</label>
+                    <textarea id="background" placeholder="なぜこの企画が必要なのか、現状の課題を記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="objectives">目的・目標</label>
+                    <textarea id="objectives" placeholder="この企画で達成したい目的と具体的な目標を記載してください"></textarea>
+                </div>
+
+                <div class="section-title">企画内容</div>
+                <div class="form-group">
+                    <label for="content">企画内容詳細</label>
+                    <textarea id="content" placeholder="企画の具体的な内容、実施方法、特徴などを詳しく記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="targetAudience">ターゲット</label>
+                    <textarea id="targetAudience" placeholder="この企画のターゲットとなる対象を記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="benefits">期待効果・メリット</label>
+                    <textarea id="benefits" placeholder="この企画によって得られる効果やメリットを記載してください"></textarea>
+                </div>
+
+                <div class="section-title">実施計画</div>
+                <div class="form-group">
+                    <label for="timeline">スケジュール</label>
+                    <textarea id="timeline" placeholder="企画の実施スケジュールを記載してください（例：第1段階：2024年4月〜6月）"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="resources">必要リソース</label>
+                    <textarea id="resources" placeholder="人員、設備、技術などの必要なリソースを記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="budget">予算</label>
+                    <textarea id="budget" placeholder="必要な予算の内訳を記載してください"></textarea>
+                </div>
+
+                <div class="section-title">リスクと対策</div>
+                <div class="form-group">
+                    <label for="risks">想定リスク</label>
+                    <textarea id="risks" placeholder="予想されるリスクや課題を記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="countermeasures">対策・回避策</label>
+                    <textarea id="countermeasures" placeholder="リスクに対する対策や回避策を記載してください"></textarea>
+                </div>
+
+                <div class="section-title">成果測定</div>
+                <div class="form-group">
+                    <label for="kpi">KPI・評価指標</label>
+                    <textarea id="kpi" placeholder="成果を測定するための指標を記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="conclusion">まとめ</label>
+                    <textarea id="conclusion" placeholder="企画の重要性や承認を求める内容をまとめてください"></textarea>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="proposal-preview" id="proposalPreview">
+                    <div class="proposal-header">
+                        <div class="proposal-title" id="previewTitle">企画書</div>
+                        <div class="proposal-subtitle" id="previewSubtitle"></div>
+                        <div class="proposal-info" id="previewInfo"></div>
+                    </div>
+
+                    <div class="proposal-section" id="previewSummarySection" style="display: none;">
+                        <h2>1. 企画概要</h2>
+                        <div class="proposal-content" id="previewSummary"></div>
+                    </div>
+
+                    <div class="proposal-section" id="previewBackgroundSection" style="display: none;">
+                        <h2>2. 背景・課題</h2>
+                        <div class="proposal-content" id="previewBackground"></div>
+                    </div>
+
+                    <div class="proposal-section" id="previewObjectivesSection" style="display: none;">
+                        <h2>3. 目的・目標</h2>
+                        <div class="proposal-content" id="previewObjectives"></div>
+                    </div>
+
+                    <div class="proposal-section" id="previewContentSection" style="display: none;">
+                        <h2>4. 企画内容</h2>
+                        <div class="proposal-content" id="previewContent"></div>
+                        <div id="previewTargetSection" style="display: none;">
+                            <h3>ターゲット</h3>
+                            <div class="proposal-content" id="previewTarget"></div>
+                        </div>
+                    </div>
+
+                    <div class="proposal-section" id="previewBenefitsSection" style="display: none;">
+                        <h2>5. 期待効果・メリット</h2>
+                        <div class="proposal-content" id="previewBenefits"></div>
+                    </div>
+
+                    <div class="proposal-section" id="previewPlanSection" style="display: none;">
+                        <h2>6. 実施計画</h2>
+                        <div id="previewTimelineSection" style="display: none;">
+                            <h3>スケジュール</h3>
+                            <div class="proposal-content" id="previewTimeline"></div>
+                        </div>
+                        <div id="previewResourcesSection" style="display: none;">
+                            <h3>必要リソース</h3>
+                            <div class="proposal-content" id="previewResources"></div>
+                        </div>
+                        <div id="previewBudgetSection" style="display: none;">
+                            <h3>予算</h3>
+                            <div class="proposal-content" id="previewBudget"></div>
+                        </div>
+                    </div>
+
+                    <div class="proposal-section" id="previewRiskSection" style="display: none;">
+                        <h2>7. リスクと対策</h2>
+                        <div id="previewRisksSection" style="display: none;">
+                            <h3>想定リスク</h3>
+                            <div class="proposal-content" id="previewRisks"></div>
+                        </div>
+                        <div id="previewCountermeasuresSection" style="display: none;">
+                            <h3>対策・回避策</h3>
+                            <div class="proposal-content" id="previewCountermeasures"></div>
+                        </div>
+                    </div>
+
+                    <div class="proposal-section" id="previewKPISection" style="display: none;">
+                        <h2>8. 成果測定</h2>
+                        <div class="proposal-content" id="previewKPI"></div>
+                    </div>
+
+                    <div class="proposal-section" id="previewConclusionSection" style="display: none;">
+                        <h2>9. まとめ</h2>
+                        <div class="proposal-content" id="previewConclusion"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="printProposal()">🖨️ 印刷</button>
+            <button class="control-btn secondary" onclick="saveProposal()">💾 保存</button>
+            <button class="control-btn secondary" onclick="loadProposal()">📂 読み込み</button>
+            <button class="control-btn secondary" onclick="clearForm()">🗑️ クリア</button>
+        </div>
+    </div>
+
+    <script>
+        function updatePreview() {
+            const projectTitle = document.getElementById('projectTitle').value;
+            const proposer = document.getElementById('proposer').value;
+            const department = document.getElementById('department').value;
+            const proposalDate = document.getElementById('proposalDate').value;
+            const recipient = document.getElementById('recipient').value;
+            const summary = document.getElementById('summary').value;
+            const background = document.getElementById('background').value;
+            const objectives = document.getElementById('objectives').value;
+            const content = document.getElementById('content').value;
+            const targetAudience = document.getElementById('targetAudience').value;
+            const benefits = document.getElementById('benefits').value;
+            const timeline = document.getElementById('timeline').value;
+            const resources = document.getElementById('resources').value;
+            const budget = document.getElementById('budget').value;
+            const risks = document.getElementById('risks').value;
+            const countermeasures = document.getElementById('countermeasures').value;
+            const kpi = document.getElementById('kpi').value;
+            const conclusion = document.getElementById('conclusion').value;
+
+            // タイトルの更新
+            if (projectTitle) {
+                document.getElementById('previewTitle').textContent = projectTitle;
+            } else {
+                document.getElementById('previewTitle').textContent = '企画書';
+            }
+
+            // サブタイトルと情報の更新
+            let subtitleParts = [];
+            if (proposer) subtitleParts.push(`提案者: ${proposer}`);
+            if (department) subtitleParts.push(`所属: ${department}`);
+            document.getElementById('previewSubtitle').textContent = subtitleParts.join(' | ');
+
+            let infoParts = [];
+            if (proposalDate) infoParts.push(`企画日: ${formatDate(proposalDate)}`);
+            if (recipient) infoParts.push(`提出先: ${recipient}`);
+            document.getElementById('previewInfo').textContent = infoParts.join(' | ');
+
+            // 各セクションの更新
+            updateSection('Summary', summary);
+            updateSection('Background', background);
+            updateSection('Objectives', objectives);
+            updateSection('Benefits', benefits);
+            updateSection('KPI', kpi);
+            updateSection('Conclusion', conclusion);
+
+            // 企画内容セクションの更新
+            if (content || targetAudience) {
+                document.getElementById('previewContentSection').style.display = 'block';
+                document.getElementById('previewContent').textContent = content;
+                
+                if (targetAudience) {
+                    document.getElementById('previewTargetSection').style.display = 'block';
+                    document.getElementById('previewTarget').textContent = targetAudience;
+                } else {
+                    document.getElementById('previewTargetSection').style.display = 'none';
+                }
+            } else {
+                document.getElementById('previewContentSection').style.display = 'none';
+            }
+
+            // 実施計画セクションの更新
+            if (timeline || resources || budget) {
+                document.getElementById('previewPlanSection').style.display = 'block';
+                
+                updateSubSection('Timeline', timeline);
+                updateSubSection('Resources', resources);
+                updateSubSection('Budget', budget);
+            } else {
+                document.getElementById('previewPlanSection').style.display = 'none';
+            }
+
+            // リスクセクションの更新
+            if (risks || countermeasures) {
+                document.getElementById('previewRiskSection').style.display = 'block';
+                
+                updateSubSection('Risks', risks);
+                updateSubSection('Countermeasures', countermeasures);
+            } else {
+                document.getElementById('previewRiskSection').style.display = 'none';
+            }
+        }
+
+        function updateSection(sectionName, content) {
+            const sectionElement = document.getElementById(`preview${sectionName}Section`);
+            const contentElement = document.getElementById(`preview${sectionName}`);
+            
+            if (content) {
+                contentElement.textContent = content;
+                sectionElement.style.display = 'block';
+            } else {
+                sectionElement.style.display = 'none';
+            }
+        }
+
+        function updateSubSection(sectionName, content) {
+            const sectionElement = document.getElementById(`preview${sectionName}Section`);
+            const contentElement = document.getElementById(`preview${sectionName}`);
+            
+            if (content) {
+                contentElement.textContent = content;
+                sectionElement.style.display = 'block';
+            } else {
+                sectionElement.style.display = 'none';
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${year}年${month}月${day}日`;
+        }
+
+        function printProposal() {
+            window.print();
+        }
+
+        function saveProposal() {
+            const data = {
+                projectTitle: document.getElementById('projectTitle').value,
+                proposer: document.getElementById('proposer').value,
+                department: document.getElementById('department').value,
+                proposalDate: document.getElementById('proposalDate').value,
+                recipient: document.getElementById('recipient').value,
+                summary: document.getElementById('summary').value,
+                background: document.getElementById('background').value,
+                objectives: document.getElementById('objectives').value,
+                content: document.getElementById('content').value,
+                targetAudience: document.getElementById('targetAudience').value,
+                benefits: document.getElementById('benefits').value,
+                timeline: document.getElementById('timeline').value,
+                resources: document.getElementById('resources').value,
+                budget: document.getElementById('budget').value,
+                risks: document.getElementById('risks').value,
+                countermeasures: document.getElementById('countermeasures').value,
+                kpi: document.getElementById('kpi').value,
+                conclusion: document.getElementById('conclusion').value
+            };
+
+            localStorage.setItem('proposalData', JSON.stringify(data));
+            alert('企画書を保存しました！');
+        }
+
+        function loadProposal() {
+            const savedData = localStorage.getItem('proposalData');
+            if (!savedData) {
+                alert('保存されたデータがありません。');
+                return;
+            }
+
+            const data = JSON.parse(savedData);
+            
+            // フォームに保存されたデータを読み込み
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = data[key] || '';
+                }
+            });
+
+            updatePreview();
+            alert('企画書を読み込みました！');
+        }
+
+        function clearForm() {
+            if (confirm('すべての入力内容をクリアしますか？')) {
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    element.value = '';
+                });
+                updatePreview();
+            }
+        }
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            // 現在の日付を設定
+            document.getElementById('proposalDate').value = new Date().toISOString().split('T')[0];
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

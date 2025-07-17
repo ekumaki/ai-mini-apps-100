@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タイピングゲーム - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .typing-game {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .game-controls {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .difficulty-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .difficulty-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .game-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px 15px;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .info-value {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .wpm {
+            color: #28a745 !important;
+        }
+
+        .accuracy {
+            color: #dc3545 !important;
+        }
+
+        .timer {
+            color: #ffc107 !important;
+        }
+
+        .typing-area {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .text-display {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            line-height: 2;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: left;
+            font-family: 'Courier New', monospace;
+        }
+
+        .text-content {
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+
+        .char {
+            transition: all 0.1s ease;
+        }
+
+        .char.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .char.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .char.current {
+            background: #667eea;
+            color: white;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .input-area {
+            position: relative;
+        }
+
+        .typing-input {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.2rem;
+            border: 3px solid #e9ecef;
+            border-radius: 10px;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+        }
+
+        .typing-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            color: #999;
+            pointer-events: none;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .typing-input:focus + .input-placeholder,
+        .typing-input:not(:placeholder-shown) + .input-placeholder {
+            top: -10px;
+            font-size: 0.9rem;
+            background: white;
+            padding: 0 5px;
+            color: #667eea;
+        }
+
+        .game-status {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .status-text.completed {
+            color: #28a745;
+        }
+
+        .status-text.error {
+            color: #dc3545;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .action-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .stats-section {
+            background: #d4edda;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stats-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #155724;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.record {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .typing-game {
+                padding: 20px;
+            }
+            
+            .game-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .game-info {
+                justify-content: center;
+            }
+            
+            .text-display {
+                font-size: 1.2rem;
+                padding: 20px;
+                min-height: 150px;
+            }
+            
+            .typing-input {
+                font-size: 1rem;
+                padding: 15px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="typing-game">
+        <div class="header">
+            <h1>⌨️ タイピングゲーム</h1>
+            <p>表示された文章を正確に素早くタイピングしよう！</p>
+        </div>
+
+        <div class="game-controls">
+            <div class="difficulty-buttons">
+                <button class="difficulty-btn active" onclick="setDifficulty('easy')">初級</button>
+                <button class="difficulty-btn" onclick="setDifficulty('medium')">中級</button>
+                <button class="difficulty-btn" onclick="setDifficulty('hard')">上級</button>
+                <button class="difficulty-btn" onclick="setMode('japanese')">日本語</button>
+                <button class="difficulty-btn" onclick="setMode('code')">プログラミング</button>
+            </div>
+            
+            <div class="game-info">
+                <div class="info-item">
+                    <div class="info-value wpm" id="wpm">0</div>
+                    <div class="info-label">WPM</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value accuracy" id="accuracy">100</div>
+                    <div class="info-label">正確率(%)</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value timer" id="timer">60</div>
+                    <div class="info-label">残り時間</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value" id="progress">0</div>
+                    <div class="info-label">進捗(%)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="typing-area">
+            <div class="text-display" id="textDisplay">
+                <div class="text-content" id="textContent">
+                    スタートボタンを押してゲームを開始してください
+                </div>
+            </div>
+
+            <div class="input-area">
+                <input type="text" class="typing-input" id="typingInput" placeholder="" disabled>
+                <div class="input-placeholder">ここにタイピングしてください</div>
+            </div>
+        </div>
+
+        <div class="game-status" id="gameStatus">
+            <div class="status-text">スタートボタンを押してゲームを開始してください</div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" onclick="startGame()" id="startBtn">🎯 ゲーム開始</button>
+            <button class="action-btn secondary" onclick="resetGame()">🔄 リセット</button>
+            <button class="action-btn secondary" onclick="pauseGame()" id="pauseBtn" disabled>⏸️ 一時停止</button>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-title">📊 統計</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="gamesPlayed">0</div>
+                    <div class="stat-label">プレイ回数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="bestWPM">0</div>
+                    <div class="stat-label">最高WPM</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgWPM">0</div>
+                    <div class="stat-label">平均WPM</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="bestAccuracy">0</div>
+                    <div class="stat-label">最高正確率(%)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalChars">0</div>
+                    <div class="stat-label">総タイプ数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgAccuracy">0</div>
+                    <div class="stat-label">平均正確率(%)</div>
+                </div>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let gameState = {
+            currentText: '',
+            currentPosition: 0,
+            correctChars: 0,
+            totalChars: 0,
+            startTime: null,
+            timeLimit: 60,
+            timeRemaining: 60,
+            timerInterval: null,
+            gameRunning: false,
+            gamePaused: false,
+            difficulty: 'easy',
+            mode: 'english'
+        };
+
+        let gameStats = {
+            gamesPlayed: 0,
+            bestWPM: 0,
+            totalWPM: 0,
+            bestAccuracy: 0,
+            totalAccuracy: 0,
+            totalChars: 0
+        };
+
+        const textSets = {
+            easy: [
+                "The quick brown fox jumps over the lazy dog.",
+                "A journey of a thousand miles begins with a single step.",
+                "To be or not to be, that is the question.",
+                "All that glitters is not gold.",
+                "Actions speak louder than words."
+            ],
+            medium: [
+                "The greatest glory in living lies not in never falling, but in rising every time we fall.",
+                "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+                "Innovation distinguishes between a leader and a follower.",
+                "The way to get started is to quit talking and begin doing."
+            ],
+            hard: [
+                "In the midst of winter, I found there was, within me, an invincible summer. And that makes me happy. For it says that no matter how hard the world pushes against me, within me, there's something stronger.",
+                "The future belongs to those who believe in the beauty of their dreams and are willing to work hard to make them come true."
+            ],
+            japanese: [
+                "すべての道はローマに通ず。",
+                "継続は力なり。",
+                "時は金なり。",
+                "石の上にも三年。",
+                "急がば回れ。"
+            ],
+            code: [
+                "function calculateSum(a, b) { return a + b; }",
+                "const array = [1, 2, 3, 4, 5].map(x => x * 2);",
+                "if (condition === true) { console.log('Hello World'); }",
+                "for (let i = 0; i < 10; i++) { array.push(i); }"
+            ]
+        };
+
+        function loadStats() {
+            const saved = localStorage.getItem('typingGameStats');
+            if (saved) {
+                gameStats = { ...gameStats, ...JSON.parse(saved) };
+                updateStatsDisplay();
+            }
+        }
+
+        function saveStats() {
+            localStorage.setItem('typingGameStats', JSON.stringify(gameStats));
+        }
+
+        function setDifficulty(difficulty) {
+            if (gameState.gameRunning) {
+                showNotification('ゲーム中は難易度を変更できません', 'error');
+                return;
+            }
+
+            gameState.difficulty = difficulty;
+            gameState.mode = 'english';
+            
+            // ボタンの状態更新
+            document.querySelectorAll('.difficulty-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            showNotification(`難易度を${difficulty === 'easy' ? '初級' : difficulty === 'medium' ? '中級' : '上級'}に設定`);
+        }
+
+        function setMode(mode) {
+            if (gameState.gameRunning) {
+                showNotification('ゲーム中はモードを変更できません', 'error');
+                return;
+            }
+
+            gameState.mode = mode;
+            
+            // ボタンの状態更新
+            document.querySelectorAll('.difficulty-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            showNotification(`${mode === 'japanese' ? '日本語' : 'プログラミング'}モードに設定`);
+        }
+
+        function generateText() {
+            const textSet = gameState.mode === 'english' ? textSets[gameState.difficulty] : textSets[gameState.mode];
+            return textSet[Math.floor(Math.random() * textSet.length)];
+        }
+
+        function startGame() {
+            gameState.currentText = generateText();
+            gameState.currentPosition = 0;
+            gameState.correctChars = 0;
+            gameState.totalChars = 0;
+            gameState.startTime = Date.now();
+            gameState.timeRemaining = gameState.timeLimit;
+            gameState.gameRunning = true;
+            gameState.gamePaused = false;
+
+            displayText();
+            
+            const input = document.getElementById('typingInput');
+            input.disabled = false;
+            input.value = '';
+            input.focus();
+
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+
+            startTimer();
+            updateGameStatus('タイピング中... 頑張って！');
+            updateDisplay();
+
+            gameStats.gamesPlayed++;
+            updateStatsDisplay();
+        }
+
+        function displayText() {
+            const textContent = document.getElementById('textContent');
+            const text = gameState.currentText;
+            let html = '';
+
+            for (let i = 0; i < text.length; i++) {
+                let className = '';
+                if (i < gameState.currentPosition) {
+                    className = gameState.correctChars > i ? 'correct' : 'incorrect';
+                } else if (i === gameState.currentPosition) {
+                    className = 'current';
+                }
+                
+                html += `<span class="char ${className}">${text[i]}</span>`;
+            }
+
+            textContent.innerHTML = html;
+        }
+
+        function startTimer() {
+            gameState.timerInterval = setInterval(() => {
+                if (!gameState.gamePaused) {
+                    gameState.timeRemaining--;
+                    updateDisplay();
+
+                    if (gameState.timeRemaining <= 0) {
+                        endGame();
+                    }
+                }
+            }, 1000);
+        }
+
+        function pauseGame() {
+            if (!gameState.gameRunning) return;
+
+            gameState.gamePaused = !gameState.gamePaused;
+            const pauseBtn = document.getElementById('pauseBtn');
+            const input = document.getElementById('typingInput');
+
+            if (gameState.gamePaused) {
+                pauseBtn.textContent = '▶️ 再開';
+                input.disabled = true;
+                updateGameStatus('ゲーム一時停止中');
+                showNotification('ゲームを一時停止しました');
+            } else {
+                pauseBtn.textContent = '⏸️ 一時停止';
+                input.disabled = false;
+                input.focus();
+                updateGameStatus('タイピング中... 頑張って！');
+                showNotification('ゲームを再開しました');
+            }
+        }
+
+        function resetGame() {
+            clearInterval(gameState.timerInterval);
+            gameState.gameRunning = false;
+            gameState.gamePaused = false;
+            gameState.currentPosition = 0;
+            gameState.correctChars = 0;
+            gameState.totalChars = 0;
+            gameState.timeRemaining = gameState.timeLimit;
+
+            const input = document.getElementById('typingInput');
+            input.disabled = true;
+            input.value = '';
+
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('pauseBtn').textContent = '⏸️ 一時停止';
+
+            document.getElementById('textContent').textContent = 'スタートボタンを押してゲームを開始してください';
+            updateGameStatus('スタートボタンを押してゲームを開始してください');
+            updateDisplay();
+            showNotification('ゲームをリセットしました');
+        }
+
+        function endGame() {
+            clearInterval(gameState.timerInterval);
+            gameState.gameRunning = false;
+
+            const input = document.getElementById('typingInput');
+            input.disabled = true;
+
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+
+            // 最終スコアの計算
+            const timeElapsed = (gameState.timeLimit - gameState.timeRemaining) / 60;
+            const wpm = timeElapsed > 0 ? Math.round((gameState.correctChars / 5) / timeElapsed) : 0;
+            const accuracy = gameState.totalChars > 0 ? Math.round((gameState.correctChars / gameState.totalChars) * 100) : 0;
+
+            // 統計の更新
+            gameStats.totalWPM += wpm;
+            gameStats.totalAccuracy += accuracy;
+            gameStats.totalChars += gameState.totalChars;
+
+            if (wpm > gameStats.bestWPM) {
+                gameStats.bestWPM = wpm;
+                showNotification(`新記録！WPM: ${wpm}`, 'record');
+            }
+
+            if (accuracy > gameStats.bestAccuracy) {
+                gameStats.bestAccuracy = accuracy;
+            }
+
+            updateStatsDisplay();
+            saveStats();
+
+            const completed = gameState.currentPosition >= gameState.currentText.length;
+            const statusClass = completed ? 'completed' : 'error';
+            const message = completed ? 
+                `🎉 完了！WPM: ${wpm}, 正確率: ${accuracy}%` : 
+                `⏰ 時間切れ！WPM: ${wpm}, 正確率: ${accuracy}%`;
+
+            updateGameStatus(message, statusClass);
+            showNotification(message);
+        }
+
+        function updateDisplay() {
+            const timeElapsed = gameState.startTime ? (gameState.timeLimit * 1000 - (Date.now() - gameState.startTime) + gameState.timeRemaining * 1000) / 60000 : 0;
+            const wpm = timeElapsed > 0 ? Math.round((gameState.correctChars / 5) / timeElapsed) : 0;
+            const accuracy = gameState.totalChars > 0 ? Math.round((gameState.correctChars / gameState.totalChars) * 100) : 100;
+            const progress = gameState.currentText.length > 0 ? Math.round((gameState.currentPosition / gameState.currentText.length) * 100) : 0;
+
+            document.getElementById('wpm').textContent = wpm;
+            document.getElementById('accuracy').textContent = accuracy;
+            document.getElementById('timer').textContent = gameState.timeRemaining;
+            document.getElementById('progress').textContent = progress;
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('gamesPlayed').textContent = gameStats.gamesPlayed;
+            document.getElementById('bestWPM').textContent = gameStats.bestWPM;
+            document.getElementById('bestAccuracy').textContent = gameStats.bestAccuracy;
+            document.getElementById('totalChars').textContent = gameStats.totalChars;
+
+            const avgWPM = gameStats.gamesPlayed > 0 ? Math.round(gameStats.totalWPM / gameStats.gamesPlayed) : 0;
+            const avgAccuracy = gameStats.gamesPlayed > 0 ? Math.round(gameStats.totalAccuracy / gameStats.gamesPlayed) : 0;
+
+            document.getElementById('avgWPM').textContent = avgWPM;
+            document.getElementById('avgAccuracy').textContent = avgAccuracy;
+        }
+
+        function updateGameStatus(message, type = '') {
+            const statusElement = document.getElementById('gameStatus');
+            statusElement.innerHTML = `<div class="status-text ${type}">${message}</div>`;
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // タイピング入力処理
+        document.getElementById('typingInput').addEventListener('input', (e) => {
+            if (!gameState.gameRunning || gameState.gamePaused) return;
+
+            const input = e.target.value;
+            const expectedChar = gameState.currentText[gameState.currentPosition];
+
+            if (input.length > 0) {
+                const typedChar = input[input.length - 1];
+                gameState.totalChars++;
+
+                if (typedChar === expectedChar) {
+                    gameState.correctChars++;
+                    gameState.currentPosition++;
+                    e.target.value = '';
+
+                    // テキスト完了チェック
+                    if (gameState.currentPosition >= gameState.currentText.length) {
+                        endGame();
+                        return;
+                    }
+                } else {
+                    // 間違いの場合、入力をクリア
+                    e.target.value = '';
+                }
+
+                displayText();
+                updateDisplay();
+            }
+        });
+
+        // 初期化
+        function init() {
+            loadStats();
+            updateDisplay();
+            updateStatsDisplay();
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // ページを離れる前に自動保存
+        window.addEventListener('beforeunload', saveStats);
+    </script>
+</body>
+</html>

@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>案内状テンプレート - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .invitation-app {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .invitation-preview {
+            padding: 40px;
+            font-family: 'Times New Roman', serif;
+            color: #333;
+            line-height: 1.8;
+            background: #fff;
+        }
+
+        .invitation-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+        }
+
+        .invitation-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-decoration: underline;
+            text-decoration-color: #764ba2;
+        }
+
+        .invitation-subtitle {
+            font-size: 1.3rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .date-location {
+            font-size: 1.1rem;
+            color: #555;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .invitation-body {
+            margin: 30px 0;
+        }
+
+        .greeting {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .main-content {
+            font-size: 1rem;
+            margin-bottom: 30px;
+            text-align: justify;
+            text-indent: 1em;
+            white-space: pre-wrap;
+        }
+
+        .event-details {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+
+        .event-details h3 {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px 20px;
+            font-size: 1rem;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .detail-value {
+            color: #333;
+        }
+
+        .rsvp-section {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .rsvp-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .rsvp-content {
+            color: #856404;
+            font-size: 1rem;
+        }
+
+        .invitation-footer {
+            margin-top: 40px;
+            text-align: right;
+        }
+
+        .organizer-info {
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .organizer-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .contact-info {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+        }
+
+        .control-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .invitation-preview {
+                padding: 20px;
+                font-size: 0.9rem;
+            }
+            
+            .invitation-title {
+                font-size: 2rem;
+            }
+            
+            .detail-grid {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .invitation-app {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header, .form-section, .controls {
+                display: none;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+                padding: 0;
+                gap: 0;
+            }
+            
+            .preview-section {
+                border: none;
+                max-height: none;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invitation-app">
+        <div class="header">
+            <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+            <h1>💌 案内状テンプレート</h1>
+            <p>イベントや会合の案内状を美しく作成</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="section-title">基本情報</div>
+                <div class="form-group">
+                    <label for="invitationType">案内状の種類</label>
+                    <select id="invitationType">
+                        <option value="meeting">会議案内</option>
+                        <option value="party">パーティー案内</option>
+                        <option value="seminar">セミナー案内</option>
+                        <option value="wedding">結婚式案内</option>
+                        <option value="anniversary">記念式典案内</option>
+                        <option value="exhibition">展示会案内</option>
+                        <option value="other">その他</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventTitle">イベント・会合名</label>
+                    <input type="text" id="eventTitle" placeholder="新商品発表会">
+                </div>
+
+                <div class="form-group">
+                    <label for="eventSubtitle">サブタイトル・説明</label>
+                    <input type="text" id="eventSubtitle" placeholder="革新的な技術をご紹介">
+                </div>
+
+                <div class="section-title">日時・場所</div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="eventDate">開催日</label>
+                            <input type="date" id="eventDate">
+                        </div>
+                        <div>
+                            <label for="eventTime">開催時間</label>
+                            <input type="time" id="eventTime">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="duration">所要時間</label>
+                    <input type="text" id="duration" placeholder="約2時間">
+                </div>
+
+                <div class="form-group">
+                    <label for="venue">会場名</label>
+                    <input type="text" id="venue" placeholder="○○ホール">
+                </div>
+
+                <div class="form-group">
+                    <label for="address">住所</label>
+                    <input type="text" id="address" placeholder="東京都○○区○○1-1-1">
+                </div>
+
+                <div class="form-group">
+                    <label for="accessInfo">アクセス情報</label>
+                    <textarea id="accessInfo" placeholder="JR○○駅より徒歩5分"></textarea>
+                </div>
+
+                <div class="section-title">案内内容</div>
+                <div class="form-group">
+                    <label for="greeting">挨拶文</label>
+                    <textarea id="greeting" placeholder="拝啓　時下ますますご清栄のこととお慶び申し上げます。"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="mainMessage">主要メッセージ</label>
+                    <textarea id="mainMessage" placeholder="この度、弊社では新商品発表会を開催することとなりました。"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="additionalInfo">補足情報</label>
+                    <textarea id="additionalInfo" placeholder="軽食もご用意しております。"></textarea>
+                </div>
+
+                <div class="section-title">返信・連絡先</div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="rsvpDeadline">返信期限</label>
+                            <input type="date" id="rsvpDeadline">
+                        </div>
+                        <div>
+                            <label for="rsvpMethod">返信方法</label>
+                            <select id="rsvpMethod">
+                                <option value="email">メール</option>
+                                <option value="phone">電話</option>
+                                <option value="fax">FAX</option>
+                                <option value="form">専用フォーム</option>
+                                <option value="other">その他</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="contactInfo">連絡先情報</label>
+                    <textarea id="contactInfo" placeholder="TEL: 03-1234-5678 / EMAIL: info@example.com"></textarea>
+                </div>
+
+                <div class="section-title">主催者情報</div>
+                <div class="form-group">
+                    <label for="organizerName">主催者・団体名</label>
+                    <input type="text" id="organizerName" placeholder="株式会社○○">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="representativeName">代表者氏名</label>
+                            <input type="text" id="representativeName" placeholder="代表取締役 山田太郎">
+                        </div>
+                        <div>
+                            <label for="representativeTitle">役職</label>
+                            <input type="text" id="representativeTitle" placeholder="代表取締役社長">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="invitation-preview" id="invitationPreview">
+                    <div class="invitation-header">
+                        <div class="invitation-title" id="previewTitle">ご案内</div>
+                        <div class="invitation-subtitle" id="previewSubtitle"></div>
+                        <div class="date-location" id="previewDateLocation">
+                            <div><strong>日時:</strong> <span id="previewDateTime">--</span></div>
+                            <div><strong>会場:</strong> <span id="previewVenue">--</span></div>
+                        </div>
+                    </div>
+
+                    <div class="invitation-body">
+                        <div class="greeting" id="previewGreeting">
+                            拝啓　時下ますますご清栄のこととお慶び申し上げます。
+                        </div>
+
+                        <div class="main-content" id="previewMainMessage">
+                            この度、弊社では下記の通りイベントを開催することとなりました。
+                            ご多忙中恐縮ですが、ぜひご参加いただけますようご案内申し上げます。
+                        </div>
+
+                        <div class="event-details">
+                            <h3>開催概要</h3>
+                            <div class="detail-grid">
+                                <div class="detail-label">イベント名:</div>
+                                <div class="detail-value" id="previewEventTitle">--</div>
+                                <div class="detail-label">開催日時:</div>
+                                <div class="detail-value" id="previewFullDateTime">--</div>
+                                <div class="detail-label">所要時間:</div>
+                                <div class="detail-value" id="previewDuration">--</div>
+                                <div class="detail-label">会場:</div>
+                                <div class="detail-value" id="previewVenueDetail">--</div>
+                                <div class="detail-label">住所:</div>
+                                <div class="detail-value" id="previewAddress">--</div>
+                                <div class="detail-label" id="accessLabel" style="display: none;">アクセス:</div>
+                                <div class="detail-value" id="previewAccess" style="display: none;">--</div>
+                            </div>
+                        </div>
+
+                        <div id="additionalSection" style="display: none;">
+                            <div class="main-content" id="previewAdditionalInfo"></div>
+                        </div>
+
+                        <div class="rsvp-section">
+                            <div class="rsvp-title">参加ご希望の方は下記までご連絡ください</div>
+                            <div class="rsvp-content">
+                                <div><strong>返信期限:</strong> <span id="previewRsvpDeadline">--</span></div>
+                                <div><strong>返信方法:</strong> <span id="previewRsvpMethod">--</span></div>
+                                <div style="margin-top: 10px;" id="previewContactInfo">--</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="invitation-footer">
+                        <div class="organizer-info">
+                            <div class="organizer-name" id="previewOrganizerName">主催者名</div>
+                            <div id="previewRepresentative"></div>
+                        </div>
+                        <div class="contact-info" id="previewContactFooter"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="printInvitation()">🖨️ 印刷</button>
+            <button class="control-btn secondary" onclick="saveInvitation()">💾 保存</button>
+            <button class="control-btn secondary" onclick="loadInvitation()">📂 読み込み</button>
+            <button class="control-btn secondary" onclick="clearForm()">🗑️ クリア</button>
+        </div>
+    </div>
+
+    <script>
+        const invitationTypes = {
+            meeting: '会議案内',
+            party: 'パーティー案内',
+            seminar: 'セミナー案内',
+            wedding: '結婚式案内',
+            anniversary: '記念式典案内',
+            exhibition: '展示会案内',
+            other: 'ご案内'
+        };
+
+        const rsvpMethods = {
+            email: 'メール',
+            phone: '電話',
+            fax: 'FAX',
+            form: '専用フォーム',
+            other: 'その他'
+        };
+
+        function updatePreview() {
+            const invitationType = document.getElementById('invitationType').value;
+            const eventTitle = document.getElementById('eventTitle').value;
+            const eventSubtitle = document.getElementById('eventSubtitle').value;
+            const eventDate = document.getElementById('eventDate').value;
+            const eventTime = document.getElementById('eventTime').value;
+            const duration = document.getElementById('duration').value;
+            const venue = document.getElementById('venue').value;
+            const address = document.getElementById('address').value;
+            const accessInfo = document.getElementById('accessInfo').value;
+            const greeting = document.getElementById('greeting').value;
+            const mainMessage = document.getElementById('mainMessage').value;
+            const additionalInfo = document.getElementById('additionalInfo').value;
+            const rsvpDeadline = document.getElementById('rsvpDeadline').value;
+            const rsvpMethod = document.getElementById('rsvpMethod').value;
+            const contactInfo = document.getElementById('contactInfo').value;
+            const organizerName = document.getElementById('organizerName').value;
+            const representativeName = document.getElementById('representativeName').value;
+            const representativeTitle = document.getElementById('representativeTitle').value;
+
+            // タイトルの更新
+            document.getElementById('previewTitle').textContent = 
+                invitationTypes[invitationType] || 'ご案内';
+
+            // サブタイトルの更新
+            document.getElementById('previewSubtitle').textContent = eventSubtitle;
+
+            // 日時・会場の簡易表示
+            let dateTimeText = '';
+            if (eventDate) {
+                dateTimeText = formatDate(eventDate);
+                if (eventTime) {
+                    dateTimeText += ` ${eventTime}〜`;
+                }
+            }
+            document.getElementById('previewDateTime').textContent = dateTimeText || '--';
+            document.getElementById('previewVenue').textContent = venue || '--';
+
+            // 詳細情報の更新
+            document.getElementById('previewEventTitle').textContent = eventTitle || '--';
+            
+            let fullDateTime = '';
+            if (eventDate) {
+                fullDateTime = formatDate(eventDate);
+                if (eventTime) {
+                    fullDateTime += ` ${eventTime}開始`;
+                }
+            }
+            document.getElementById('previewFullDateTime').textContent = fullDateTime || '--';
+            
+            document.getElementById('previewDuration').textContent = duration || '--';
+            document.getElementById('previewVenueDetail').textContent = venue || '--';
+            document.getElementById('previewAddress').textContent = address || '--';
+
+            // アクセス情報の表示制御
+            if (accessInfo) {
+                document.getElementById('previewAccess').textContent = accessInfo;
+                document.getElementById('accessLabel').style.display = 'block';
+                document.getElementById('previewAccess').style.display = 'block';
+            } else {
+                document.getElementById('accessLabel').style.display = 'none';
+                document.getElementById('previewAccess').style.display = 'none';
+            }
+
+            // 挨拶文の更新
+            document.getElementById('previewGreeting').textContent = 
+                greeting || '拝啓　時下ますますご清栄のこととお慶び申し上げます。';
+
+            // メインメッセージの更新
+            document.getElementById('previewMainMessage').textContent = 
+                mainMessage || 'この度、弊社では下記の通りイベントを開催することとなりました。\nご多忙中恐縮ですが、ぜひご参加いただけますようご案内申し上げます。';
+
+            // 補足情報の表示制御
+            if (additionalInfo) {
+                document.getElementById('previewAdditionalInfo').textContent = additionalInfo;
+                document.getElementById('additionalSection').style.display = 'block';
+            } else {
+                document.getElementById('additionalSection').style.display = 'none';
+            }
+
+            // 返信情報の更新
+            document.getElementById('previewRsvpDeadline').textContent = 
+                rsvpDeadline ? formatDate(rsvpDeadline) : '--';
+            document.getElementById('previewRsvpMethod').textContent = 
+                rsvpMethods[rsvpMethod] || '--';
+            document.getElementById('previewContactInfo').textContent = contactInfo || '--';
+
+            // 主催者情報の更新
+            document.getElementById('previewOrganizerName').textContent = 
+                organizerName || '主催者名';
+
+            let representativeText = '';
+            if (representativeTitle && representativeName) {
+                representativeText = `${representativeTitle} ${representativeName}`;
+            } else if (representativeName) {
+                representativeText = representativeName;
+            }
+            document.getElementById('previewRepresentative').textContent = representativeText;
+
+            // フッター連絡先
+            document.getElementById('previewContactFooter').textContent = contactInfo;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+            const weekday = weekdays[date.getDay()];
+            return `${year}年${month}月${day}日（${weekday}）`;
+        }
+
+        function printInvitation() {
+            window.print();
+        }
+
+        function saveInvitation() {
+            const data = {
+                invitationType: document.getElementById('invitationType').value,
+                eventTitle: document.getElementById('eventTitle').value,
+                eventSubtitle: document.getElementById('eventSubtitle').value,
+                eventDate: document.getElementById('eventDate').value,
+                eventTime: document.getElementById('eventTime').value,
+                duration: document.getElementById('duration').value,
+                venue: document.getElementById('venue').value,
+                address: document.getElementById('address').value,
+                accessInfo: document.getElementById('accessInfo').value,
+                greeting: document.getElementById('greeting').value,
+                mainMessage: document.getElementById('mainMessage').value,
+                additionalInfo: document.getElementById('additionalInfo').value,
+                rsvpDeadline: document.getElementById('rsvpDeadline').value,
+                rsvpMethod: document.getElementById('rsvpMethod').value,
+                contactInfo: document.getElementById('contactInfo').value,
+                organizerName: document.getElementById('organizerName').value,
+                representativeName: document.getElementById('representativeName').value,
+                representativeTitle: document.getElementById('representativeTitle').value
+            };
+
+            localStorage.setItem('invitationData', JSON.stringify(data));
+            alert('案内状を保存しました！');
+        }
+
+        function loadInvitation() {
+            const savedData = localStorage.getItem('invitationData');
+            if (!savedData) {
+                alert('保存されたデータがありません。');
+                return;
+            }
+
+            const data = JSON.parse(savedData);
+            
+            // フォームに保存されたデータを読み込み
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = data[key] || '';
+                }
+            });
+
+            updatePreview();
+            alert('案内状を読み込みました！');
+        }
+
+        function clearForm() {
+            if (confirm('すべての入力内容をクリアしますか？')) {
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    if (element.id === 'invitationType') {
+                        element.value = 'meeting';
+                    } else if (element.id === 'rsvpMethod') {
+                        element.value = 'email';
+                    } else {
+                        element.value = '';
+                    }
+                });
+                updatePreview();
+            }
+        }
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+                input.addEventListener('change', updatePreview);
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

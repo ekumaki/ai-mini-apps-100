@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>職務経歴書 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .cv-app {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .add-item-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .add-item-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .item-container {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: auto;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        .cv-preview {
+            padding: 40px;
+            font-family: 'Times New Roman', serif;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .cv-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #333;
+        }
+
+        .cv-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .cv-contact {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .cv-section {
+            margin-bottom: 25px;
+        }
+
+        .cv-section h3 {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        .cv-item {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .cv-item-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .cv-item-company {
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .cv-item-period {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .cv-item-position {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .cv-item-description {
+            margin-bottom: 10px;
+            text-align: justify;
+        }
+
+        .cv-item-achievements {
+            background: #f8f9fa;
+            padding: 10px;
+            border-left: 3px solid #667eea;
+            font-size: 0.9rem;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+        }
+
+        .control-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .cv-preview {
+                padding: 20px;
+                font-size: 0.9rem;
+            }
+            
+            .cv-item-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .cv-app {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header, .form-section, .controls {
+                display: none;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+                padding: 0;
+                gap: 0;
+            }
+            
+            .preview-section {
+                border: none;
+                max-height: none;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cv-app">
+        <div class="header">
+            <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+            <h1>📄 職務経歴書</h1>
+            <p>プロフェッショナルな職務経歴書を作成</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="section-title">基本情報</div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="name">氏名</label>
+                            <input type="text" id="name" placeholder="山田 太郎">
+                        </div>
+                        <div>
+                            <label for="date">作成日</label>
+                            <input type="date" id="date">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="email">メールアドレス</label>
+                            <input type="email" id="email" placeholder="sample@example.com">
+                        </div>
+                        <div>
+                            <label for="phone">電話番号</label>
+                            <input type="tel" id="phone" placeholder="090-0000-0000">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="summary">職務要約</label>
+                    <textarea id="summary" placeholder="これまでの職務経験の概要を記載してください（3-5行程度）"></textarea>
+                </div>
+
+                <div class="section-title">職務経歴</div>
+                <div id="experienceList"></div>
+                <button class="add-item-btn" onclick="addExperience()">+ 職務経歴を追加</button>
+
+                <div class="section-title">スキル・技術</div>
+                <div class="form-group">
+                    <label for="skills">技術スキル</label>
+                    <textarea id="skills" placeholder="プログラミング言語、フレームワーク、ツールなど"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="softSkills">ソフトスキル</label>
+                    <textarea id="softSkills" placeholder="コミュニケーション能力、リーダーシップ、問題解決能力など"></textarea>
+                </div>
+
+                <div class="section-title">学歴・資格</div>
+                <div class="form-group">
+                    <label for="education">最終学歴</label>
+                    <input type="text" id="education" placeholder="○○大学 ○○学部 ○○学科卒業">
+                </div>
+
+                <div class="form-group">
+                    <label for="certifications">資格・免許</label>
+                    <textarea id="certifications" placeholder="取得年月と資格名を記載"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="languages">語学スキル</label>
+                    <textarea id="languages" placeholder="英語：TOEIC 800点、中国語：HSK 5級など"></textarea>
+                </div>
+
+                <div class="section-title">自己PR</div>
+                <div class="form-group">
+                    <label for="selfPR">自己PR</label>
+                    <textarea id="selfPR" placeholder="あなたの強みや特長をアピールしてください"></textarea>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="cv-preview" id="cvPreview">
+                    <div class="cv-header">
+                        <div class="cv-title">職務経歴書</div>
+                        <div class="cv-contact" id="previewContact"></div>
+                    </div>
+
+                    <div class="cv-section" id="previewSummarySection" style="display: none;">
+                        <h3>職務要約</h3>
+                        <div id="previewSummary"></div>
+                    </div>
+
+                    <div class="cv-section" id="previewExperienceSection" style="display: none;">
+                        <h3>職務経歴</h3>
+                        <div id="previewExperience"></div>
+                    </div>
+
+                    <div class="cv-section" id="previewSkillsSection" style="display: none;">
+                        <h3>スキル・技術</h3>
+                        <div id="previewSkills"></div>
+                    </div>
+
+                    <div class="cv-section" id="previewEducationSection" style="display: none;">
+                        <h3>学歴・資格</h3>
+                        <div id="previewEducation"></div>
+                    </div>
+
+                    <div class="cv-section" id="previewSelfPRSection" style="display: none;">
+                        <h3>自己PR</h3>
+                        <div id="previewSelfPR"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="printCV()">🖨️ 印刷</button>
+            <button class="control-btn secondary" onclick="saveCV()">💾 保存</button>
+            <button class="control-btn secondary" onclick="loadCV()">📂 読み込み</button>
+            <button class="control-btn secondary" onclick="clearForm()">🗑️ クリア</button>
+        </div>
+    </div>
+
+    <script>
+        let experienceCount = 0;
+
+        function addExperience() {
+            experienceCount++;
+            const experienceList = document.getElementById('experienceList');
+            const div = document.createElement('div');
+            div.className = 'item-container';
+            div.innerHTML = `
+                <div class="item-header">
+                    <strong>職務経歴 ${experienceCount}</strong>
+                    <button class="remove-btn" onclick="removeExperience(this)">削除</button>
+                </div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label>会社名</label>
+                            <input type="text" id="company${experienceCount}" placeholder="株式会社○○">
+                        </div>
+                        <div>
+                            <label>在籍期間</label>
+                            <input type="text" id="period${experienceCount}" placeholder="2020年4月 ～ 2023年3月">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label>職種・役職</label>
+                            <input type="text" id="position${experienceCount}" placeholder="システムエンジニア">
+                        </div>
+                        <div>
+                            <label>従業員数</label>
+                            <input type="text" id="employees${experienceCount}" placeholder="100名">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>業務内容</label>
+                    <textarea id="description${experienceCount}" placeholder="担当していた業務内容を詳しく記載してください"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>実績・成果</label>
+                    <textarea id="achievements${experienceCount}" placeholder="具体的な実績や成果を記載してください"></textarea>
+                </div>
+            `;
+            experienceList.appendChild(div);
+            
+            // イベントリスナーを追加
+            ['company', 'period', 'position', 'employees', 'description', 'achievements'].forEach(field => {
+                document.getElementById(`${field}${experienceCount}`).addEventListener('input', updatePreview);
+            });
+            
+            updatePreview();
+        }
+
+        function removeExperience(button) {
+            button.closest('.item-container').remove();
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const name = document.getElementById('name').value;
+            const date = document.getElementById('date').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const summary = document.getElementById('summary').value;
+            const skills = document.getElementById('skills').value;
+            const softSkills = document.getElementById('softSkills').value;
+            const education = document.getElementById('education').value;
+            const certifications = document.getElementById('certifications').value;
+            const languages = document.getElementById('languages').value;
+            const selfPR = document.getElementById('selfPR').value;
+
+            // 連絡先の更新
+            let contactInfo = [];
+            if (name) contactInfo.push(name);
+            if (date) contactInfo.push(`作成日: ${formatDate(date)}`);
+            if (email) contactInfo.push(email);
+            if (phone) contactInfo.push(phone);
+            document.getElementById('previewContact').textContent = contactInfo.join(' | ');
+
+            // 職務要約の更新
+            if (summary) {
+                document.getElementById('previewSummary').textContent = summary;
+                document.getElementById('previewSummarySection').style.display = 'block';
+            } else {
+                document.getElementById('previewSummarySection').style.display = 'none';
+            }
+
+            // 職務経歴の更新
+            updateExperiencePreview();
+
+            // スキルの更新
+            updateSkillsPreview(skills, softSkills);
+
+            // 学歴・資格の更新
+            updateEducationPreview(education, certifications, languages);
+
+            // 自己PRの更新
+            if (selfPR) {
+                document.getElementById('previewSelfPR').textContent = selfPR;
+                document.getElementById('previewSelfPRSection').style.display = 'block';
+            } else {
+                document.getElementById('previewSelfPRSection').style.display = 'none';
+            }
+        }
+
+        function updateExperiencePreview() {
+            const experienceList = document.getElementById('experienceList');
+            const items = experienceList.querySelectorAll('.item-container');
+            let html = '';
+            
+            items.forEach(item => {
+                const company = item.querySelector('input[id^="company"]').value;
+                const period = item.querySelector('input[id^="period"]').value;
+                const position = item.querySelector('input[id^="position"]').value;
+                const employees = item.querySelector('input[id^="employees"]').value;
+                const description = item.querySelector('textarea[id^="description"]').value;
+                const achievements = item.querySelector('textarea[id^="achievements"]').value;
+
+                if (company || period || position || description) {
+                    html += `<div class="cv-item">
+                        <div class="cv-item-header">
+                            <span class="cv-item-company">${company}</span>
+                            <span class="cv-item-period">${period}</span>
+                        </div>
+                        ${position ? `<div class="cv-item-position">${position}${employees ? ` (従業員数: ${employees})` : ''}</div>` : ''}
+                        ${description ? `<div class="cv-item-description">${description}</div>` : ''}
+                        ${achievements ? `<div class="cv-item-achievements"><strong>実績・成果:</strong><br>${achievements}</div>` : ''}
+                    </div>`;
+                }
+            });
+
+            if (html) {
+                document.getElementById('previewExperience').innerHTML = html;
+                document.getElementById('previewExperienceSection').style.display = 'block';
+            } else {
+                document.getElementById('previewExperienceSection').style.display = 'none';
+            }
+        }
+
+        function updateSkillsPreview(skills, softSkills) {
+            let html = '';
+            if (skills) {
+                html += `<div><strong>技術スキル:</strong><br>${skills}</div>`;
+            }
+            if (softSkills) {
+                html += `<div style="margin-top: 15px;"><strong>ソフトスキル:</strong><br>${softSkills}</div>`;
+            }
+
+            if (html) {
+                document.getElementById('previewSkills').innerHTML = html;
+                document.getElementById('previewSkillsSection').style.display = 'block';
+            } else {
+                document.getElementById('previewSkillsSection').style.display = 'none';
+            }
+        }
+
+        function updateEducationPreview(education, certifications, languages) {
+            let html = '';
+            if (education) {
+                html += `<div><strong>学歴:</strong><br>${education}</div>`;
+            }
+            if (certifications) {
+                html += `<div style="margin-top: 15px;"><strong>資格・免許:</strong><br>${certifications}</div>`;
+            }
+            if (languages) {
+                html += `<div style="margin-top: 15px;"><strong>語学スキル:</strong><br>${languages}</div>`;
+            }
+
+            if (html) {
+                document.getElementById('previewEducation').innerHTML = html;
+                document.getElementById('previewEducationSection').style.display = 'block';
+            } else {
+                document.getElementById('previewEducationSection').style.display = 'none';
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${year}年${month}月${day}日`;
+        }
+
+        function printCV() {
+            window.print();
+        }
+
+        function saveCV() {
+            const data = {
+                name: document.getElementById('name').value,
+                date: document.getElementById('date').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                summary: document.getElementById('summary').value,
+                skills: document.getElementById('skills').value,
+                softSkills: document.getElementById('softSkills').value,
+                education: document.getElementById('education').value,
+                certifications: document.getElementById('certifications').value,
+                languages: document.getElementById('languages').value,
+                selfPR: document.getElementById('selfPR').value,
+                experience: []
+            };
+
+            // 職務経歴データの収集
+            const experienceItems = document.getElementById('experienceList').querySelectorAll('.item-container');
+            experienceItems.forEach(item => {
+                data.experience.push({
+                    company: item.querySelector('input[id^="company"]').value,
+                    period: item.querySelector('input[id^="period"]').value,
+                    position: item.querySelector('input[id^="position"]').value,
+                    employees: item.querySelector('input[id^="employees"]').value,
+                    description: item.querySelector('textarea[id^="description"]').value,
+                    achievements: item.querySelector('textarea[id^="achievements"]').value
+                });
+            });
+
+            localStorage.setItem('cvData', JSON.stringify(data));
+            alert('職務経歴書を保存しました！');
+        }
+
+        function loadCV() {
+            const savedData = localStorage.getItem('cvData');
+            if (!savedData) {
+                alert('保存されたデータがありません。');
+                return;
+            }
+
+            const data = JSON.parse(savedData);
+            
+            // 基本情報の読み込み
+            document.getElementById('name').value = data.name || '';
+            document.getElementById('date').value = data.date || '';
+            document.getElementById('email').value = data.email || '';
+            document.getElementById('phone').value = data.phone || '';
+            document.getElementById('summary').value = data.summary || '';
+            document.getElementById('skills').value = data.skills || '';
+            document.getElementById('softSkills').value = data.softSkills || '';
+            document.getElementById('education').value = data.education || '';
+            document.getElementById('certifications').value = data.certifications || '';
+            document.getElementById('languages').value = data.languages || '';
+            document.getElementById('selfPR').value = data.selfPR || '';
+
+            // 職務経歴リストをクリア
+            document.getElementById('experienceList').innerHTML = '';
+            experienceCount = 0;
+
+            // 職務経歴の読み込み
+            if (data.experience) {
+                data.experience.forEach(item => {
+                    addExperience();
+                    const container = document.getElementById('experienceList').lastElementChild;
+                    container.querySelector('input[id^="company"]').value = item.company || '';
+                    container.querySelector('input[id^="period"]').value = item.period || '';
+                    container.querySelector('input[id^="position"]').value = item.position || '';
+                    container.querySelector('input[id^="employees"]').value = item.employees || '';
+                    container.querySelector('textarea[id^="description"]').value = item.description || '';
+                    container.querySelector('textarea[id^="achievements"]').value = item.achievements || '';
+                });
+            }
+
+            updatePreview();
+            alert('職務経歴書を読み込みました！');
+        }
+
+        function clearForm() {
+            if (confirm('すべての入力内容をクリアしますか？')) {
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    element.value = '';
+                });
+                document.getElementById('experienceList').innerHTML = '';
+                experienceCount = 0;
+                updatePreview();
+            }
+        }
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            // 現在の日付を設定
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

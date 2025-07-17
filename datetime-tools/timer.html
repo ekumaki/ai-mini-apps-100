@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タイマー - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .timer-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .timer-display {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 3px solid #e9ecef;
+        }
+
+        .time-display {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .time-display.warning {
+            color: #ffc107;
+            animation: pulse 1s infinite;
+        }
+
+        .time-display.danger {
+            color: #dc3545;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .timer-status {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #28a745, #20c997);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.1s ease;
+        }
+
+        .progress-fill.warning {
+            background: linear-gradient(90deg, #ffc107, #fd7e14);
+        }
+
+        .progress-fill.danger {
+            background: linear-gradient(90deg, #dc3545, #e74c3c);
+        }
+
+        .time-input {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .time-input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .time-input-group label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .time-input-group input {
+            width: 60px;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .time-input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .start-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .start-btn:hover {
+            background: #218838;
+        }
+
+        .start-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .pause-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .pause-btn:hover {
+            background: #e0a800;
+        }
+
+        .stop-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .stop-btn:hover {
+            background: #c82333;
+        }
+
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background: #5a6268;
+        }
+
+        .presets {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .presets h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .preset-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .preset-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .settings {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .settings h3 {
+            color: #155724;
+            margin-bottom: 15px;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setting-item label {
+            color: #333;
+            font-size: 0.9rem;
+            flex: 1;
+        }
+
+        .setting-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .setting-item select {
+            padding: 5px;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            background: white;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .timer-container {
+                padding: 20px;
+            }
+            
+            .time-display {
+                font-size: 2.5rem;
+            }
+            
+            .time-input {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-btn {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="timer-container">
+        <div class="header">
+            <h1>タイマー</h1>
+            <p>カウントダウンタイマー</p>
+        </div>
+
+        <div class="timer-display">
+            <div class="time-display" id="timeDisplay">00:00:00</div>
+            <div class="timer-status" id="timerStatus">タイマーを設定してください</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="time-input">
+            <div class="time-input-group">
+                <label for="hours">時間</label>
+                <input type="number" id="hours" min="0" max="23" value="0">
+            </div>
+            <div class="time-input-group">
+                <label for="minutes">分</label>
+                <input type="number" id="minutes" min="0" max="59" value="5">
+            </div>
+            <div class="time-input-group">
+                <label for="seconds">秒</label>
+                <input type="number" id="seconds" min="0" max="59" value="0">
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn start-btn" id="startBtn" onclick="startTimer()">開始</button>
+            <button class="control-btn pause-btn" id="pauseBtn" onclick="pauseTimer()" disabled>一時停止</button>
+            <button class="control-btn stop-btn" id="stopBtn" onclick="stopTimer()" disabled>停止</button>
+            <button class="control-btn reset-btn" id="resetBtn" onclick="resetTimer()">リセット</button>
+        </div>
+
+        <div class="presets">
+            <h3>プリセット</h3>
+            <div class="preset-buttons">
+                <button class="preset-btn" onclick="setPreset(0, 0, 30)">30秒</button>
+                <button class="preset-btn" onclick="setPreset(0, 1, 0)">1分</button>
+                <button class="preset-btn" onclick="setPreset(0, 3, 0)">3分</button>
+                <button class="preset-btn" onclick="setPreset(0, 5, 0)">5分</button>
+                <button class="preset-btn" onclick="setPreset(0, 10, 0)">10分</button>
+                <button class="preset-btn" onclick="setPreset(0, 15, 0)">15分</button>
+                <button class="preset-btn" onclick="setPreset(0, 30, 0)">30分</button>
+                <button class="preset-btn" onclick="setPreset(1, 0, 0)">1時間</button>
+            </div>
+        </div>
+
+        <div class="settings">
+            <h3>設定</h3>
+            <div class="settings-grid">
+                <div class="setting-item">
+                    <label for="soundEnabled">音で通知</label>
+                    <input type="checkbox" id="soundEnabled" checked>
+                </div>
+                <div class="setting-item">
+                    <label for="notificationEnabled">ブラウザ通知</label>
+                    <input type="checkbox" id="notificationEnabled" checked>
+                </div>
+                <div class="setting-item">
+                    <label for="autoRepeat">自動繰り返し</label>
+                    <input type="checkbox" id="autoRepeat">
+                </div>
+                <div class="setting-item">
+                    <label for="alarmSound">アラーム音</label>
+                    <select id="alarmSound">
+                        <option value="beep">ビープ音</option>
+                        <option value="chime">チャイム</option>
+                        <option value="bell">ベル</option>
+                        <option value="alarm">アラーム</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let timerInterval;
+        let totalSeconds = 0;
+        let remainingSeconds = 0;
+        let isRunning = false;
+        let isPaused = false;
+
+        // 音声コンテキスト
+        let audioContext;
+        let sounds = {};
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                createSounds();
+            }
+        }
+
+        function createSounds() {
+            sounds = {
+                beep: createBeepSound(800, 0.2),
+                chime: createChimeSound(),
+                bell: createBellSound(),
+                alarm: createAlarmSound()
+            };
+        }
+
+        function createBeepSound(frequency, duration) {
+            return () => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            };
+        }
+
+        function createChimeSound() {
+            return () => {
+                const frequencies = [523.25, 659.25, 783.99]; // C5, E5, G5
+                frequencies.forEach((freq, index) => {
+                    setTimeout(() => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.value = freq;
+                        oscillator.type = 'sine';
+                        
+                        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.5);
+                    }, index * 200);
+                });
+            };
+        }
+
+        function createBellSound() {
+            return () => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 440;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 1);
+            };
+        }
+
+        function createAlarmSound() {
+            return () => {
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.value = 880;
+                        oscillator.type = 'square';
+                        
+                        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.3);
+                    }, i * 400);
+                }
+            };
+        }
+
+        function startTimer() {
+            if (!isRunning) {
+                const hours = parseInt(document.getElementById('hours').value) || 0;
+                const minutes = parseInt(document.getElementById('minutes').value) || 0;
+                const seconds = parseInt(document.getElementById('seconds').value) || 0;
+                
+                totalSeconds = hours * 3600 + minutes * 60 + seconds;
+                
+                if (totalSeconds <= 0) {
+                    showNotification('時間を設定してください', 'error');
+                    return;
+                }
+                
+                remainingSeconds = totalSeconds;
+                isRunning = true;
+                isPaused = false;
+                
+                initAudio();
+                
+                updateButtons();
+                updateDisplay();
+                
+                timerInterval = setInterval(() => {
+                    remainingSeconds--;
+                    updateDisplay();
+                    
+                    if (remainingSeconds <= 0) {
+                        timerComplete();
+                    }
+                }, 1000);
+                
+                document.getElementById('timerStatus').textContent = 'タイマー実行中';
+                showNotification('タイマーを開始しました');
+            }
+        }
+
+        function pauseTimer() {
+            if (isRunning && !isPaused) {
+                isPaused = true;
+                clearInterval(timerInterval);
+                updateButtons();
+                document.getElementById('timerStatus').textContent = 'タイマー一時停止中';
+                showNotification('タイマーを一時停止しました');
+            } else if (isRunning && isPaused) {
+                isPaused = false;
+                updateButtons();
+                
+                timerInterval = setInterval(() => {
+                    remainingSeconds--;
+                    updateDisplay();
+                    
+                    if (remainingSeconds <= 0) {
+                        timerComplete();
+                    }
+                }, 1000);
+                
+                document.getElementById('timerStatus').textContent = 'タイマー実行中';
+                showNotification('タイマーを再開しました');
+            }
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            isPaused = false;
+            updateButtons();
+            document.getElementById('timerStatus').textContent = 'タイマー停止';
+            showNotification('タイマーを停止しました');
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            isPaused = false;
+            remainingSeconds = 0;
+            totalSeconds = 0;
+            
+            updateButtons();
+            updateDisplay();
+            
+            document.getElementById('timerStatus').textContent = 'タイマーを設定してください';
+            showNotification('タイマーをリセットしました');
+        }
+
+        function timerComplete() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            isPaused = false;
+            
+            updateButtons();
+            document.getElementById('timerStatus').textContent = 'タイマー完了！';
+            
+            // 音で通知
+            if (document.getElementById('soundEnabled').checked && audioContext) {
+                const soundType = document.getElementById('alarmSound').value;
+                sounds[soundType]();
+            }
+            
+            // ブラウザ通知
+            if (document.getElementById('notificationEnabled').checked) {
+                if (Notification.permission === 'granted') {
+                    new Notification('タイマー完了', {
+                        body: '設定した時間が経過しました',
+                        icon: '/favicon.ico'
+                    });
+                }
+            }
+            
+            showNotification('タイマーが完了しました！');
+            
+            // 自動繰り返し
+            if (document.getElementById('autoRepeat').checked) {
+                setTimeout(() => {
+                    remainingSeconds = totalSeconds;
+                    startTimer();
+                }, 2000);
+            }
+        }
+
+        function updateDisplay() {
+            const hours = Math.floor(remainingSeconds / 3600);
+            const minutes = Math.floor((remainingSeconds % 3600) / 60);
+            const seconds = remainingSeconds % 60;
+            
+            const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            const timeDisplay = document.getElementById('timeDisplay');
+            const progressFill = document.getElementById('progressFill');
+            
+            timeDisplay.textContent = timeString;
+            
+            // 進捗バーの更新
+            if (totalSeconds > 0) {
+                const progress = ((totalSeconds - remainingSeconds) / totalSeconds) * 100;
+                progressFill.style.width = progress + '%';
+                
+                // 警告色の設定
+                if (remainingSeconds <= 10) {
+                    timeDisplay.className = 'time-display danger';
+                    progressFill.className = 'progress-fill danger';
+                } else if (remainingSeconds <= 60) {
+                    timeDisplay.className = 'time-display warning';
+                    progressFill.className = 'progress-fill warning';
+                } else {
+                    timeDisplay.className = 'time-display';
+                    progressFill.className = 'progress-fill';
+                }
+            } else {
+                progressFill.style.width = '0%';
+                timeDisplay.className = 'time-display';
+                progressFill.className = 'progress-fill';
+            }
+        }
+
+        function updateButtons() {
+            const startBtn = document.getElementById('startBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            
+            if (isRunning) {
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                stopBtn.disabled = false;
+                
+                if (isPaused) {
+                    pauseBtn.textContent = '再開';
+                } else {
+                    pauseBtn.textContent = '一時停止';
+                }
+            } else {
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                stopBtn.disabled = true;
+                pauseBtn.textContent = '一時停止';
+            }
+        }
+
+        function setPreset(hours, minutes, seconds) {
+            if (isRunning) {
+                showNotification('タイマー実行中はプリセットを変更できません', 'error');
+                return;
+            }
+            
+            document.getElementById('hours').value = hours;
+            document.getElementById('minutes').value = minutes;
+            document.getElementById('seconds').value = seconds;
+            
+            showNotification(`プリセット設定: ${hours}時間${minutes}分${seconds}秒`);
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        function init() {
+            updateButtons();
+            updateDisplay();
+            
+            // 通知の許可を求める
+            if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+                Notification.requestPermission();
+            }
+            
+            // 入力値の検証
+            const inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    const value = parseInt(input.value);
+                    const min = parseInt(input.min);
+                    const max = parseInt(input.max);
+                    
+                    if (value < min) input.value = min;
+                    if (value > max) input.value = max;
+                });
+            });
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // ページを離れる時の確認
+        window.addEventListener('beforeunload', (e) => {
+            if (isRunning) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
+</body>
+</html>

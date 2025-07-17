@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スネークゲーム - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .snake-game {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .game-controls {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .game-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px 15px;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .info-value {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .score {
+            color: #28a745 !important;
+        }
+
+        .level {
+            color: #dc3545 !important;
+        }
+
+        .game-area {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .game-canvas {
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            background: #2c3e50;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-status {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .status-text.game-over {
+            color: #dc3545;
+        }
+
+        .status-text.paused {
+            color: #ffc107;
+        }
+
+        .mobile-controls {
+            display: none;
+            background: #e1ecf4;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .mobile-controls-title {
+            color: #0c5460;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .direction-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 200px;
+            margin: 0 auto;
+        }
+
+        .direction-btn {
+            background: white;
+            border: 2px solid #b3d4fc;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .direction-btn:hover {
+            background: #b3d4fc;
+            transform: scale(1.1);
+        }
+
+        .direction-btn:active {
+            transform: scale(0.95);
+        }
+
+        .direction-btn.up { grid-column: 2; grid-row: 1; }
+        .direction-btn.left { grid-column: 1; grid-row: 2; }
+        .direction-btn.right { grid-column: 3; grid-row: 2; }
+        .direction-btn.down { grid-column: 2; grid-row: 3; }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .action-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .action-btn.danger {
+            background: #dc3545;
+        }
+
+        .action-btn.danger:hover {
+            background: #c82333;
+        }
+
+        .stats-section {
+            background: #d4edda;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stats-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #155724;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .instructions-title {
+            color: #856404;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .instruction-list {
+            color: #856404;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .instruction-list li {
+            margin-bottom: 8px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .snake-game {
+                padding: 20px;
+            }
+            
+            .game-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .game-info {
+                justify-content: center;
+            }
+            
+            .mobile-controls {
+                display: block;
+            }
+            
+            .game-canvas {
+                max-width: 100%;
+                height: auto;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="snake-game">
+        <div class="header">
+            <h1>🐍 スネークゲーム</h1>
+            <p>エサを食べて長くなろう！壁や自分の体にぶつからないように注意！</p>
+        </div>
+
+        <div class="game-controls">
+            <div class="control-buttons">
+                <button class="control-btn active" onclick="setSpeed('normal')">標準速度</button>
+                <button class="control-btn" onclick="setSpeed('slow')">低速</button>
+                <button class="control-btn" onclick="setSpeed('fast')">高速</button>
+                <button class="control-btn" onclick="toggleWalls()">壁モード切替</button>
+            </div>
+            
+            <div class="game-info">
+                <div class="info-item">
+                    <div class="info-value score" id="score">0</div>
+                    <div class="info-label">スコア</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value" id="length">1</div>
+                    <div class="info-label">長さ</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value level" id="level">1</div>
+                    <div class="info-label">レベル</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value" id="lives">3</div>
+                    <div class="info-label">残機</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <canvas id="gameCanvas" class="game-canvas" width="480" height="360"></canvas>
+        </div>
+
+        <div class="mobile-controls">
+            <div class="mobile-controls-title">🎮 方向コントロール</div>
+            <div class="direction-pad">
+                <button class="direction-btn up" onclick="changeDirection('up')">↑</button>
+                <button class="direction-btn left" onclick="changeDirection('left')">←</button>
+                <button class="direction-btn right" onclick="changeDirection('right')">→</button>
+                <button class="direction-btn down" onclick="changeDirection('down')">↓</button>
+            </div>
+        </div>
+
+        <div class="game-status" id="gameStatus">
+            <div class="status-text">矢印キーまたはタッチで移動、スペースキーでポーズ</div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" onclick="startGame()">ゲーム開始</button>
+            <button class="action-btn secondary" onclick="pauseGame()">ポーズ</button>
+            <button class="action-btn secondary" onclick="resetGame()">リセット</button>
+            <button class="action-btn danger" onclick="resetStats()">統計リセット</button>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-title">📊 統計</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="gamesPlayed">0</div>
+                    <div class="stat-label">プレイ回数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="highScore">0</div>
+                    <div class="stat-label">最高スコア</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="maxLength">1</div>
+                    <div class="stat-label">最大長</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalScore">0</div>
+                    <div class="stat-label">総スコア</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgScore">0</div>
+                    <div class="stat-label">平均スコア</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="maxLevel">1</div>
+                    <div class="stat-label">最高レベル</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <div class="instructions-title">🎯 遊び方</div>
+            <ul class="instruction-list">
+                <li><strong>操作:</strong> 矢印キー（PC）またはタッチボタン（モバイル）</li>
+                <li><strong>目標:</strong> 赤いエサを食べてスコアを稼ぐ</li>
+                <li><strong>ルール:</strong> 壁や自分の体にぶつかるとゲームオーバー</li>
+                <li><strong>レベルアップ:</strong> 10点ごとにレベルが上がり速度増加</li>
+                <li><strong>ポーズ:</strong> スペースキーでゲームを一時停止</li>
+                <li><strong>壁モード:</strong> 壁を通り抜けるか跳ね返るかを選択可能</li>
+            </ul>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const GRID_SIZE = 20;
+        const GRID_WIDTH = canvas.width / GRID_SIZE;
+        const GRID_HEIGHT = canvas.height / GRID_SIZE;
+
+        let gameState = {
+            snake: [{ x: 10, y: 10 }],
+            direction: { x: 1, y: 0 },
+            nextDirection: { x: 1, y: 0 },
+            food: { x: 15, y: 15 },
+            score: 0,
+            level: 1,
+            lives: 3,
+            gameRunning: false,
+            gamePaused: false,
+            gameLoop: null,
+            baseSpeed: 150,
+            currentSpeed: 150,
+            wallMode: true,
+            speedMode: 'normal'
+        };
+
+        let gameStats = {
+            gamesPlayed: 0,
+            highScore: 0,
+            maxLength: 1,
+            totalScore: 0,
+            maxLevel: 1
+        };
+
+        const speedSettings = {
+            slow: 200,
+            normal: 150,
+            fast: 100
+        };
+
+        function loadStats() {
+            const saved = localStorage.getItem('snakeGameStats');
+            if (saved) {
+                gameStats = { ...gameStats, ...JSON.parse(saved) };
+                updateStatsDisplay();
+            }
+        }
+
+        function saveStats() {
+            localStorage.setItem('snakeGameStats', JSON.stringify(gameStats));
+        }
+
+        function setSpeed(speed) {
+            gameState.speedMode = speed;
+            gameState.baseSpeed = speedSettings[speed];
+            gameState.currentSpeed = gameState.baseSpeed - (gameState.level - 1) * 10;
+            
+            // ボタンの状態更新
+            document.querySelectorAll('.control-btn').forEach(btn => {
+                if (btn.textContent.includes('速度') || btn.textContent.includes('低速') || btn.textContent.includes('高速')) {
+                    btn.classList.remove('active');
+                }
+            });
+            event.target.classList.add('active');
+            
+            showNotification(`${speed === 'slow' ? '低速' : speed === 'fast' ? '高速' : '標準速度'}に設定しました`);
+        }
+
+        function toggleWalls() {
+            gameState.wallMode = !gameState.wallMode;
+            const btn = event.target;
+            btn.textContent = gameState.wallMode ? '壁モード: 跳ね返り' : '壁モード: 通り抜け';
+            showNotification(gameState.wallMode ? '壁で跳ね返るモード' : '壁を通り抜けるモード');
+        }
+
+        function generateFood() {
+            let newFood;
+            do {
+                newFood = {
+                    x: Math.floor(Math.random() * GRID_WIDTH),
+                    y: Math.floor(Math.random() * GRID_HEIGHT)
+                };
+            } while (gameState.snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
+            
+            gameState.food = newFood;
+        }
+
+        function changeDirection(direction) {
+            const directions = {
+                up: { x: 0, y: -1 },
+                down: { x: 0, y: 1 },
+                left: { x: -1, y: 0 },
+                right: { x: 1, y: 0 }
+            };
+
+            const newDir = directions[direction];
+            
+            // 逆方向への移動を防ぐ
+            if (newDir.x !== -gameState.direction.x || newDir.y !== -gameState.direction.y) {
+                gameState.nextDirection = newDir;
+            }
+        }
+
+        function updateSnake() {
+            gameState.direction = gameState.nextDirection;
+            
+            const head = { ...gameState.snake[0] };
+            head.x += gameState.direction.x;
+            head.y += gameState.direction.y;
+
+            // 壁との衝突処理
+            if (gameState.wallMode) {
+                // 跳ね返りモード
+                if (head.x < 0 || head.x >= GRID_WIDTH || head.y < 0 || head.y >= GRID_HEIGHT) {
+                    gameOver();
+                    return;
+                }
+            } else {
+                // 通り抜けモード
+                if (head.x < 0) head.x = GRID_WIDTH - 1;
+                if (head.x >= GRID_WIDTH) head.x = 0;
+                if (head.y < 0) head.y = GRID_HEIGHT - 1;
+                if (head.y >= GRID_HEIGHT) head.y = 0;
+            }
+
+            // 自分の体との衝突チェック
+            if (gameState.snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                gameOver();
+                return;
+            }
+
+            gameState.snake.unshift(head);
+
+            // エサを食べたかチェック
+            if (head.x === gameState.food.x && head.y === gameState.food.y) {
+                gameState.score += 10;
+                
+                // レベルアップチェック
+                const newLevel = Math.floor(gameState.score / 100) + 1;
+                if (newLevel > gameState.level) {
+                    gameState.level = newLevel;
+                    gameState.currentSpeed = Math.max(50, gameState.baseSpeed - (gameState.level - 1) * 10);
+                    showNotification(`レベル ${gameState.level} にアップ！`);
+                }
+                
+                generateFood();
+                updateDisplay();
+            } else {
+                gameState.snake.pop();
+            }
+        }
+
+        function drawGame() {
+            // 背景をクリア
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // グリッドを描画
+            ctx.strokeStyle = '#34495e';
+            ctx.lineWidth = 1;
+            for (let x = 0; x <= GRID_WIDTH; x++) {
+                ctx.beginPath();
+                ctx.moveTo(x * GRID_SIZE, 0);
+                ctx.lineTo(x * GRID_SIZE, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y <= GRID_HEIGHT; y++) {
+                ctx.beginPath();
+                ctx.moveTo(0, y * GRID_SIZE);
+                ctx.lineTo(canvas.width, y * GRID_SIZE);
+                ctx.stroke();
+            }
+
+            // スネークを描画
+            gameState.snake.forEach((segment, index) => {
+                ctx.fillStyle = index === 0 ? '#2ecc71' : '#27ae60'; // 頭は明るい緑
+                ctx.fillRect(
+                    segment.x * GRID_SIZE + 1,
+                    segment.y * GRID_SIZE + 1,
+                    GRID_SIZE - 2,
+                    GRID_SIZE - 2
+                );
+                
+                // 頭に目を描画
+                if (index === 0) {
+                    ctx.fillStyle = '#fff';
+                    const eyeSize = 3;
+                    const eyeOffset = 6;
+                    
+                    if (gameState.direction.x === 1) { // 右
+                        ctx.fillRect(segment.x * GRID_SIZE + eyeOffset + 5, segment.y * GRID_SIZE + 4, eyeSize, eyeSize);
+                        ctx.fillRect(segment.x * GRID_SIZE + eyeOffset + 5, segment.y * GRID_SIZE + 12, eyeSize, eyeSize);
+                    } else if (gameState.direction.x === -1) { // 左
+                        ctx.fillRect(segment.x * GRID_SIZE + 4, segment.y * GRID_SIZE + 4, eyeSize, eyeSize);
+                        ctx.fillRect(segment.x * GRID_SIZE + 4, segment.y * GRID_SIZE + 12, eyeSize, eyeSize);
+                    } else if (gameState.direction.y === -1) { // 上
+                        ctx.fillRect(segment.x * GRID_SIZE + 4, segment.y * GRID_SIZE + 4, eyeSize, eyeSize);
+                        ctx.fillRect(segment.x * GRID_SIZE + 12, segment.y * GRID_SIZE + 4, eyeSize, eyeSize);
+                    } else { // 下
+                        ctx.fillRect(segment.x * GRID_SIZE + 4, segment.y * GRID_SIZE + 12, eyeSize, eyeSize);
+                        ctx.fillRect(segment.x * GRID_SIZE + 12, segment.y * GRID_SIZE + 12, eyeSize, eyeSize);
+                    }
+                }
+            });
+
+            // エサを描画
+            ctx.fillStyle = '#e74c3c';
+            ctx.beginPath();
+            ctx.arc(
+                gameState.food.x * GRID_SIZE + GRID_SIZE / 2,
+                gameState.food.y * GRID_SIZE + GRID_SIZE / 2,
+                GRID_SIZE / 2 - 2,
+                0,
+                2 * Math.PI
+            );
+            ctx.fill();
+
+            // エサに光沢効果
+            ctx.fillStyle = '#ff6b7a';
+            ctx.beginPath();
+            ctx.arc(
+                gameState.food.x * GRID_SIZE + GRID_SIZE / 2 - 3,
+                gameState.food.y * GRID_SIZE + GRID_SIZE / 2 - 3,
+                3,
+                0,
+                2 * Math.PI
+            );
+            ctx.fill();
+        }
+
+        function gameLoop() {
+            if (!gameState.gameRunning || gameState.gamePaused) return;
+            
+            updateSnake();
+            drawGame();
+            
+            gameState.gameLoop = setTimeout(gameLoop, gameState.currentSpeed);
+        }
+
+        function startGame() {
+            if (gameState.gameRunning && !gameState.gamePaused) {
+                showNotification('ゲームは既に実行中です', 'error');
+                return;
+            }
+
+            if (gameState.gamePaused) {
+                resumeGame();
+                return;
+            }
+
+            gameState.snake = [{ x: 10, y: 10 }];
+            gameState.direction = { x: 1, y: 0 };
+            gameState.nextDirection = { x: 1, y: 0 };
+            gameState.score = 0;
+            gameState.level = 1;
+            gameState.lives = 3;
+            gameState.gameRunning = true;
+            gameState.gamePaused = false;
+            gameState.currentSpeed = gameState.baseSpeed;
+
+            generateFood();
+            updateDisplay();
+            updateGameStatus('ゲーム実行中 - がんばって！');
+            gameLoop();
+        }
+
+        function pauseGame() {
+            if (!gameState.gameRunning) {
+                showNotification('ゲームが開始されていません', 'error');
+                return;
+            }
+
+            gameState.gamePaused = !gameState.gamePaused;
+            
+            if (gameState.gamePaused) {
+                clearTimeout(gameState.gameLoop);
+                updateGameStatus('ゲーム一時停止中', 'paused');
+                showNotification('ゲームを一時停止しました');
+            } else {
+                updateGameStatus('ゲーム実行中 - がんばって！');
+                gameLoop();
+                showNotification('ゲームを再開しました');
+            }
+        }
+
+        function resumeGame() {
+            gameState.gamePaused = false;
+            updateGameStatus('ゲーム実行中 - がんばって！');
+            gameLoop();
+            showNotification('ゲームを再開しました');
+        }
+
+        function resetGame() {
+            if (gameState.gameRunning && !confirm('ゲームをリセットしますか？')) {
+                return;
+            }
+
+            clearTimeout(gameState.gameLoop);
+            gameState.gameRunning = false;
+            gameState.gamePaused = false;
+            gameState.snake = [{ x: 10, y: 10 }];
+            gameState.direction = { x: 1, y: 0 };
+            gameState.nextDirection = { x: 1, y: 0 };
+            gameState.score = 0;
+            gameState.level = 1;
+            gameState.lives = 3;
+
+            generateFood();
+            updateDisplay();
+            updateGameStatus('ゲーム開始ボタンを押してスタート');
+            drawGame();
+            showNotification('ゲームをリセットしました');
+        }
+
+        function gameOver() {
+            clearTimeout(gameState.gameLoop);
+            gameState.gameRunning = false;
+
+            // 統計更新
+            gameStats.gamesPlayed++;
+            gameStats.totalScore += gameState.score;
+            gameStats.highScore = Math.max(gameStats.highScore, gameState.score);
+            gameStats.maxLength = Math.max(gameStats.maxLength, gameState.snake.length);
+            gameStats.maxLevel = Math.max(gameStats.maxLevel, gameState.level);
+
+            updateStatsDisplay();
+            saveStats();
+
+            updateGameStatus(`ゲームオーバー！ スコア: ${gameState.score}`, 'game-over');
+            showNotification(`ゲームオーバー！ 最終スコア: ${gameState.score}`, 'error');
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('length').textContent = gameState.snake.length;
+            document.getElementById('level').textContent = gameState.level;
+            document.getElementById('lives').textContent = gameState.lives;
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('gamesPlayed').textContent = gameStats.gamesPlayed;
+            document.getElementById('highScore').textContent = gameStats.highScore;
+            document.getElementById('maxLength').textContent = gameStats.maxLength;
+            document.getElementById('totalScore').textContent = gameStats.totalScore;
+            document.getElementById('maxLevel').textContent = gameStats.maxLevel;
+
+            const avgScore = gameStats.gamesPlayed > 0 ? 
+                Math.round(gameStats.totalScore / gameStats.gamesPlayed) : 0;
+            document.getElementById('avgScore').textContent = avgScore;
+        }
+
+        function updateGameStatus(message, type = '') {
+            const statusElement = document.getElementById('gameStatus');
+            statusElement.innerHTML = `<div class="status-text ${type}">${message}</div>`;
+        }
+
+        function resetStats() {
+            if (confirm('統計をリセットしますか？この操作は取り消せません。')) {
+                gameStats = {
+                    gamesPlayed: 0,
+                    highScore: 0,
+                    maxLength: 1,
+                    totalScore: 0,
+                    maxLevel: 1
+                };
+                updateStatsDisplay();
+                localStorage.removeItem('snakeGameStats');
+                showNotification('統計をリセットしました');
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // キーボードイベント
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp':
+                    e.preventDefault();
+                    changeDirection('up');
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    changeDirection('down');
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    changeDirection('left');
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    changeDirection('right');
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    pauseGame();
+                    break;
+                case 'Enter':
+                    e.preventDefault();
+                    if (!gameState.gameRunning) startGame();
+                    break;
+            }
+        });
+
+        // 初期化
+        function init() {
+            loadStats();
+            updateDisplay();
+            updateStatsDisplay();
+            generateFood();
+            drawGame();
+            updateGameStatus('ゲーム開始ボタンを押してスタート');
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // ページを離れる前に自動保存
+        window.addEventListener('beforeunload', saveStats);
+    </script>
+</body>
+</html>

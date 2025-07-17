@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プレゼン資料テンプレート - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .presentation-app {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .add-slide-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .add-slide-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .slide-container {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .slide-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        .slide-navigation {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            background: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .presentation-preview {
+            padding: 30px;
+            font-family: 'Arial', sans-serif;
+            color: #333;
+        }
+
+        .slide {
+            min-height: 400px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 30px;
+            background: white;
+            display: none;
+            position: relative;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .slide-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .slide-content {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .slide-number {
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .title-slide {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+        }
+
+        .title-slide .slide-title {
+            font-size: 2.5rem;
+            border-bottom: 2px solid white;
+            color: white;
+        }
+
+        .title-slide .slide-subtitle {
+            font-size: 1.3rem;
+            margin-top: 20px;
+            opacity: 0.9;
+        }
+
+        .title-slide .slide-author {
+            font-size: 1.1rem;
+            margin-top: 30px;
+            opacity: 0.8;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+        }
+
+        .control-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .presentation-preview {
+                padding: 15px;
+            }
+            
+            .slide {
+                padding: 20px;
+                min-height: 300px;
+            }
+            
+            .slide-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .presentation-app {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header, .form-section, .controls, .slide-navigation {
+                display: none;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+                padding: 0;
+                gap: 0;
+            }
+            
+            .preview-section {
+                border: none;
+                max-height: none;
+                overflow: visible;
+            }
+            
+            .slide {
+                display: block !important;
+                page-break-after: always;
+                min-height: 90vh;
+            }
+            
+            .slide:last-child {
+                page-break-after: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-app">
+        <div class="header">
+            <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+            <h1>🎤 プレゼン資料テンプレート</h1>
+            <p>効果的なプレゼンテーション資料を作成</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="section-title">基本情報</div>
+                <div class="form-group">
+                    <label for="presentationTitle">プレゼンタイトル</label>
+                    <input type="text" id="presentationTitle" placeholder="新商品企画提案">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="subtitle">サブタイトル</label>
+                            <input type="text" id="subtitle" placeholder="革新的なソリューション">
+                        </div>
+                        <div>
+                            <label for="presentationDate">発表日</label>
+                            <input type="date" id="presentationDate">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="presenterName">発表者</label>
+                            <input type="text" id="presenterName" placeholder="山田 太郎">
+                        </div>
+                        <div>
+                            <label for="presenterTitle">所属・役職</label>
+                            <input type="text" id="presenterTitle" placeholder="企画開発部 マネージャー">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="audience">対象者・聴衆</label>
+                    <input type="text" id="audience" placeholder="取締役会">
+                </div>
+
+                <div class="section-title">スライド作成</div>
+                <div id="slidesList"></div>
+                <button class="add-slide-btn" onclick="addSlide()">+ スライドを追加</button>
+            </div>
+
+            <div class="preview-section">
+                <div class="slide-navigation">
+                    <button class="nav-btn" onclick="previousSlide()" id="prevBtn">← 前</button>
+                    <div class="slide-counter">
+                        <span id="currentSlide">1</span> / <span id="totalSlides">1</span>
+                    </div>
+                    <button class="nav-btn" onclick="nextSlide()" id="nextBtn">次 →</button>
+                </div>
+
+                <div class="presentation-preview" id="presentationPreview">
+                    <!-- タイトルスライド -->
+                    <div class="slide title-slide active" id="titleSlide">
+                        <div class="slide-title" id="previewTitle">プレゼンテーション</div>
+                        <div class="slide-subtitle" id="previewSubtitle"></div>
+                        <div class="slide-author" id="previewAuthor"></div>
+                        <div class="slide-number">1</div>
+                    </div>
+
+                    <!-- 動的に追加されるスライド -->
+                    <div id="dynamicSlides"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="printPresentation()">🖨️ 印刷</button>
+            <button class="control-btn secondary" onclick="savePresentation()">💾 保存</button>
+            <button class="control-btn secondary" onclick="loadPresentation()">📂 読み込み</button>
+            <button class="control-btn secondary" onclick="clearForm()">🗑️ クリア</button>
+        </div>
+    </div>
+
+    <script>
+        let slideCount = 0;
+        let currentSlideIndex = 0;
+
+        function addSlide() {
+            slideCount++;
+            const slidesList = document.getElementById('slidesList');
+            const div = document.createElement('div');
+            div.className = 'slide-container';
+            div.innerHTML = `
+                <div class="slide-header">
+                    <strong>スライド ${slideCount + 1}</strong>
+                    <button class="remove-btn" onclick="removeSlide(this)">削除</button>
+                </div>
+                <div class="form-group">
+                    <label>スライドタイトル</label>
+                    <input type="text" id="slideTitle${slideCount}" placeholder="スライドのタイトル">
+                </div>
+                <div class="form-group">
+                    <label>スライド内容</label>
+                    <textarea id="slideContent${slideCount}" placeholder="スライドの内容を記載してください"></textarea>
+                </div>
+            `;
+            slidesList.appendChild(div);
+            
+            // イベントリスナーを追加
+            document.getElementById(`slideTitle${slideCount}`).addEventListener('input', updatePreview);
+            document.getElementById(`slideContent${slideCount}`).addEventListener('input', updatePreview);
+            
+            updatePreview();
+        }
+
+        function removeSlide(button) {
+            button.closest('.slide-container').remove();
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const presentationTitle = document.getElementById('presentationTitle').value;
+            const subtitle = document.getElementById('subtitle').value;
+            const presentationDate = document.getElementById('presentationDate').value;
+            const presenterName = document.getElementById('presenterName').value;
+            const presenterTitle = document.getElementById('presenterTitle').value;
+            const audience = document.getElementById('audience').value;
+
+            // タイトルスライドの更新
+            document.getElementById('previewTitle').textContent = 
+                presentationTitle || 'プレゼンテーション';
+            
+            document.getElementById('previewSubtitle').textContent = subtitle;
+            
+            let authorInfo = [];
+            if (presenterName) authorInfo.push(presenterName);
+            if (presenterTitle) authorInfo.push(presenterTitle);
+            if (presentationDate) authorInfo.push(formatDate(presentationDate));
+            if (audience) authorInfo.push(`対象: ${audience}`);
+            
+            document.getElementById('previewAuthor').textContent = authorInfo.join(' | ');
+
+            // 動的スライドの更新
+            updateDynamicSlides();
+            updateSlideNavigation();
+        }
+
+        function updateDynamicSlides() {
+            const slidesList = document.getElementById('slidesList');
+            const slides = slidesList.querySelectorAll('.slide-container');
+            const dynamicSlides = document.getElementById('dynamicSlides');
+            
+            let html = '';
+            
+            slides.forEach((slide, index) => {
+                const title = slide.querySelector('input[id^="slideTitle"]').value;
+                const content = slide.querySelector('textarea[id^="slideContent"]').value;
+                
+                html += `
+                    <div class="slide" id="slide${index + 2}">
+                        <div class="slide-title">${title || `スライド ${index + 2}`}</div>
+                        <div class="slide-content">${content}</div>
+                        <div class="slide-number">${index + 2}</div>
+                    </div>
+                `;
+            });
+
+            dynamicSlides.innerHTML = html;
+            
+            // 現在のスライドを表示
+            showSlide(currentSlideIndex);
+        }
+
+        function updateSlideNavigation() {
+            const totalSlides = document.querySelectorAll('.slide').length;
+            document.getElementById('totalSlides').textContent = totalSlides;
+            document.getElementById('currentSlide').textContent = currentSlideIndex + 1;
+            
+            document.getElementById('prevBtn').disabled = currentSlideIndex === 0;
+            document.getElementById('nextBtn').disabled = currentSlideIndex === totalSlides - 1;
+        }
+
+        function showSlide(index) {
+            const slides = document.querySelectorAll('.slide');
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            
+            currentSlideIndex = index;
+            updateSlideNavigation();
+        }
+
+        function previousSlide() {
+            if (currentSlideIndex > 0) {
+                showSlide(currentSlideIndex - 1);
+            }
+        }
+
+        function nextSlide() {
+            const totalSlides = document.querySelectorAll('.slide').length;
+            if (currentSlideIndex < totalSlides - 1) {
+                showSlide(currentSlideIndex + 1);
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${year}年${month}月${day}日`;
+        }
+
+        function printPresentation() {
+            window.print();
+        }
+
+        function savePresentation() {
+            const data = {
+                presentationTitle: document.getElementById('presentationTitle').value,
+                subtitle: document.getElementById('subtitle').value,
+                presentationDate: document.getElementById('presentationDate').value,
+                presenterName: document.getElementById('presenterName').value,
+                presenterTitle: document.getElementById('presenterTitle').value,
+                audience: document.getElementById('audience').value,
+                slides: []
+            };
+
+            // スライドデータの収集
+            const slides = document.getElementById('slidesList').querySelectorAll('.slide-container');
+            slides.forEach(slide => {
+                data.slides.push({
+                    title: slide.querySelector('input[id^="slideTitle"]').value,
+                    content: slide.querySelector('textarea[id^="slideContent"]').value
+                });
+            });
+
+            localStorage.setItem('presentationData', JSON.stringify(data));
+            alert('プレゼンテーション資料を保存しました！');
+        }
+
+        function loadPresentation() {
+            const savedData = localStorage.getItem('presentationData');
+            if (!savedData) {
+                alert('保存されたデータがありません。');
+                return;
+            }
+
+            const data = JSON.parse(savedData);
+            
+            // 基本情報の読み込み
+            Object.keys(data).forEach(key => {
+                if (key !== 'slides') {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.value = data[key] || '';
+                    }
+                }
+            });
+
+            // スライドリストをクリア
+            document.getElementById('slidesList').innerHTML = '';
+            slideCount = 0;
+
+            // スライドの読み込み
+            if (data.slides) {
+                data.slides.forEach(slide => {
+                    addSlide();
+                    const container = document.getElementById('slidesList').lastElementChild;
+                    container.querySelector('input[id^="slideTitle"]').value = slide.title || '';
+                    container.querySelector('textarea[id^="slideContent"]').value = slide.content || '';
+                });
+            }
+
+            currentSlideIndex = 0;
+            updatePreview();
+            alert('プレゼンテーション資料を読み込みました！');
+        }
+
+        function clearForm() {
+            if (confirm('すべての入力内容をクリアしますか？')) {
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    element.value = '';
+                });
+                document.getElementById('slidesList').innerHTML = '';
+                slideCount = 0;
+                currentSlideIndex = 0;
+                updatePreview();
+            }
+        }
+
+        // キーボードナビゲーション
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                previousSlide();
+                e.preventDefault();
+            } else if (e.key === 'ArrowRight') {
+                nextSlide();
+                e.preventDefault();
+            }
+        });
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            // 現在の日付を設定
+            document.getElementById('presentationDate').value = new Date().toISOString().split('T')[0];
+            updatePreview();
+        });
+    </script>
+</body>
+</html>
