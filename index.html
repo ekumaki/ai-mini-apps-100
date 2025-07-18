@@ -45,26 +45,6 @@
             opacity: 0.9;
         }
 
-        .progress {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
-        }
-
-        .progress-bar {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            height: 20px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            background: linear-gradient(90deg, #00ff88, #00ccff);
-            height: 100%;
-            border-radius: 8px;
-            transition: width 0.3s ease;
-        }
 
         .controls {
             padding: 30px 40px;
@@ -94,29 +74,6 @@
             border-color: #667eea;
         }
 
-        .filter-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 10px 20px;
-            border: 2px solid #667eea;
-            background: white;
-            color: #667eea;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .filter-btn:hover,
-        .filter-btn.active {
-            background: #667eea;
-            color: white;
-        }
 
         .content {
             padding: 40px;
@@ -157,14 +114,6 @@
             border-color: #667eea;
         }
 
-        .app-card.created {
-            border-color: #28a745;
-        }
-
-        .app-card.not-created {
-            opacity: 0.6;
-            background: #f8f9fa;
-        }
 
         .app-title {
             font-size: 1.3rem;
@@ -179,24 +128,6 @@
             margin-bottom: 15px;
         }
 
-        .app-status {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .status-created {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-not-created {
-            background: #f8d7da;
-            color: #721c24;
-        }
 
         .footer {
             background: #333;
@@ -226,22 +157,11 @@
         <div class="header">
             <h1>AI Mini Apps 100</h1>
             <p>100個のWebアプリケーション集</p>
-            <div class="progress">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-                <p id="progressText" style="margin-top: 10px;">進捗: 1/100 アプリ作成済み</p>
-            </div>
         </div>
 
         <div class="controls">
             <div class="search-filter">
                 <input type="text" id="searchBox" class="search-box" placeholder="アプリを検索...">
-                <div class="filter-buttons">
-                    <button class="filter-btn active" data-filter="all">すべて</button>
-                    <button class="filter-btn" data-filter="created">作成済み</button>
-                    <button class="filter-btn" data-filter="not-created">未作成</button>
-                </div>
             </div>
         </div>
 
@@ -249,9 +169,6 @@
             <!-- アプリリストがここに動的に生成されます -->
         </div>
 
-        <div class="footer">
-            <p>&copy; 2024 AI Mini Apps 100. All rights reserved.</p>
-        </div>
     </div>
 
     <script>
@@ -959,7 +876,8 @@
                 category: "games",
                 categoryName: "ゲーム・エンタメ系",
                 file: "games/breakout.html",
-                created: true
+                created: true,
+                hidden: true
             },
             {
                 id: 78,
@@ -977,7 +895,8 @@
                 category: "games",
                 categoryName: "ゲーム・エンタメ系",
                 file: "games/memory-card.html",
-                created: true
+                created: true,
+                hidden: true
             },
             {
                 id: 80,
@@ -986,7 +905,8 @@
                 category: "games",
                 categoryName: "ゲーム・エンタメ系",
                 file: "games/pachinko.html",
-                created: true
+                created: true,
+                hidden: true
             },
             {
                 id: 81,
@@ -1013,7 +933,8 @@
                 category: "games",
                 categoryName: "ゲーム・エンタメ系",
                 file: "games/card-game.html",
-                created: true
+                created: true,
+                hidden: true
             },
             {
                 id: 84,
@@ -1031,7 +952,8 @@
                 category: "games",
                 categoryName: "ゲーム・エンタメ系",
                 file: "games/shooting-game.html",
-                created: true
+                created: true,
+                hidden: true
             },
             {
                 id: 86,
@@ -1228,23 +1150,12 @@
         };
 
         // グローバル変数
-        let currentFilter = 'all';
         let currentSearch = '';
 
         // 初期化
         function init() {
-            updateProgress();
             renderApps();
             setupEventListeners();
-        }
-
-        // 進捗更新
-        function updateProgress() {
-            const createdCount = apps.filter(app => app.created).length;
-            const progress = (createdCount / apps.length) * 100;
-            
-            document.getElementById('progressFill').style.width = progress + '%';
-            document.getElementById('progressText').textContent = `進捗: ${createdCount}/${apps.length} アプリ作成済み`;
         }
 
         // アプリリスト表示
@@ -1285,15 +1196,10 @@
 
         // アプリカード作成
         function createAppCard(app) {
-            const statusClass = app.created ? 'created' : 'not-created';
-            const statusLabel = app.created ? '作成済み' : '未作成';
-            const statusLabelClass = app.created ? 'status-created' : 'status-not-created';
-
             return `
-                <div class="app-card ${statusClass}" onclick="openApp('${app.file}', ${app.created})">
+                <div class="app-card" onclick="openApp('${app.file}')">
                     <div class="app-title">${app.title}</div>
                     <div class="app-description">${app.description}</div>
-                    <div class="app-status ${statusLabelClass}">${statusLabel}</div>
                 </div>
             `;
         }
@@ -1301,27 +1207,21 @@
         // アプリフィルタリング
         function filterApps() {
             return apps.filter(app => {
-                // フィルター条件
-                const matchesFilter = currentFilter === 'all' || 
-                    (currentFilter === 'created' && app.created) ||
-                    (currentFilter === 'not-created' && !app.created);
-
+                // 非表示アプリを除外
+                if (app.hidden) return false;
+                
                 // 検索条件
                 const matchesSearch = currentSearch === '' || 
                     app.title.toLowerCase().includes(currentSearch.toLowerCase()) ||
                     app.description.toLowerCase().includes(currentSearch.toLowerCase());
 
-                return matchesFilter && matchesSearch;
+                return matchesSearch;
             });
         }
 
         // アプリを開く
-        function openApp(file, created) {
-            if (created) {
-                window.open(file, '_blank');
-            } else {
-                alert('このアプリはまだ作成されていません。');
-            }
+        function openApp(file) {
+            window.open(file, '_blank');
         }
 
         // イベントリスナー設定
@@ -1330,16 +1230,6 @@
             document.getElementById('searchBox').addEventListener('input', (e) => {
                 currentSearch = e.target.value;
                 renderApps();
-            });
-
-            // フィルターボタン
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                    e.target.classList.add('active');
-                    currentFilter = e.target.dataset.filter;
-                    renderApps();
-                });
             });
         }
 
