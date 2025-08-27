@@ -1,0 +1,27 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <!-- ===== Background Gradient (Left -> Right) ===== -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#677BE6"></stop>
+      <stop offset="100%" stop-color="#754FA7"></stop>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGrad)"></rect>
+
+  <!-- Safe area guide (必要なら display:block に) -->
+  <g style="display:none; opacity:0.25">
+    <rect x="60" y="60" width="1080" height="510" fill="none" stroke="#FFFFFF" stroke-dasharray="8 8"></rect>
+  </g>
+
+  <!-- Title -->
+  <text x="600" y="330" text-anchor="middle" fill="#FFFFFF" font-family="Inter, Poppins, Montserrat, system-ui, -apple-system, 'Segoe UI', 'Noto Sans JP', Arial, sans-serif" font-weight="800" font-size="108" letter-spacing="0.5">
+    AI Mini Apps 100
+  </text>
+
+  <!-- Subtitle -->
+  <text x="600" y="420" text-anchor="middle" fill="#FFFFFF" font-family="Inter, Poppins, Montserrat, system-ui, -apple-system, 'Segoe UI', 'Noto Sans JP', Arial, sans-serif" font-weight="600" font-size="44" letter-spacing="0.2">
+    100個のWebアプリケーション集
+  </text>
+</svg>
