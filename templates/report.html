@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>報告書テンプレート - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .report-app {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .report-preview {
+            padding: 40px;
+            font-family: 'Times New Roman', serif;
+            color: #333;
+            line-height: 1.8;
+        }
+
+        .report-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .report-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .report-info {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .report-section {
+            margin-bottom: 30px;
+        }
+
+        .report-section h2 {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 1px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .report-content {
+            text-align: justify;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px 20px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .info-value {
+            color: #333;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+        }
+
+        .control-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .report-preview {
+                padding: 20px;
+                font-size: 0.9rem;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .report-app {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header, .form-section, .controls {
+                display: none;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+                padding: 0;
+                gap: 0;
+            }
+            
+            .preview-section {
+                border: none;
+                max-height: none;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-app">
+        <div class="header">
+            <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+            <h1>📊 報告書テンプレート</h1>
+            <p>業務報告書を効率的に作成</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="section-title">基本情報</div>
+                <div class="form-group">
+                    <label for="reportTitle">報告書タイトル</label>
+                    <input type="text" id="reportTitle" placeholder="月次業務報告書">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="reportDate">報告日</label>
+                            <input type="date" id="reportDate">
+                        </div>
+                        <div>
+                            <label for="reportPeriod">対象期間</label>
+                            <input type="text" id="reportPeriod" placeholder="2024年1月1日〜1月31日">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="reporterName">報告者</label>
+                            <input type="text" id="reporterName" placeholder="山田 太郎">
+                        </div>
+                        <div>
+                            <label for="reporterDepartment">所属部署</label>
+                            <input type="text" id="reporterDepartment" placeholder="営業部">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="recipient">提出先</label>
+                    <input type="text" id="recipient" placeholder="営業部長">
+                </div>
+
+                <div class="section-title">報告内容</div>
+                <div class="form-group">
+                    <label for="summary">概要・要約</label>
+                    <textarea id="summary" placeholder="この期間の業務概要を簡潔に記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="objectives">目標・計画</label>
+                    <textarea id="objectives" placeholder="当期間の目標や計画について記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="activities">実施内容・活動</label>
+                    <textarea id="activities" placeholder="実際に行った業務内容や活動について詳しく記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="results">結果・成果</label>
+                    <textarea id="results" placeholder="達成した結果や成果について記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="issues">課題・問題点</label>
+                    <textarea id="issues" placeholder="発生した課題や問題点について記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="improvements">改善策・対応</label>
+                    <textarea id="improvements" placeholder="課題に対する改善策や今後の対応について記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="nextActions">次期計画・今後の予定</label>
+                    <textarea id="nextActions" placeholder="次期の計画や今後の予定について記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="remarks">特記事項・備考</label>
+                    <textarea id="remarks" placeholder="その他の特記事項や備考があれば記載してください"></textarea>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="report-preview" id="reportPreview">
+                    <div class="report-header">
+                        <div class="report-title" id="previewTitle">報告書</div>
+                        <div class="report-info" id="previewInfo"></div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-label">報告日:</div>
+                        <div class="info-value" id="previewReportDate">--</div>
+                        <div class="info-label">対象期間:</div>
+                        <div class="info-value" id="previewReportPeriod">--</div>
+                        <div class="info-label">報告者:</div>
+                        <div class="info-value" id="previewReporter">--</div>
+                        <div class="info-label">提出先:</div>
+                        <div class="info-value" id="previewRecipient">--</div>
+                    </div>
+
+                    <div class="report-section" id="previewSummarySection" style="display: none;">
+                        <h2>1. 概要・要約</h2>
+                        <div class="report-content" id="previewSummary"></div>
+                    </div>
+
+                    <div class="report-section" id="previewObjectivesSection" style="display: none;">
+                        <h2>2. 目標・計画</h2>
+                        <div class="report-content" id="previewObjectives"></div>
+                    </div>
+
+                    <div class="report-section" id="previewActivitiesSection" style="display: none;">
+                        <h2>3. 実施内容・活動</h2>
+                        <div class="report-content" id="previewActivities"></div>
+                    </div>
+
+                    <div class="report-section" id="previewResultsSection" style="display: none;">
+                        <h2>4. 結果・成果</h2>
+                        <div class="report-content" id="previewResults"></div>
+                    </div>
+
+                    <div class="report-section" id="previewIssuesSection" style="display: none;">
+                        <h2>5. 課題・問題点</h2>
+                        <div class="report-content" id="previewIssues"></div>
+                    </div>
+
+                    <div class="report-section" id="previewImprovementsSection" style="display: none;">
+                        <h2>6. 改善策・対応</h2>
+                        <div class="report-content" id="previewImprovements"></div>
+                    </div>
+
+                    <div class="report-section" id="previewNextActionsSection" style="display: none;">
+                        <h2>7. 次期計画・今後の予定</h2>
+                        <div class="report-content" id="previewNextActions"></div>
+                    </div>
+
+                    <div class="report-section" id="previewRemarksSection" style="display: none;">
+                        <h2>8. 特記事項・備考</h2>
+                        <div class="report-content" id="previewRemarks"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="printReport()">🖨️ 印刷</button>
+            <button class="control-btn secondary" onclick="saveReport()">💾 保存</button>
+            <button class="control-btn secondary" onclick="loadReport()">📂 読み込み</button>
+            <button class="control-btn secondary" onclick="clearForm()">🗑️ クリア</button>
+        </div>
+    </div>
+
+    <script>
+        function updatePreview() {
+            const reportTitle = document.getElementById('reportTitle').value;
+            const reportDate = document.getElementById('reportDate').value;
+            const reportPeriod = document.getElementById('reportPeriod').value;
+            const reporterName = document.getElementById('reporterName').value;
+            const reporterDepartment = document.getElementById('reporterDepartment').value;
+            const recipient = document.getElementById('recipient').value;
+            const summary = document.getElementById('summary').value;
+            const objectives = document.getElementById('objectives').value;
+            const activities = document.getElementById('activities').value;
+            const results = document.getElementById('results').value;
+            const issues = document.getElementById('issues').value;
+            const improvements = document.getElementById('improvements').value;
+            const nextActions = document.getElementById('nextActions').value;
+            const remarks = document.getElementById('remarks').value;
+
+            // タイトルの更新
+            if (reportTitle) {
+                document.getElementById('previewTitle').textContent = reportTitle;
+            } else {
+                document.getElementById('previewTitle').textContent = '報告書';
+            }
+
+            // 基本情報の更新
+            document.getElementById('previewReportDate').textContent = 
+                reportDate ? formatDate(reportDate) : '--';
+            document.getElementById('previewReportPeriod').textContent = 
+                reportPeriod || '--';
+            
+            let reporterInfo = '';
+            if (reporterName && reporterDepartment) {
+                reporterInfo = `${reporterDepartment} ${reporterName}`;
+            } else if (reporterName) {
+                reporterInfo = reporterName;
+            } else if (reporterDepartment) {
+                reporterInfo = reporterDepartment;
+            } else {
+                reporterInfo = '--';
+            }
+            document.getElementById('previewReporter').textContent = reporterInfo;
+            
+            document.getElementById('previewRecipient').textContent = recipient || '--';
+
+            // 各セクションの更新
+            updateSection('Summary', summary);
+            updateSection('Objectives', objectives);
+            updateSection('Activities', activities);
+            updateSection('Results', results);
+            updateSection('Issues', issues);
+            updateSection('Improvements', improvements);
+            updateSection('NextActions', nextActions);
+            updateSection('Remarks', remarks);
+        }
+
+        function updateSection(sectionName, content) {
+            const sectionElement = document.getElementById(`preview${sectionName}Section`);
+            const contentElement = document.getElementById(`preview${sectionName}`);
+            
+            if (content) {
+                contentElement.textContent = content;
+                sectionElement.style.display = 'block';
+            } else {
+                sectionElement.style.display = 'none';
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${year}年${month}月${day}日`;
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function saveReport() {
+            const data = {
+                reportTitle: document.getElementById('reportTitle').value,
+                reportDate: document.getElementById('reportDate').value,
+                reportPeriod: document.getElementById('reportPeriod').value,
+                reporterName: document.getElementById('reporterName').value,
+                reporterDepartment: document.getElementById('reporterDepartment').value,
+                recipient: document.getElementById('recipient').value,
+                summary: document.getElementById('summary').value,
+                objectives: document.getElementById('objectives').value,
+                activities: document.getElementById('activities').value,
+                results: document.getElementById('results').value,
+                issues: document.getElementById('issues').value,
+                improvements: document.getElementById('improvements').value,
+                nextActions: document.getElementById('nextActions').value,
+                remarks: document.getElementById('remarks').value
+            };
+
+            localStorage.setItem('reportData', JSON.stringify(data));
+            alert('報告書を保存しました！');
+        }
+
+        function loadReport() {
+            const savedData = localStorage.getItem('reportData');
+            if (!savedData) {
+                alert('保存されたデータがありません。');
+                return;
+            }
+
+            const data = JSON.parse(savedData);
+            
+            // フォームに保存されたデータを読み込み
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = data[key] || '';
+                }
+            });
+
+            updatePreview();
+            alert('報告書を読み込みました！');
+        }
+
+        function clearForm() {
+            if (confirm('すべての入力内容をクリアしますか？')) {
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    element.value = '';
+                });
+                updatePreview();
+            }
+        }
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            // 現在の日付を設定
+            document.getElementById('reportDate').value = new Date().toISOString().split('T')[0];
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

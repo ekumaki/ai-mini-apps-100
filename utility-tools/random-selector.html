@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ランダム選択 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .random-selector {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .selector-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 1.3rem;
+        }
+
+        .textarea-group {
+            margin-bottom: 15px;
+        }
+
+        .textarea-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .item-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .item-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .option-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .option-control {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        .option-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .number-input-section {
+            background: #e1ecf4;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .number-title {
+            color: #0c5460;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .result-section {
+            background: #d4edda;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .result-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .result-display {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .result-item {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #155724;
+            margin: 10px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #c3e6cb;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: #155724;
+            font-size: 1.2rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .history-section {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .history-title {
+            color: #856404;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: white;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-result {
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .history-time {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .wheel-section {
+            background: #f3e5f5;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .wheel-title {
+            color: #6a1b9a;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .wheel-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .wheel {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 8px solid #6a1b9a;
+            position: relative;
+            transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            background: conic-gradient(
+                #ff6b6b 0deg 72deg,
+                #4ecdc4 72deg 144deg,
+                #45b7d1 144deg 216deg,
+                #96ceb4 216deg 288deg,
+                #ffeaa7 288deg 360deg
+            );
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid #6a1b9a;
+        }
+
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: #6a1b9a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .action-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .action-btn.success {
+            background: #28a745;
+        }
+
+        .action-btn.success:hover {
+            background: #218838;
+        }
+
+        .action-btn.danger {
+            background: #dc3545;
+        }
+
+        .action-btn.danger:hover {
+            background: #c82333;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .spinning {
+            animation: spin 0.1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .random-selector {
+                padding: 20px;
+            }
+            
+            .selector-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .number-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .result-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="random-selector">
+        <div class="header">
+            <h1>ランダム選択</h1>
+            <p>選択肢からランダムに選んで決断をサポート</p>
+        </div>
+
+        <div class="selector-tabs">
+            <button class="tab-btn active" onclick="switchTab('list')">リスト選択</button>
+            <button class="tab-btn" onclick="switchTab('number')">数値範囲</button>
+            <button class="tab-btn" onclick="switchTab('wheel')">ルーレット</button>
+        </div>
+
+        <!-- リスト選択タブ -->
+        <div class="tab-content active" id="listTab">
+            <div class="input-section">
+                <div class="section-title">
+                    <span class="section-icon">📝</span>
+                    <span>選択肢入力</span>
+                </div>
+                <div class="textarea-group">
+                    <label for="itemList">選択肢（1行に1つずつ入力）</label>
+                    <textarea id="itemList" class="item-textarea" placeholder="りんご&#10;みかん&#10;バナナ&#10;ぶどう&#10;いちご"></textarea>
+                </div>
+                <div class="options-grid">
+                    <div class="option-group">
+                        <label for="selectCount">選択数</label>
+                        <input type="number" id="selectCount" class="option-control" min="1" max="10" value="1">
+                    </div>
+                    <div class="option-group">
+                        <label for="weightMode">重み付け</label>
+                        <select id="weightMode" class="option-control">
+                            <option value="equal">等確率</option>
+                            <option value="position">位置重み</option>
+                            <option value="length">文字数重み</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="allowDuplicate">
+                    <label for="allowDuplicate">重複選択を許可</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="showAnimation" checked>
+                    <label for="showAnimation">アニメーション表示</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数値範囲タブ -->
+        <div class="tab-content" id="numberTab">
+            <div class="number-input-section">
+                <div class="number-title">🎲 数値範囲設定</div>
+                <div class="number-grid">
+                    <div class="option-group">
+                        <label for="minNumber">最小値</label>
+                        <input type="number" id="minNumber" class="option-control" value="1">
+                    </div>
+                    <div class="option-group">
+                        <label for="maxNumber">最大値</label>
+                        <input type="number" id="maxNumber" class="option-control" value="10">
+                    </div>
+                    <div class="option-group">
+                        <label for="numberCount">生成数</label>
+                        <input type="number" id="numberCount" class="option-control" min="1" max="50" value="1">
+                    </div>
+                    <div class="option-group">
+                        <label for="numberStep">間隔</label>
+                        <input type="number" id="numberStep" class="option-control" min="1" value="1">
+                    </div>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="uniqueNumbers" checked>
+                    <label for="uniqueNumbers">重複なし</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="sortNumbers">
+                    <label for="sortNumbers">結果をソート</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- ルーレットタブ -->
+        <div class="tab-content" id="wheelTab">
+            <div class="wheel-section">
+                <div class="wheel-title">🎡 ルーレット</div>
+                <div class="wheel-container">
+                    <div class="wheel" id="wheel">
+                        <div class="wheel-center">GO</div>
+                    </div>
+                    <div class="wheel-pointer"></div>
+                </div>
+                <div class="textarea-group">
+                    <label for="wheelItems">ルーレット項目（1行に1つずつ）</label>
+                    <textarea id="wheelItems" class="item-textarea" placeholder="選択肢1&#10;選択肢2&#10;選択肢3&#10;選択肢4&#10;選択肢5" style="min-height: 80px;"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" onclick="randomSelect()" id="selectBtn">ランダム選択</button>
+            <button class="action-btn secondary" onclick="presetItems()">サンプル入力</button>
+            <button class="action-btn success" onclick="copyResult()">結果コピー</button>
+            <button class="action-btn secondary" onclick="clearAll()">クリア</button>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-title">選択結果</div>
+            <div class="result-display" id="resultDisplay">
+                <!-- 結果がここに表示されます -->
+            </div>
+            <div class="result-stats" id="resultStats">
+                <!-- 統計情報がここに表示されます -->
+            </div>
+        </div>
+
+        <div class="history-section">
+            <div class="history-title">選択履歴</div>
+            <div class="history-list" id="historyList">
+                <!-- 履歴がここに表示されます -->
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <button class="action-btn secondary" onclick="clearHistory()">履歴クリア</button>
+                <button class="action-btn secondary" onclick="exportHistory()">履歴出力</button>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let currentTab = 'list';
+        let selectionHistory = JSON.parse(localStorage.getItem('randomSelectorHistory') || '[]');
+        let isSpinning = false;
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // タブボタンの状態更新
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // タブコンテンツの表示切り替え
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tab + 'Tab').classList.add('active');
+            
+            // 選択ボタンのテキスト更新
+            const selectBtn = document.getElementById('selectBtn');
+            switch(tab) {
+                case 'list':
+                    selectBtn.textContent = 'ランダム選択';
+                    break;
+                case 'number':
+                    selectBtn.textContent = '数値生成';
+                    break;
+                case 'wheel':
+                    selectBtn.textContent = 'ルーレット回転';
+                    break;
+            }
+        }
+
+        function randomSelect() {
+            if (isSpinning) return;
+            
+            switch(currentTab) {
+                case 'list':
+                    selectFromList();
+                    break;
+                case 'number':
+                    generateNumbers();
+                    break;
+                case 'wheel':
+                    spinWheel();
+                    break;
+            }
+        }
+
+        function selectFromList() {
+            const itemText = document.getElementById('itemList').value.trim();
+            if (!itemText) {
+                showNotification('選択肢を入力してください', 'error');
+                return;
+            }
+            
+            const items = itemText.split('\n').map(item => item.trim()).filter(item => item);
+            if (items.length === 0) {
+                showNotification('有効な選択肢がありません', 'error');
+                return;
+            }
+            
+            const selectCount = parseInt(document.getElementById('selectCount').value);
+            const weightMode = document.getElementById('weightMode').value;
+            const allowDuplicate = document.getElementById('allowDuplicate').checked;
+            const showAnimation = document.getElementById('showAnimation').checked;
+            
+            if (selectCount > items.length && !allowDuplicate) {
+                showNotification('選択数が選択肢の数を超えています', 'error');
+                return;
+            }
+            
+            let selectedItems = [];
+            let availableItems = [...items];
+            
+            for (let i = 0; i < selectCount; i++) {
+                if (availableItems.length === 0 && !allowDuplicate) break;
+                
+                let weights = calculateWeights(availableItems, weightMode);
+                let selectedIndex = weightedRandomSelect(weights);
+                
+                selectedItems.push(availableItems[selectedIndex]);
+                
+                if (!allowDuplicate) {
+                    availableItems.splice(selectedIndex, 1);
+                }
+            }
+            
+            if (showAnimation) {
+                animateSelection(selectedItems);
+            } else {
+                displayResult(selectedItems, 'リスト選択');
+            }
+            
+            addToHistory(selectedItems, 'リスト選択');
+        }
+
+        function calculateWeights(items, mode) {
+            switch(mode) {
+                case 'position':
+                    return items.map((item, index) => items.length - index);
+                case 'length':
+                    return items.map(item => item.length);
+                default:
+                    return items.map(() => 1);
+            }
+        }
+
+        function weightedRandomSelect(weights) {
+            const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+            let random = Math.random() * totalWeight;
+            
+            for (let i = 0; i < weights.length; i++) {
+                random -= weights[i];
+                if (random <= 0) return i;
+            }
+            return weights.length - 1;
+        }
+
+        function generateNumbers() {
+            const min = parseInt(document.getElementById('minNumber').value);
+            const max = parseInt(document.getElementById('maxNumber').value);
+            const count = parseInt(document.getElementById('numberCount').value);
+            const step = parseInt(document.getElementById('numberStep').value);
+            const unique = document.getElementById('uniqueNumbers').checked;
+            const sort = document.getElementById('sortNumbers').checked;
+            
+            if (min >= max) {
+                showNotification('最小値は最大値より小さくしてください', 'error');
+                return;
+            }
+            
+            const availableNumbers = [];
+            for (let i = min; i <= max; i += step) {
+                availableNumbers.push(i);
+            }
+            
+            if (count > availableNumbers.length && unique) {
+                showNotification('生成数が利用可能な数値の数を超えています', 'error');
+                return;
+            }
+            
+            let selectedNumbers = [];
+            let availableNums = [...availableNumbers];
+            
+            for (let i = 0; i < count; i++) {
+                if (availableNums.length === 0 && unique) break;
+                
+                const randomIndex = Math.floor(Math.random() * availableNums.length);
+                selectedNumbers.push(availableNums[randomIndex]);
+                
+                if (unique) {
+                    availableNums.splice(randomIndex, 1);
+                }
+            }
+            
+            if (sort) {
+                selectedNumbers.sort((a, b) => a - b);
+            }
+            
+            displayResult(selectedNumbers, '数値生成');
+            addToHistory(selectedNumbers, '数値生成');
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+            
+            const itemText = document.getElementById('wheelItems').value.trim();
+            if (!itemText) {
+                showNotification('ルーレット項目を入力してください', 'error');
+                return;
+            }
+            
+            const items = itemText.split('\n').map(item => item.trim()).filter(item => item);
+            if (items.length === 0) {
+                showNotification('有効な項目がありません', 'error');
+                return;
+            }
+            
+            isSpinning = true;
+            const wheel = document.getElementById('wheel');
+            const selectBtn = document.getElementById('selectBtn');
+            
+            selectBtn.disabled = true;
+            selectBtn.textContent = '回転中...';
+            
+            // ランダムな回転角度を計算
+            const spins = 5 + Math.random() * 5; // 5-10回転
+            const finalAngle = Math.random() * 360;
+            const totalRotation = spins * 360 + finalAngle;
+            
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
+            
+            setTimeout(() => {
+                // 選択された項目を計算
+                const normalizedAngle = (360 - (finalAngle % 360)) % 360;
+                const segmentAngle = 360 / items.length;
+                const selectedIndex = Math.floor(normalizedAngle / segmentAngle);
+                const selectedItem = items[selectedIndex];
+                
+                displayResult([selectedItem], 'ルーレット');
+                addToHistory([selectedItem], 'ルーレット');
+                
+                isSpinning = false;
+                selectBtn.disabled = false;
+                selectBtn.textContent = 'ルーレット回転';
+                
+                showNotification(`結果: ${selectedItem}`);
+            }, 3000);
+        }
+
+        function animateSelection(items) {
+            const resultSection = document.getElementById('resultSection');
+            const resultDisplay = document.getElementById('resultDisplay');
+            
+            resultSection.classList.add('show');
+            resultDisplay.innerHTML = '<div class="result-item">選択中...</div>';
+            
+            let currentIndex = 0;
+            const animationInterval = setInterval(() => {
+                const randomItem = items[Math.floor(Math.random() * items.length)];
+                resultDisplay.innerHTML = `<div class="result-item">${randomItem}</div>`;
+                currentIndex++;
+                
+                if (currentIndex > 20) {
+                    clearInterval(animationInterval);
+                    displayResult(items, 'リスト選択');
+                }
+            }, 100);
+        }
+
+        function displayResult(results, type) {
+            const resultSection = document.getElementById('resultSection');
+            const resultDisplay = document.getElementById('resultDisplay');
+            const resultStats = document.getElementById('resultStats');
+            
+            // 結果表示
+            resultDisplay.innerHTML = results.map(item => 
+                `<div class="result-item">${item}</div>`
+            ).join('');
+            
+            // 統計情報表示
+            const stats = [];
+            stats.push({ label: '選択数', value: results.length });
+            stats.push({ label: '選択時刻', value: new Date().toLocaleTimeString('ja-JP') });
+            
+            if (type === '数値生成' && results.every(r => typeof r === 'number')) {
+                const sum = results.reduce((a, b) => a + b, 0);
+                const avg = (sum / results.length).toFixed(2);
+                stats.push({ label: '合計', value: sum });
+                stats.push({ label: '平均', value: avg });
+                stats.push({ label: '最小', value: Math.min(...results) });
+                stats.push({ label: '最大', value: Math.max(...results) });
+            }
+            
+            resultStats.innerHTML = stats.map(stat => `
+                <div class="stat-item">
+                    <div class="stat-value">${stat.value}</div>
+                    <div class="stat-label">${stat.label}</div>
+                </div>
+            `).join('');
+            
+            resultSection.classList.add('show');
+        }
+
+        function addToHistory(results, type) {
+            const historyItem = {
+                id: Date.now(),
+                results: results,
+                type: type,
+                timestamp: new Date().toLocaleString('ja-JP')
+            };
+            
+            selectionHistory.unshift(historyItem);
+            
+            // 履歴を50件に制限
+            if (selectionHistory.length > 50) {
+                selectionHistory = selectionHistory.slice(0, 50);
+            }
+            
+            saveHistory();
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            
+            if (selectionHistory.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">履歴がありません</p>';
+                return;
+            }
+            
+            historyList.innerHTML = selectionHistory.slice(0, 10).map(item => `
+                <div class="history-item">
+                    <div>
+                        <div class="history-result">${item.results.join(', ')}</div>
+                        <div style="font-size: 0.8rem; color: #666; margin-top: 3px;">${item.type}</div>
+                    </div>
+                    <div class="history-time">${item.timestamp}</div>
+                </div>
+            `).join('');
+        }
+
+        function presetItems() {
+            const presets = {
+                list: [
+                    'りんご\nみかん\nバナナ\nぶどう\nいちご',
+                    '映画を見る\n本を読む\n散歩する\n料理をする\n音楽を聴く',
+                    'ラーメン\n寿司\nピザ\nカレー\nハンバーガー',
+                    '北海道\n沖縄\n京都\n大阪\n東京'
+                ],
+                wheel: [
+                    '選択肢A\n選択肢B\n選択肢C\n選択肢D\n選択肢E',
+                    'はい\nいいえ\nたぶん\nわからない',
+                    '今日\n明日\n来週\n来月'
+                ]
+            };
+            
+            if (currentTab === 'list') {
+                const randomPreset = presets.list[Math.floor(Math.random() * presets.list.length)];
+                document.getElementById('itemList').value = randomPreset;
+            } else if (currentTab === 'wheel') {
+                const randomPreset = presets.wheel[Math.floor(Math.random() * presets.wheel.length)];
+                document.getElementById('wheelItems').value = randomPreset;
+            }
+            
+            showNotification('サンプルデータを入力しました');
+        }
+
+        function copyResult() {
+            const resultDisplay = document.getElementById('resultDisplay');
+            if (!resultDisplay.textContent.trim()) {
+                showNotification('コピーする結果がありません', 'error');
+                return;
+            }
+            
+            const results = Array.from(resultDisplay.querySelectorAll('.result-item'))
+                .map(item => item.textContent)
+                .join('\n');
+            
+            navigator.clipboard.writeText(results).then(() => {
+                showNotification('結果をコピーしました');
+            }).catch(() => {
+                showNotification('コピーに失敗しました', 'error');
+            });
+        }
+
+        function clearAll() {
+            document.getElementById('itemList').value = '';
+            document.getElementById('wheelItems').value = '';
+            document.getElementById('minNumber').value = '1';
+            document.getElementById('maxNumber').value = '10';
+            document.getElementById('selectCount').value = '1';
+            document.getElementById('numberCount').value = '1';
+            document.getElementById('resultSection').classList.remove('show');
+            
+            showNotification('入力内容をクリアしました');
+        }
+
+        function clearHistory() {
+            if (confirm('選択履歴を全て削除しますか？')) {
+                selectionHistory = [];
+                saveHistory();
+                updateHistoryDisplay();
+                showNotification('履歴をクリアしました');
+            }
+        }
+
+        function exportHistory() {
+            if (selectionHistory.length === 0) {
+                showNotification('エクスポートする履歴がありません', 'error');
+                return;
+            }
+            
+            const exportData = selectionHistory.map(item => ({
+                '結果': item.results.join(', '),
+                '種類': item.type,
+                '日時': item.timestamp
+            }));
+            
+            const csvContent = [
+                Object.keys(exportData[0]).join(','),
+                ...exportData.map(row => Object.values(row).join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `random_selector_history_${Date.now()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('履歴を出力しました');
+        }
+
+        function saveHistory() {
+            localStorage.setItem('randomSelectorHistory', JSON.stringify(selectionHistory));
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        function init() {
+            updateHistoryDisplay();
+            
+            // 数値入力の妥当性チェック
+            document.getElementById('minNumber').addEventListener('input', validateNumberRange);
+            document.getElementById('maxNumber').addEventListener('input', validateNumberRange);
+            
+            // 選択数の自動調整
+            document.getElementById('itemList').addEventListener('input', () => {
+                const items = document.getElementById('itemList').value.split('\n').filter(item => item.trim());
+                const selectCountInput = document.getElementById('selectCount');
+                selectCountInput.max = Math.max(1, items.length);
+            });
+        }
+
+        function validateNumberRange() {
+            const min = parseInt(document.getElementById('minNumber').value);
+            const max = parseInt(document.getElementById('maxNumber').value);
+            
+            if (min >= max) {
+                document.getElementById('maxNumber').value = min + 1;
+            }
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // キーボードショートカット
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'Enter':
+                        e.preventDefault();
+                        randomSelect();
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        clearAll();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

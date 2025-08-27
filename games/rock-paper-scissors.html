@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ジャンケン - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .janken-game {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .game-area {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .battle-display {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .player-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .player-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .hand-display {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .hand-display.shake {
+            animation: shake 0.5s ease-in-out 3;
+        }
+
+        .hand-display.winner {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(40, 167, 69, 0.4);
+        }
+
+        .hand-display.loser {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            transform: scale(0.9);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .vs-divider {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin: 0 20px;
+        }
+
+        .result-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .result-text.win {
+            color: #28a745;
+        }
+
+        .result-text.lose {
+            color: #dc3545;
+        }
+
+        .result-text.draw {
+            color: #ffc107;
+        }
+
+        .choices-section {
+            margin-bottom: 30px;
+        }
+
+        .choices-title {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .choices {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .choice-btn {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid #e9ecef;
+            background: white;
+            font-size: 3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .choice-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .choice-btn.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .stats-section {
+            background: #e1ecf4;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stats-title {
+            color: #0c5460;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            border: 1px solid #b3d4fc;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #0c5460;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .action-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .action-btn.danger {
+            background: #dc3545;
+        }
+
+        .action-btn.danger:hover {
+            background: #c82333;
+        }
+
+        .game-modes {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .modes-title {
+            color: #856404;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            background: white;
+            border: 2px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #856404;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn:hover {
+            background: #ffeaa7;
+            transform: translateY(-2px);
+        }
+
+        .mode-btn.active {
+            background: #856404;
+            color: white;
+            border-color: #856404;
+        }
+
+        .history-section {
+            background: #d4edda;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .history-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .match-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .match-hands {
+            font-size: 1.2rem;
+        }
+
+        .match-result {
+            font-weight: 600;
+        }
+
+        .match-result.win { color: #28a745; }
+        .match-result.lose { color: #dc3545; }
+        .match-result.draw { color: #ffc107; }
+
+        .match-time {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .countdown {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #667eea;
+            animation: countdownPulse 1s ease;
+        }
+
+        @keyframes countdownPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .janken-game {
+                padding: 20px;
+            }
+            
+            .battle-display {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .vs-divider {
+                transform: rotate(90deg);
+                margin: 10px 0;
+            }
+            
+            .hand-display {
+                width: 100px;
+                height: 100px;
+                font-size: 3rem;
+            }
+            
+            .choice-btn {
+                width: 80px;
+                height: 80px;
+                font-size: 2.5rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="janken-game">
+        <div class="header">
+            <h1>ジャンケン</h1>
+            <p>コンピューターと対戦しよう！</p>
+        </div>
+
+        <div class="game-modes">
+            <div class="modes-title">🎮 ゲームモード</div>
+            <div class="mode-buttons">
+                <button class="mode-btn active" onclick="setGameMode('normal')">通常戦</button>
+                <button class="mode-btn" onclick="setGameMode('best3')">3本勝負</button>
+                <button class="mode-btn" onclick="setGameMode('best5')">5本勝負</button>
+                <button class="mode-btn" onclick="setGameMode('endless')">エンドレス</button>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="battle-display">
+                <div class="player-section">
+                    <div class="player-label">👤 あなた</div>
+                    <div class="hand-display" id="playerHand">❓</div>
+                    <div id="playerChoice">手を選んでください</div>
+                </div>
+                
+                <div class="vs-divider">VS</div>
+                
+                <div class="player-section">
+                    <div class="player-label">🤖 コンピューター</div>
+                    <div class="hand-display" id="computerHand">❓</div>
+                    <div id="computerChoice">考え中...</div>
+                </div>
+            </div>
+
+            <div class="result-display" id="resultDisplay">
+                <div class="result-text">手を選んでジャンケンを始めよう！</div>
+            </div>
+        </div>
+
+        <div class="choices-section">
+            <div class="choices-title">✋ 手を選択</div>
+            <div class="choices">
+                <button class="choice-btn" onclick="playerChoice('rock')" title="グー">✊</button>
+                <button class="choice-btn" onclick="playerChoice('paper')" title="パー">✋</button>
+                <button class="choice-btn" onclick="playerChoice('scissors')" title="チョキ">✌️</button>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-title">📊 戦績</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="wins">0</div>
+                    <div class="stat-label">勝利</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="losses">0</div>
+                    <div class="stat-label">敗北</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="draws">0</div>
+                    <div class="stat-label">引き分け</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="winRate">0</div>
+                    <div class="stat-label">勝率(%)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalGames">0</div>
+                    <div class="stat-label">総試合数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="currentStreak">0</div>
+                    <div class="stat-label">連勝</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" onclick="resetGame()">ゲームリセット</button>
+            <button class="action-btn secondary" onclick="resetStats()">戦績リセット</button>
+            <button class="action-btn secondary" onclick="saveStats()">戦績保存</button>
+        </div>
+
+        <div class="history-section">
+            <div class="history-title">📜 対戦履歴</div>
+            <div class="history-list" id="historyList">
+                <!-- 履歴がここに表示されます -->
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <button class="action-btn secondary" onclick="clearHistory()">履歴クリア</button>
+                <button class="action-btn secondary" onclick="exportHistory()">履歴出力</button>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let gameStats = {
+            wins: 0,
+            losses: 0,
+            draws: 0,
+            totalGames: 0,
+            currentStreak: 0,
+            maxStreak: 0
+        };
+
+        let gameHistory = [];
+        let currentGameMode = 'normal';
+        let seriesScore = { player: 0, computer: 0 };
+        let gameInProgress = false;
+
+        const hands = {
+            rock: { emoji: '✊', name: 'グー' },
+            paper: { emoji: '✋', name: 'パー' },
+            scissors: { emoji: '✌️', name: 'チョキ' }
+        };
+
+        const winConditions = {
+            rock: 'scissors',
+            paper: 'rock',
+            scissors: 'paper'
+        };
+
+        function loadStats() {
+            const saved = localStorage.getItem('jankenStats');
+            if (saved) {
+                gameStats = { ...gameStats, ...JSON.parse(saved) };
+                updateStatsDisplay();
+            }
+            
+            const savedHistory = localStorage.getItem('jankenHistory');
+            if (savedHistory) {
+                gameHistory = JSON.parse(savedHistory);
+                updateHistoryDisplay();
+            }
+        }
+
+        function saveStats() {
+            localStorage.setItem('jankenStats', JSON.stringify(gameStats));
+            localStorage.setItem('jankenHistory', JSON.stringify(gameHistory));
+            showNotification('戦績を保存しました');
+        }
+
+        function setGameMode(mode) {
+            currentGameMode = mode;
+            
+            // ボタンの状態更新
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // シリーズスコアをリセット
+            seriesScore = { player: 0, computer: 0 };
+            
+            // 結果表示をリセット
+            const resultDisplay = document.getElementById('resultDisplay');
+            resultDisplay.innerHTML = '<div class="result-text">手を選んでジャンケンを始めよう！</div>';
+            
+            showNotification(`${getModeDisplayName(mode)}モードに切り替えました`);
+        }
+
+        function getModeDisplayName(mode) {
+            const names = {
+                normal: '通常戦',
+                best3: '3本勝負',
+                best5: '5本勝負',
+                endless: 'エンドレス'
+            };
+            return names[mode] || '通常戦';
+        }
+
+        function playerChoice(choice) {
+            if (gameInProgress) return;
+            
+            gameInProgress = true;
+            
+            // プレイヤーの選択を表示
+            updatePlayerDisplay(choice);
+            
+            // 選択ボタンをハイライト
+            document.querySelectorAll('.choice-btn').forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+            
+            // コンピューターの手を決定（少し遅延）
+            setTimeout(() => {
+                const computerChoice = getComputerChoice();
+                updateComputerDisplay(computerChoice);
+                
+                // 結果を判定
+                setTimeout(() => {
+                    const result = determineWinner(choice, computerChoice);
+                    showResult(choice, computerChoice, result);
+                    updateStats(result);
+                    addToHistory(choice, computerChoice, result);
+                    
+                    // シリーズ戦の処理
+                    if (currentGameMode !== 'normal' && currentGameMode !== 'endless') {
+                        updateSeriesScore(result);
+                    }
+                    
+                    // ゲーム状態をリセット
+                    setTimeout(() => {
+                        gameInProgress = false;
+                        document.querySelectorAll('.choice-btn').forEach(btn => btn.classList.remove('selected'));
+                        resetHandAnimations();
+                    }, 2000);
+                    
+                }, 1000);
+            }, 1000);
+        }
+
+        function getComputerChoice() {
+            const choices = ['rock', 'paper', 'scissors'];
+            
+            // 簡単なAI: プレイヤーの傾向を分析
+            if (gameHistory.length >= 3) {
+                const recentChoices = gameHistory.slice(-3).map(h => h.playerChoice);
+                const mostFrequent = getMostFrequent(recentChoices);
+                
+                // 30%の確率で対策手を出す
+                if (Math.random() < 0.3) {
+                    const counterMoves = {
+                        rock: 'paper',
+                        paper: 'scissors',
+                        scissors: 'rock'
+                    };
+                    return counterMoves[mostFrequent] || choices[Math.floor(Math.random() * choices.length)];
+                }
+            }
+            
+            return choices[Math.floor(Math.random() * choices.length)];
+        }
+
+        function getMostFrequent(arr) {
+            const frequency = {};
+            arr.forEach(item => frequency[item] = (frequency[item] || 0) + 1);
+            return Object.keys(frequency).reduce((a, b) => frequency[a] > frequency[b] ? a : b);
+        }
+
+        function updatePlayerDisplay(choice) {
+            const handDisplay = document.getElementById('playerHand');
+            const choiceDisplay = document.getElementById('playerChoice');
+            
+            handDisplay.classList.add('shake');
+            handDisplay.textContent = '❓';
+            choiceDisplay.textContent = '考え中...';
+            
+            setTimeout(() => {
+                handDisplay.textContent = hands[choice].emoji;
+                choiceDisplay.textContent = hands[choice].name;
+                handDisplay.classList.remove('shake');
+            }, 500);
+        }
+
+        function updateComputerDisplay(choice) {
+            const handDisplay = document.getElementById('computerHand');
+            const choiceDisplay = document.getElementById('computerChoice');
+            
+            handDisplay.classList.add('shake');
+            handDisplay.textContent = '❓';
+            choiceDisplay.textContent = '考え中...';
+            
+            setTimeout(() => {
+                handDisplay.textContent = hands[choice].emoji;
+                choiceDisplay.textContent = hands[choice].name;
+                handDisplay.classList.remove('shake');
+            }, 500);
+        }
+
+        function determineWinner(playerChoice, computerChoice) {
+            if (playerChoice === computerChoice) {
+                return 'draw';
+            } else if (winConditions[playerChoice] === computerChoice) {
+                return 'win';
+            } else {
+                return 'lose';
+            }
+        }
+
+        function showResult(playerChoice, computerChoice, result) {
+            const resultDisplay = document.getElementById('resultDisplay');
+            const playerHand = document.getElementById('playerHand');
+            const computerHand = document.getElementById('computerHand');
+            
+            let resultText = '';
+            let resultClass = '';
+            
+            switch(result) {
+                case 'win':
+                    resultText = '🎉 あなたの勝ち！';
+                    resultClass = 'win';
+                    playerHand.classList.add('winner');
+                    computerHand.classList.add('loser');
+                    break;
+                case 'lose':
+                    resultText = '😔 あなたの負け...';
+                    resultClass = 'lose';
+                    playerHand.classList.add('loser');
+                    computerHand.classList.add('winner');
+                    break;
+                case 'draw':
+                    resultText = '🤝 引き分け';
+                    resultClass = 'draw';
+                    break;
+            }
+            
+            resultDisplay.innerHTML = `<div class="result-text ${resultClass}">${resultText}</div>`;
+        }
+
+        function updateStats(result) {
+            gameStats.totalGames++;
+            
+            switch(result) {
+                case 'win':
+                    gameStats.wins++;
+                    gameStats.currentStreak++;
+                    gameStats.maxStreak = Math.max(gameStats.maxStreak, gameStats.currentStreak);
+                    break;
+                case 'lose':
+                    gameStats.losses++;
+                    gameStats.currentStreak = 0;
+                    break;
+                case 'draw':
+                    gameStats.draws++;
+                    break;
+            }
+            
+            updateStatsDisplay();
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('wins').textContent = gameStats.wins;
+            document.getElementById('losses').textContent = gameStats.losses;
+            document.getElementById('draws').textContent = gameStats.draws;
+            document.getElementById('totalGames').textContent = gameStats.totalGames;
+            document.getElementById('currentStreak').textContent = gameStats.currentStreak;
+            
+            const winRate = gameStats.totalGames > 0 ? 
+                Math.round((gameStats.wins / gameStats.totalGames) * 100) : 0;
+            document.getElementById('winRate').textContent = winRate;
+        }
+
+        function updateSeriesScore(result) {
+            if (result === 'win') {
+                seriesScore.player++;
+            } else if (result === 'lose') {
+                seriesScore.computer++;
+            }
+            
+            const targetScore = currentGameMode === 'best3' ? 2 : 3;
+            
+            if (seriesScore.player >= targetScore) {
+                setTimeout(() => {
+                    showNotification('🎉 シリーズ勝利！おめでとうございます！');
+                    seriesScore = { player: 0, computer: 0 };
+                }, 2500);
+            } else if (seriesScore.computer >= targetScore) {
+                setTimeout(() => {
+                    showNotification('😔 シリーズ敗北...再挑戦してみましょう！', 'error');
+                    seriesScore = { player: 0, computer: 0 };
+                }, 2500);
+            }
+        }
+
+        function addToHistory(playerChoice, computerChoice, result) {
+            const historyItem = {
+                id: Date.now(),
+                playerChoice: playerChoice,
+                computerChoice: computerChoice,
+                result: result,
+                timestamp: new Date().toLocaleString('ja-JP')
+            };
+            
+            gameHistory.unshift(historyItem);
+            
+            // 履歴を100件に制限
+            if (gameHistory.length > 100) {
+                gameHistory = gameHistory.slice(0, 100);
+            }
+            
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            
+            if (gameHistory.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">対戦履歴がありません</p>';
+                return;
+            }
+            
+            historyList.innerHTML = gameHistory.slice(0, 10).map(item => {
+                const resultText = {
+                    win: '勝利',
+                    lose: '敗北',
+                    draw: '引分'
+                };
+                
+                return `
+                    <div class="history-item">
+                        <div class="match-info">
+                            <div class="match-hands">${hands[item.playerChoice].emoji} vs ${hands[item.computerChoice].emoji}</div>
+                            <div class="match-result ${item.result}">${resultText[item.result]}</div>
+                        </div>
+                        <div class="match-time">${item.timestamp}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function resetHandAnimations() {
+            const playerHand = document.getElementById('playerHand');
+            const computerHand = document.getElementById('computerHand');
+            
+            playerHand.classList.remove('winner', 'loser', 'shake');
+            computerHand.classList.remove('winner', 'loser', 'shake');
+            
+            // 少し遅延してから手を隠す
+            setTimeout(() => {
+                playerHand.textContent = '❓';
+                computerHand.textContent = '❓';
+                document.getElementById('playerChoice').textContent = '手を選んでください';
+                document.getElementById('computerChoice').textContent = '考え中...';
+            }, 1000);
+        }
+
+        function resetGame() {
+            if (confirm('現在のゲームをリセットしますか？')) {
+                seriesScore = { player: 0, computer: 0 };
+                gameInProgress = false;
+                
+                document.getElementById('playerHand').textContent = '❓';
+                document.getElementById('computerHand').textContent = '❓';
+                document.getElementById('playerChoice').textContent = '手を選んでください';
+                document.getElementById('computerChoice').textContent = '考え中...';
+                
+                const resultDisplay = document.getElementById('resultDisplay');
+                resultDisplay.innerHTML = '<div class="result-text">手を選んでジャンケンを始めよう！</div>';
+                
+                document.querySelectorAll('.choice-btn').forEach(btn => btn.classList.remove('selected'));
+                resetHandAnimations();
+                
+                showNotification('ゲームをリセットしました');
+            }
+        }
+
+        function resetStats() {
+            if (confirm('戦績をリセットしますか？この操作は取り消せません。')) {
+                gameStats = {
+                    wins: 0,
+                    losses: 0,
+                    draws: 0,
+                    totalGames: 0,
+                    currentStreak: 0,
+                    maxStreak: 0
+                };
+                updateStatsDisplay();
+                localStorage.removeItem('jankenStats');
+                showNotification('戦績をリセットしました');
+            }
+        }
+
+        function clearHistory() {
+            if (confirm('対戦履歴をクリアしますか？')) {
+                gameHistory = [];
+                updateHistoryDisplay();
+                localStorage.removeItem('jankenHistory');
+                showNotification('履歴をクリアしました');
+            }
+        }
+
+        function exportHistory() {
+            if (gameHistory.length === 0) {
+                showNotification('エクスポートする履歴がありません', 'error');
+                return;
+            }
+            
+            const exportData = gameHistory.map(item => ({
+                '日時': item.timestamp,
+                'あなたの手': hands[item.playerChoice].name,
+                'コンピューターの手': hands[item.computerChoice].name,
+                '結果': item.result === 'win' ? '勝利' : item.result === 'lose' ? '敗北' : '引き分け'
+            }));
+            
+            const csvContent = [
+                Object.keys(exportData[0]).join(','),
+                ...exportData.map(row => Object.values(row).map(v => `"${v}"`).join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `janken_history_${Date.now()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('履歴を出力しました');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        function init() {
+            loadStats();
+            updateStatsDisplay();
+            updateHistoryDisplay();
+            
+            // キーボードショートカット
+            document.addEventListener('keydown', (e) => {
+                if (gameInProgress) return;
+                
+                switch(e.key) {
+                    case '1':
+                    case 'r':
+                        playerChoice('rock');
+                        break;
+                    case '2':
+                    case 'p':
+                        playerChoice('paper');
+                        break;
+                    case '3':
+                    case 's':
+                        playerChoice('scissors');
+                        break;
+                }
+            });
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // ページを離れる前に自動保存
+        window.addEventListener('beforeunload', saveStats);
+    </script>
+</body>
+</html>

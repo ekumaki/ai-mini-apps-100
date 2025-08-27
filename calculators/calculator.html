@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基本計算機 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .calculator {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .display {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: right;
+            font-size: 2rem;
+            font-weight: bold;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            word-break: break-all;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            height: 60px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-number {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e9ecef;
+        }
+
+        .btn-number:hover {
+            background: #e9ecef;
+            border-color: #dee2e6;
+        }
+
+        .btn-operator {
+            background: #667eea;
+            color: white;
+            border: 2px solid #667eea;
+        }
+
+        .btn-operator:hover {
+            background: #5a6fd8;
+            border-color: #5a6fd8;
+        }
+
+        .btn-clear {
+            background: #dc3545;
+            color: white;
+            border: 2px solid #dc3545;
+        }
+
+        .btn-clear:hover {
+            background: #c82333;
+            border-color: #c82333;
+        }
+
+        .btn-equals {
+            background: #28a745;
+            color: white;
+            border: 2px solid #28a745;
+            grid-column: span 2;
+        }
+
+        .btn-equals:hover {
+            background: #218838;
+            border-color: #218838;
+        }
+
+        .btn-zero {
+            grid-column: span 2;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="header">
+            <h1>基本計算機</h1>
+            <p>四則演算ができるシンプルな計算機</p>
+        </div>
+
+        <div class="display" id="display">0</div>
+
+        <div class="buttons">
+            <button class="btn btn-clear" onclick="clearAll()">C</button>
+            <button class="btn btn-clear" onclick="clearEntry()">CE</button>
+            <button class="btn btn-operator" onclick="inputOperator('/')">÷</button>
+            <button class="btn btn-operator" onclick="inputOperator('*')">×</button>
+
+            <button class="btn btn-number" onclick="inputNumber('7')">7</button>
+            <button class="btn btn-number" onclick="inputNumber('8')">8</button>
+            <button class="btn btn-number" onclick="inputNumber('9')">9</button>
+            <button class="btn btn-operator" onclick="inputOperator('-')">-</button>
+
+            <button class="btn btn-number" onclick="inputNumber('4')">4</button>
+            <button class="btn btn-number" onclick="inputNumber('5')">5</button>
+            <button class="btn btn-number" onclick="inputNumber('6')">6</button>
+            <button class="btn btn-operator" onclick="inputOperator('+')">+</button>
+
+            <button class="btn btn-number" onclick="inputNumber('1')">1</button>
+            <button class="btn btn-number" onclick="inputNumber('2')">2</button>
+            <button class="btn btn-number" onclick="inputNumber('3')">3</button>
+            <button class="btn btn-equals" onclick="calculate()" rowspan="2">=</button>
+
+            <button class="btn btn-number btn-zero" onclick="inputNumber('0')">0</button>
+            <button class="btn btn-number" onclick="inputNumber('.')">.</button>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        let display = document.getElementById('display');
+        let currentInput = '0';
+        let operator = null;
+        let previousInput = null;
+        let waitingForOperand = false;
+
+        function updateDisplay() {
+            display.textContent = currentInput;
+        }
+
+        function inputNumber(num) {
+            if (waitingForOperand) {
+                currentInput = num;
+                waitingForOperand = false;
+            } else {
+                if (currentInput === '0') {
+                    currentInput = num;
+                } else {
+                    currentInput = currentInput + num;
+                }
+            }
+            updateDisplay();
+        }
+
+        function inputOperator(nextOperator) {
+            const inputValue = parseFloat(currentInput);
+
+            if (previousInput === null) {
+                previousInput = inputValue;
+            } else if (operator) {
+                const currentValue = previousInput || 0;
+                const newValue = performCalculation(currentValue, inputValue, operator);
+
+                currentInput = String(newValue);
+                previousInput = newValue;
+                updateDisplay();
+            }
+
+            waitingForOperand = true;
+            operator = nextOperator;
+        }
+
+        function calculate() {
+            const inputValue = parseFloat(currentInput);
+
+            if (previousInput !== null && operator) {
+                const newValue = performCalculation(previousInput, inputValue, operator);
+                currentInput = String(newValue);
+                previousInput = null;
+                operator = null;
+                waitingForOperand = true;
+                updateDisplay();
+            }
+        }
+
+        function performCalculation(firstOperand, secondOperand, operator) {
+            switch (operator) {
+                case '+':
+                    return firstOperand + secondOperand;
+                case '-':
+                    return firstOperand - secondOperand;
+                case '*':
+                    return firstOperand * secondOperand;
+                case '/':
+                    if (secondOperand === 0) {
+                        display.textContent = 'エラー: ゼロ除算';
+                        display.classList.add('error');
+                        setTimeout(() => {
+                            display.classList.remove('error');
+                            clearAll();
+                        }, 2000);
+                        return 0;
+                    }
+                    return firstOperand / secondOperand;
+                default:
+                    return secondOperand;
+            }
+        }
+
+        function clearAll() {
+            currentInput = '0';
+            operator = null;
+            previousInput = null;
+            waitingForOperand = false;
+            updateDisplay();
+        }
+
+        function clearEntry() {
+            currentInput = '0';
+            updateDisplay();
+        }
+
+        // キーボード対応
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+
+            if ('0123456789'.includes(key)) {
+                inputNumber(key);
+            } else if ('+-*/'.includes(key)) {
+                inputOperator(key);
+            } else if (key === '=' || key === 'Enter') {
+                event.preventDefault();
+                calculate();
+            } else if (key === '.' || key === ',') {
+                inputNumber('.');
+            } else if (key === 'Escape') {
+                clearAll();
+            } else if (key === 'Backspace') {
+                clearEntry();
+            }
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>

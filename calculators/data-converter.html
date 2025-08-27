@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>データ容量変換 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .converter {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .info {
+            background: #e7f3ff;
+            border: 1px solid #b3d7ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #0066cc;
+        }
+
+        .conversion-row {
+            display: grid;
+            grid-template-columns: 1fr 60px 1fr;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .data-input {
+            display: flex;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .data-input:focus-within {
+            border-color: #667eea;
+        }
+
+        .data-input input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .data-select {
+            background: #f8f9fa;
+            border: none;
+            padding: 12px;
+            cursor: pointer;
+            min-width: 80px;
+            font-weight: 600;
+            border-left: 2px solid #e9ecef;
+        }
+
+        .swap-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .swap-btn:hover {
+            background: #5a6fd8;
+            transform: rotate(180deg);
+        }
+
+        .result {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .result-amount {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .result-unit {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .result-details {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .conversion-table {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .table-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .table-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .table-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .table-value {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1rem;
+            margin-bottom: 3px;
+        }
+
+        .table-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .quick-convert {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .quick-title {
+            font-weight: 600;
+            color: #155724;
+            margin-bottom: 10px;
+        }
+
+        .quick-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 8px;
+        }
+
+        .quick-btn {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 8px 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .quick-btn:hover {
+            background: #d4edda;
+            border-color: #155724;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 500px) {
+            .conversion-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .swap-btn {
+                justify-self: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="converter">
+        <div class="header">
+            <h1>データ容量変換</h1>
+            <p>バイト、キロバイト、メガバイトなどを変換</p>
+        </div>
+
+        <div class="info">
+            デジタルデータの容量を様々な単位で変換できます。<br>
+            1024進法（バイナリ）と1000進法（デシマル）の両方に対応。
+        </div>
+
+        <div class="conversion-row">
+            <div class="input-group">
+                <label>変換元</label>
+                <div class="data-input">
+                    <input type="number" id="fromValue" placeholder="数値を入力" value="1" oninput="convert()">
+                    <select class="data-select" id="fromUnit" onchange="convert()">
+                        <option value="byte">Byte</option>
+                        <option value="kb">KB</option>
+                        <option value="mb" selected>MB</option>
+                        <option value="gb">GB</option>
+                        <option value="tb">TB</option>
+                        <option value="pb">PB</option>
+                        <option value="kib">KiB</option>
+                        <option value="mib">MiB</option>
+                        <option value="gib">GiB</option>
+                        <option value="tib">TiB</option>
+                        <option value="pib">PiB</option>
+                        <option value="bit">bit</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="swap-btn" onclick="swapUnits()" title="単位を入れ替え">⇄</button>
+
+            <div class="input-group">
+                <label>変換先</label>
+                <div class="data-input">
+                    <input type="number" id="toValue" placeholder="結果" readonly>
+                    <select class="data-select" id="toUnit" onchange="convert()">
+                        <option value="byte">Byte</option>
+                        <option value="kb">KB</option>
+                        <option value="mb">MB</option>
+                        <option value="gb" selected>GB</option>
+                        <option value="tb">TB</option>
+                        <option value="pb">PB</option>
+                        <option value="kib">KiB</option>
+                        <option value="mib">MiB</option>
+                        <option value="gib">GiB</option>
+                        <option value="tib">TiB</option>
+                        <option value="pib">PiB</option>
+                        <option value="bit">bit</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="result">
+            <div class="result-amount" id="resultAmount">1</div>
+            <div class="result-unit" id="resultUnit">GB</div>
+            <div class="result-details" id="resultDetails">
+                1 MB = 1,000,000 バイト (デシマル)
+            </div>
+        </div>
+
+        <div class="conversion-table">
+            <div class="table-title">変換表（1GBの場合）</div>
+            <div class="table-grid" id="conversionTable">
+                <!-- 変換表がここに動的に生成されます -->
+            </div>
+        </div>
+
+        <div class="quick-convert">
+            <div class="quick-title">よく使われる値で変換</div>
+            <div class="quick-buttons">
+                <button class="quick-btn" onclick="quickConvert(1, 'kb')">1 KB</button>
+                <button class="quick-btn" onclick="quickConvert(1, 'mb')">1 MB</button>
+                <button class="quick-btn" onclick="quickConvert(1, 'gb')">1 GB</button>
+                <button class="quick-btn" onclick="quickConvert(1, 'tb')">1 TB</button>
+                <button class="quick-btn" onclick="quickConvert(100, 'mb')">100 MB</button>
+                <button class="quick-btn" onclick="quickConvert(500, 'gb')">500 GB</button>
+                <button class="quick-btn" onclick="quickConvert(1, 'gib')">1 GiB</button>
+                <button class="quick-btn" onclick="quickConvert(1, 'tib')">1 TiB</button>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        // データ単位の定義
+        const dataUnits = {
+            // デシマル（1000進法）
+            'bit': { name: 'bit', factor: 1/8, system: 'decimal' },
+            'byte': { name: 'Byte', factor: 1, system: 'decimal' },
+            'kb': { name: 'KB', factor: 1000, system: 'decimal' },
+            'mb': { name: 'MB', factor: 1000000, system: 'decimal' },
+            'gb': { name: 'GB', factor: 1000000000, system: 'decimal' },
+            'tb': { name: 'TB', factor: 1000000000000, system: 'decimal' },
+            'pb': { name: 'PB', factor: 1000000000000000, system: 'decimal' },
+            
+            // バイナリ（1024進法）
+            'kib': { name: 'KiB', factor: 1024, system: 'binary' },
+            'mib': { name: 'MiB', factor: 1024 * 1024, system: 'binary' },
+            'gib': { name: 'GiB', factor: 1024 * 1024 * 1024, system: 'binary' },
+            'tib': { name: 'TiB', factor: 1024 * 1024 * 1024 * 1024, system: 'binary' },
+            'pib': { name: 'PiB', factor: 1024 * 1024 * 1024 * 1024 * 1024, system: 'binary' }
+        };
+
+        function convert() {
+            const fromValue = parseFloat(document.getElementById('fromValue').value);
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            const toValueInput = document.getElementById('toValue');
+            const resultAmount = document.getElementById('resultAmount');
+            const resultUnit = document.getElementById('resultUnit');
+            const resultDetails = document.getElementById('resultDetails');
+
+            if (isNaN(fromValue) || fromValue === '') {
+                toValueInput.value = '';
+                resultAmount.textContent = '0';
+                resultUnit.textContent = dataUnits[toUnit].name;
+                resultDetails.textContent = '数値を入力してください';
+                return;
+            }
+
+            // バイトに変換
+            const fromBytes = fromValue * dataUnits[fromUnit].factor;
+            // 目標単位に変換
+            const result = fromBytes / dataUnits[toUnit].factor;
+
+            toValueInput.value = formatNumber(result);
+            resultAmount.textContent = formatNumber(result);
+            resultUnit.textContent = dataUnits[toUnit].name;
+            
+            // 詳細情報を表示
+            const fromUnitName = dataUnits[fromUnit].name;
+            const toUnitName = dataUnits[toUnit].name;
+            const fromSystem = dataUnits[fromUnit].system;
+            const toSystem = dataUnits[toUnit].system;
+            
+            let details = `${fromValue} ${fromUnitName} = ${formatNumber(result)} ${toUnitName}`;
+            if (fromSystem !== toSystem) {
+                details += ` (${fromSystem} → ${toSystem})`;
+            }
+            
+            resultDetails.textContent = details;
+
+            // 変換表を更新
+            updateConversionTable(fromValue, fromUnit);
+        }
+
+        function updateConversionTable(value, unit) {
+            const tableContainer = document.getElementById('conversionTable');
+            const bytes = value * dataUnits[unit].factor;
+            
+            const commonUnits = ['byte', 'kb', 'mb', 'gb', 'tb', 'kib', 'mib', 'gib', 'tib'];
+            
+            tableContainer.innerHTML = '';
+            
+            commonUnits.forEach(unitKey => {
+                const convertedValue = bytes / dataUnits[unitKey].factor;
+                
+                if (convertedValue > 0.001 && convertedValue < 1000000) {
+                    const item = document.createElement('div');
+                    item.className = 'table-item';
+                    item.innerHTML = `
+                        <div class="table-value">${formatNumber(convertedValue)}</div>
+                        <div class="table-label">${dataUnits[unitKey].name}</div>
+                    `;
+                    tableContainer.appendChild(item);
+                }
+            });
+        }
+
+        function formatNumber(num) {
+            if (num === 0) return '0';
+            if (num < 0.001) return num.toExponential(2);
+            if (num >= 1000000) return num.toExponential(2);
+            if (num >= 1000) return num.toLocaleString('ja-JP', { maximumFractionDigits: 0 });
+            if (num >= 1) return num.toLocaleString('ja-JP', { maximumFractionDigits: 3 });
+            return num.toFixed(6).replace(/\.?0+$/, '');
+        }
+
+        function swapUnits() {
+            const fromUnit = document.getElementById('fromUnit');
+            const toUnit = document.getElementById('toUnit');
+            const fromValue = document.getElementById('fromValue');
+            const toValue = document.getElementById('toValue');
+
+            // 単位を交換
+            const tempUnit = fromUnit.value;
+            fromUnit.value = toUnit.value;
+            toUnit.value = tempUnit;
+
+            // 値を交換
+            const tempValue = fromValue.value;
+            fromValue.value = toValue.value;
+            toValue.value = tempValue;
+
+            convert();
+        }
+
+        function quickConvert(value, unit) {
+            document.getElementById('fromValue').value = value;
+            document.getElementById('fromUnit').value = unit;
+            convert();
+        }
+
+        // 初期化
+        convert();
+    </script>
+</body>
+</html>

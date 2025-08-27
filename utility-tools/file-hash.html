@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ファイルハッシュ - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .file-hash {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .upload-area:hover {
+            background: #f0f4ff;
+            border-color: #5a6fd8;
+        }
+
+        .upload-area.dragover {
+            background: #e8f2ff;
+            border-color: #4a5fc7;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .upload-subtext {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .hash-options {
+            background: #e1ecf4;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .options-title {
+            color: #0c5460;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .hash-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .hash-type {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hash-type input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .hash-type label {
+            font-weight: 600;
+            color: #0c5460;
+            cursor: pointer;
+        }
+
+        .additional-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .option-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-info-section {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .file-info-section.show {
+            display: block;
+        }
+
+        .file-info-title {
+            color: #856404;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .file-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            background: white;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #856404;
+            font-size: 1.1rem;
+            margin-bottom: 3px;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .progress-section {
+            background: #e8f5e8;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .progress-section.show {
+            display: block;
+        }
+
+        .progress-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .progress-status {
+            text-align: center;
+            color: #155724;
+            font-weight: 600;
+        }
+
+        .results-section {
+            background: #d4edda;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .results-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .hash-result {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .hash-algorithm {
+            font-weight: 600;
+            color: #155724;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hash-value {
+            font-family: 'Courier New', monospace;
+            color: #333;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            word-break: break-all;
+            border: 1px solid #e9ecef;
+            font-size: 0.9rem;
+        }
+
+        .comparison-section {
+            background: #f3e5f5;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .comparison-title {
+            color: #6a1b9a;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .comparison-area {
+            background: white;
+            border: 2px solid #ce93d8;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .comparison-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .comparison-result {
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .comparison-result.match {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .comparison-result.no-match {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .action-btn.success {
+            background: #28a745;
+        }
+
+        .action-btn.success:hover {
+            background: #218838;
+        }
+
+        .action-btn.small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .file-hash {
+                padding: 20px;
+            }
+            
+            .upload-area {
+                padding: 20px;
+            }
+            
+            .upload-icon {
+                font-size: 3rem;
+            }
+            
+            .hash-types {
+                grid-template-columns: 1fr;
+            }
+            
+            .file-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .additional-options {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="file-hash">
+        <div class="header">
+            <h1>ファイルハッシュ</h1>
+            <p>ファイルの整合性とセキュリティを検証</p>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">🔐</div>
+                <div class="upload-text">ファイルをドロップまたはクリックして選択</div>
+                <div class="upload-subtext">任意のファイル形式をサポート（最大100MB）</div>
+                <button class="upload-btn">ファイルを選択</button>
+                <input type="file" id="fileInput" class="file-input">
+            </div>
+        </div>
+
+        <div class="hash-options">
+            <div class="options-title">ハッシュアルゴリズム</div>
+            <div class="hash-types">
+                <div class="hash-type">
+                    <input type="checkbox" id="md5" checked>
+                    <label for="md5">MD5</label>
+                </div>
+                <div class="hash-type">
+                    <input type="checkbox" id="sha1" checked>
+                    <label for="sha1">SHA-1</label>
+                </div>
+                <div class="hash-type">
+                    <input type="checkbox" id="sha256" checked>
+                    <label for="sha256">SHA-256</label>
+                </div>
+                <div class="hash-type">
+                    <input type="checkbox" id="sha384">
+                    <label for="sha384">SHA-384</label>
+                </div>
+                <div class="hash-type">
+                    <input type="checkbox" id="sha512">
+                    <label for="sha512">SHA-512</label>
+                </div>
+                <div class="hash-type">
+                    <input type="checkbox" id="crc32">
+                    <label for="crc32">CRC32</label>
+                </div>
+            </div>
+            <div class="additional-options">
+                <div class="option-group">
+                    <input type="checkbox" id="upperCase">
+                    <label for="upperCase">大文字で出力</label>
+                </div>
+                <div class="option-group">
+                    <input type="checkbox" id="includeFilename" checked>
+                    <label for="includeFilename">ファイル名を含める</label>
+                </div>
+                <div class="option-group">
+                    <input type="checkbox" id="timestampOutput">
+                    <label for="timestampOutput">タイムスタンプ付き</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="file-info-section" id="fileInfoSection">
+            <div class="file-info-title">ファイル情報</div>
+            <div class="file-details" id="fileDetails">
+                <!-- ファイル詳細がここに表示されます -->
+            </div>
+        </div>
+
+        <div class="progress-section" id="progressSection">
+            <div class="progress-title">ハッシュ計算中...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill">0%</div>
+            </div>
+            <div class="progress-status" id="progressStatus">準備中...</div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results-title">ハッシュ結果</div>
+            <div id="hashResults">
+                <!-- ハッシュ結果がここに表示されます -->
+            </div>
+        </div>
+
+        <div class="comparison-section">
+            <div class="comparison-title">ハッシュ検証</div>
+            <div class="comparison-area">
+                <input type="text" id="comparisonHash" class="comparison-input" placeholder="検証したいハッシュ値を入力してください">
+                <div class="comparison-result" id="comparisonResult" style="display: none;">
+                    <!-- 比較結果がここに表示されます -->
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <button class="action-btn small" onclick="compareHashes()">ハッシュ検証</button>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" onclick="calculateHashes()">ハッシュ計算</button>
+            <button class="action-btn success" onclick="copyAllHashes()">全てコピー</button>
+            <button class="action-btn secondary" onclick="exportResults()">結果出力</button>
+            <button class="action-btn secondary" onclick="resetAll()">リセット</button>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let hashResults = {};
+
+        function setupFileUpload() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            
+            // ドラッグ&ドロップ
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+            
+            // ファイル選択
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+        }
+
+        function handleFile(file) {
+            if (file.size > 100 * 1024 * 1024) {
+                showNotification('ファイルサイズが大きすぎます（100MB以下）', 'error');
+                return;
+            }
+            
+            selectedFile = file;
+            displayFileInfo(file);
+            showNotification('ファイルを読み込みました');
+        }
+
+        function displayFileInfo(file) {
+            const fileInfoSection = document.getElementById('fileInfoSection');
+            const fileDetails = document.getElementById('fileDetails');
+            
+            const lastModified = new Date(file.lastModified);
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            
+            fileDetails.innerHTML = `
+                <div class="detail-item">
+                    <div class="detail-value">${file.name}</div>
+                    <div class="detail-label">ファイル名</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-value">${formatFileSize(file.size)}</div>
+                    <div class="detail-label">ファイルサイズ</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-value">${file.type || '不明'}</div>
+                    <div class="detail-label">MIMEタイプ</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-value">${fileExtension.toUpperCase()}</div>
+                    <div class="detail-label">拡張子</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-value">${lastModified.toLocaleString('ja-JP')}</div>
+                    <div class="detail-label">最終更新</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-value">${getFileTypeDescription(fileExtension)}</div>
+                    <div class="detail-label">ファイル種別</div>
+                </div>
+            `;
+            
+            fileInfoSection.classList.add('show');
+        }
+
+        function getFileTypeDescription(extension) {
+            const types = {
+                'jpg': '画像ファイル',
+                'jpeg': '画像ファイル',
+                'png': '画像ファイル',
+                'gif': '画像ファイル',
+                'pdf': '文書ファイル',
+                'doc': '文書ファイル',
+                'docx': '文書ファイル',
+                'txt': 'テキストファイル',
+                'zip': '圧縮ファイル',
+                'rar': '圧縮ファイル',
+                'mp4': '動画ファイル',
+                'mp3': '音声ファイル',
+                'exe': '実行ファイル',
+                'dmg': 'ディスクイメージ',
+                'iso': 'ディスクイメージ'
+            };
+            return types[extension] || 'その他';
+        }
+
+        async function calculateHashes() {
+            if (!selectedFile) {
+                showNotification('ファイルを選択してください', 'error');
+                return;
+            }
+
+            const algorithms = getSelectedAlgorithms();
+            if (algorithms.length === 0) {
+                showNotification('少なくとも1つのアルゴリズムを選択してください', 'error');
+                return;
+            }
+
+            const progressSection = document.getElementById('progressSection');
+            const progressFill = document.getElementById('progressFill');
+            const progressStatus = document.getElementById('progressStatus');
+            
+            progressSection.classList.add('show');
+            hashResults = {};
+
+            for (let i = 0; i < algorithms.length; i++) {
+                const algorithm = algorithms[i];
+                const progress = Math.round(((i + 1) / algorithms.length) * 100);
+                
+                progressFill.style.width = progress + '%';
+                progressFill.textContent = progress + '%';
+                progressStatus.textContent = `${algorithm.toUpperCase()}を計算中...`;
+                
+                try {
+                    const hash = await calculateHash(selectedFile, algorithm);
+                    hashResults[algorithm] = hash;
+                } catch (error) {
+                    showNotification(`${algorithm}の計算に失敗しました`, 'error');
+                }
+                
+                // プログレスバーの更新を見せるため少し待機
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+
+            progressSection.classList.remove('show');
+            displayResults();
+            showNotification('ハッシュ計算が完了しました');
+        }
+
+        function getSelectedAlgorithms() {
+            const algorithms = ['md5', 'sha1', 'sha256', 'sha384', 'sha512', 'crc32'];
+            return algorithms.filter(alg => document.getElementById(alg).checked);
+        }
+
+        async function calculateHash(file, algorithm) {
+            const arrayBuffer = await file.arrayBuffer();
+            
+            if (algorithm === 'crc32') {
+                return calculateCRC32(arrayBuffer);
+            }
+            
+            const hashAlgorithm = algorithm.toUpperCase().replace(/(\d+)/, '-$1');
+            const hashBuffer = await crypto.subtle.digest(hashAlgorithm, arrayBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            let hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            
+            return document.getElementById('upperCase').checked ? hash.toUpperCase() : hash;
+        }
+
+        function calculateCRC32(buffer) {
+            const crcTable = [];
+            for (let i = 0; i < 256; i++) {
+                let c = i;
+                for (let j = 0; j < 8; j++) {
+                    c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+                }
+                crcTable[i] = c;
+            }
+            
+            let crc = 0 ^ (-1);
+            const uint8Array = new Uint8Array(buffer);
+            
+            for (let i = 0; i < uint8Array.length; i++) {
+                crc = (crc >>> 8) ^ crcTable[(crc ^ uint8Array[i]) & 0xFF];
+            }
+            
+            const result = (crc ^ (-1)) >>> 0;
+            let hash = result.toString(16).padStart(8, '0');
+            
+            return document.getElementById('upperCase').checked ? hash.toUpperCase() : hash;
+        }
+
+        function displayResults() {
+            const resultsSection = document.getElementById('resultsSection');
+            const hashResultsContainer = document.getElementById('hashResults');
+            
+            const includeFilename = document.getElementById('includeFilename').checked;
+            const timestampOutput = document.getElementById('timestampOutput').checked;
+            
+            hashResultsContainer.innerHTML = '';
+            
+            Object.entries(hashResults).forEach(([algorithm, hash]) => {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'hash-result';
+                
+                let displayText = hash;
+                if (includeFilename) {
+                    displayText = `${hash}  ${selectedFile.name}`;
+                }
+                if (timestampOutput) {
+                    displayText += `  (${new Date().toLocaleString('ja-JP')})`;
+                }
+                
+                resultDiv.innerHTML = `
+                    <div class="hash-algorithm">
+                        <span>${algorithm.toUpperCase()}</span>
+                        <button class="action-btn small success" onclick="copyHash('${algorithm}')">コピー</button>
+                    </div>
+                    <div class="hash-value">${displayText}</div>
+                `;
+                
+                hashResultsContainer.appendChild(resultDiv);
+            });
+            
+            resultsSection.classList.add('show');
+        }
+
+        function copyHash(algorithm) {
+            const hash = hashResults[algorithm];
+            const includeFilename = document.getElementById('includeFilename').checked;
+            const timestampOutput = document.getElementById('timestampOutput').checked;
+            
+            let copyText = hash;
+            if (includeFilename) {
+                copyText = `${hash}  ${selectedFile.name}`;
+            }
+            if (timestampOutput) {
+                copyText += `  (${new Date().toLocaleString('ja-JP')})`;
+            }
+            
+            navigator.clipboard.writeText(copyText).then(() => {
+                showNotification(`${algorithm.toUpperCase()}ハッシュをコピーしました`);
+            }).catch(() => {
+                showNotification('コピーに失敗しました', 'error');
+            });
+        }
+
+        function copyAllHashes() {
+            if (Object.keys(hashResults).length === 0) {
+                showNotification('コピーするハッシュがありません', 'error');
+                return;
+            }
+            
+            const includeFilename = document.getElementById('includeFilename').checked;
+            const timestampOutput = document.getElementById('timestampOutput').checked;
+            
+            let allHashes = [];
+            Object.entries(hashResults).forEach(([algorithm, hash]) => {
+                let line = `${algorithm.toUpperCase()}: ${hash}`;
+                if (includeFilename) {
+                    line += `  ${selectedFile.name}`;
+                }
+                if (timestampOutput) {
+                    line += `  (${new Date().toLocaleString('ja-JP')})`;
+                }
+                allHashes.push(line);
+            });
+            
+            navigator.clipboard.writeText(allHashes.join('\n')).then(() => {
+                showNotification('全てのハッシュをコピーしました');
+            }).catch(() => {
+                showNotification('コピーに失敗しました', 'error');
+            });
+        }
+
+        function compareHashes() {
+            const inputHash = document.getElementById('comparisonHash').value.trim().toLowerCase();
+            const comparisonResult = document.getElementById('comparisonResult');
+            
+            if (!inputHash) {
+                showNotification('検証するハッシュ値を入力してください', 'error');
+                return;
+            }
+            
+            if (Object.keys(hashResults).length === 0) {
+                showNotification('先にファイルのハッシュを計算してください', 'error');
+                return;
+            }
+            
+            let isMatch = false;
+            let matchedAlgorithm = '';
+            
+            Object.entries(hashResults).forEach(([algorithm, hash]) => {
+                if (hash.toLowerCase() === inputHash) {
+                    isMatch = true;
+                    matchedAlgorithm = algorithm.toUpperCase();
+                }
+            });
+            
+            if (isMatch) {
+                comparisonResult.className = 'comparison-result match';
+                comparisonResult.textContent = `✓ ハッシュが一致しました (${matchedAlgorithm})`;
+            } else {
+                comparisonResult.className = 'comparison-result no-match';
+                comparisonResult.textContent = '✗ ハッシュが一致しません';
+            }
+            
+            comparisonResult.style.display = 'block';
+            
+            showNotification(isMatch ? 'ハッシュが一致しました' : 'ハッシュが一致しません', isMatch ? 'success' : 'error');
+        }
+
+        function exportResults() {
+            if (!selectedFile || Object.keys(hashResults).length === 0) {
+                showNotification('エクスポートする結果がありません', 'error');
+                return;
+            }
+            
+            const includeFilename = document.getElementById('includeFilename').checked;
+            const timestampOutput = document.getElementById('timestampOutput').checked;
+            
+            let exportText = 'ファイルハッシュ結果\n';
+            exportText += `計算日時: ${new Date().toLocaleString('ja-JP')}\n\n`;
+            exportText += `ファイル名: ${selectedFile.name}\n`;
+            exportText += `ファイルサイズ: ${formatFileSize(selectedFile.size)}\n`;
+            exportText += `MIMEタイプ: ${selectedFile.type || '不明'}\n\n`;
+            
+            Object.entries(hashResults).forEach(([algorithm, hash]) => {
+                exportText += `${algorithm.toUpperCase()}: ${hash}`;
+                if (includeFilename) {
+                    exportText += `  ${selectedFile.name}`;
+                }
+                if (timestampOutput) {
+                    exportText += `  (${new Date().toLocaleString('ja-JP')})`;
+                }
+                exportText += '\n';
+            });
+            
+            const blob = new Blob([exportText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `hash_${selectedFile.name}_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('結果を出力しました');
+        }
+
+        function resetAll() {
+            selectedFile = null;
+            hashResults = {};
+            
+            document.getElementById('fileInput').value = '';
+            document.getElementById('comparisonHash').value = '';
+            document.getElementById('fileInfoSection').classList.remove('show');
+            document.getElementById('progressSection').classList.remove('show');
+            document.getElementById('resultsSection').classList.remove('show');
+            document.getElementById('comparisonResult').style.display = 'none';
+            
+            showNotification('リセットしました');
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        function init() {
+            setupFileUpload();
+            
+            // ハッシュ比較のリアルタイム更新
+            document.getElementById('comparisonHash').addEventListener('input', () => {
+                const comparisonResult = document.getElementById('comparisonResult');
+                comparisonResult.style.display = 'none';
+            });
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

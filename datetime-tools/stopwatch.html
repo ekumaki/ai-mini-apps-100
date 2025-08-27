@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ストップウォッチ - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .stopwatch-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .stopwatch-display {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 3px solid #e9ecef;
+        }
+
+        .time-display {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .time-display.running {
+            color: #28a745;
+        }
+
+        .time-display.paused {
+            color: #ffc107;
+        }
+
+        .milliseconds {
+            font-size: 2rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .stopwatch-status {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .start-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .start-btn:hover {
+            background: #218838;
+        }
+
+        .start-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .pause-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .pause-btn:hover {
+            background: #e0a800;
+        }
+
+        .stop-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .stop-btn:hover {
+            background: #c82333;
+        }
+
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background: #5a6268;
+        }
+
+        .lap-btn {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .lap-btn:hover {
+            background: #138496;
+        }
+
+        .lap-times {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .lap-times h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .lap-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .lap-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .lap-item:hover {
+            background: #e9ecef;
+        }
+
+        .lap-item.fastest {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .lap-item.slowest {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .lap-number {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .lap-time {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .lap-diff {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .lap-diff.positive {
+            color: #dc3545;
+        }
+
+        .lap-diff.negative {
+            color: #28a745;
+        }
+
+        .stats {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stats h3 {
+            color: #155724;
+            margin-bottom: 15px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #155724;
+            margin-bottom: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .stopwatch-container {
+                padding: 20px;
+            }
+            
+            .time-display {
+                font-size: 2.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-btn {
+                width: 200px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stopwatch-container">
+        <div class="header">
+            <h1>ストップウォッチ</h1>
+            <p>時間を計測するストップウォッチ</p>
+        </div>
+
+        <div class="stopwatch-display">
+            <div class="time-display" id="timeDisplay">00:00:00</div>
+            <div class="milliseconds" id="millisecondsDisplay">.000</div>
+            <div class="stopwatch-status" id="stopwatchStatus">開始ボタンを押してください</div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn start-btn" id="startBtn" onclick="startStopwatch()">開始</button>
+            <button class="control-btn pause-btn" id="pauseBtn" onclick="pauseStopwatch()" disabled>一時停止</button>
+            <button class="control-btn lap-btn" id="lapBtn" onclick="recordLap()" disabled>ラップ</button>
+            <button class="control-btn stop-btn" id="stopBtn" onclick="stopStopwatch()" disabled>停止</button>
+            <button class="control-btn reset-btn" id="resetBtn" onclick="resetStopwatch()">リセット</button>
+        </div>
+
+        <div class="lap-times" id="lapTimes">
+            <h3>ラップタイム</h3>
+            <div class="lap-list" id="lapList">
+                <div style="text-align: center; color: #666; padding: 20px;">
+                    ラップタイムを記録すると、ここに表示されます
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <h3>統計情報</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalTime">00:00:00</div>
+                    <div class="stat-label">総時間</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="lapCount">0</div>
+                    <div class="stat-label">ラップ数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="fastestLap">--:--:--</div>
+                    <div class="stat-label">最速ラップ</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="slowestLap">--:--:--</div>
+                    <div class="stat-label">最遅ラップ</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="averageLap">--:--:--</div>
+                    <div class="stat-label">平均ラップ</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" onclick="exportData()">データ出力</button>
+            <button class="action-btn secondary" onclick="clearLaps()">ラップクリア</button>
+            <button class="action-btn secondary" onclick="showHelp()">使い方</button>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let startTime = 0;
+        let elapsedTime = 0;
+        let timerInterval;
+        let isRunning = false;
+        let isPaused = false;
+        let laps = [];
+        let lastLapTime = 0;
+
+        function startStopwatch() {
+            if (!isRunning) {
+                startTime = Date.now() - elapsedTime;
+                isRunning = true;
+                isPaused = false;
+                
+                timerInterval = setInterval(updateDisplay, 10);
+                
+                updateButtons();
+                document.getElementById('stopwatchStatus').textContent = 'ストップウォッチ実行中';
+                document.getElementById('timeDisplay').classList.add('running');
+                showNotification('ストップウォッチを開始しました');
+            }
+        }
+
+        function pauseStopwatch() {
+            if (isRunning && !isPaused) {
+                isPaused = true;
+                clearInterval(timerInterval);
+                updateButtons();
+                document.getElementById('stopwatchStatus').textContent = 'ストップウォッチ一時停止中';
+                document.getElementById('timeDisplay').classList.remove('running');
+                document.getElementById('timeDisplay').classList.add('paused');
+                showNotification('ストップウォッチを一時停止しました');
+            } else if (isRunning && isPaused) {
+                isPaused = false;
+                startTime = Date.now() - elapsedTime;
+                
+                timerInterval = setInterval(updateDisplay, 10);
+                updateButtons();
+                document.getElementById('stopwatchStatus').textContent = 'ストップウォッチ実行中';
+                document.getElementById('timeDisplay').classList.remove('paused');
+                document.getElementById('timeDisplay').classList.add('running');
+                showNotification('ストップウォッチを再開しました');
+            }
+        }
+
+        function stopStopwatch() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            isPaused = false;
+            
+            updateButtons();
+            document.getElementById('stopwatchStatus').textContent = 'ストップウォッチ停止';
+            document.getElementById('timeDisplay').classList.remove('running', 'paused');
+            showNotification('ストップウォッチを停止しました');
+        }
+
+        function resetStopwatch() {
+            clearInterval(timerInterval);
+            startTime = 0;
+            elapsedTime = 0;
+            isRunning = false;
+            isPaused = false;
+            laps = [];
+            lastLapTime = 0;
+            
+            updateButtons();
+            updateDisplay();
+            updateLapDisplay();
+            updateStats();
+            
+            document.getElementById('stopwatchStatus').textContent = '開始ボタンを押してください';
+            document.getElementById('timeDisplay').classList.remove('running', 'paused');
+            showNotification('ストップウォッチをリセットしました');
+        }
+
+        function recordLap() {
+            if (isRunning && !isPaused) {
+                const currentTime = elapsedTime;
+                const lapTime = currentTime - lastLapTime;
+                
+                laps.push({
+                    lapNumber: laps.length + 1,
+                    totalTime: currentTime,
+                    lapTime: lapTime,
+                    timestamp: new Date()
+                });
+                
+                lastLapTime = currentTime;
+                updateLapDisplay();
+                updateStats();
+                showNotification(`ラップ${laps.length}を記録しました`);
+            }
+        }
+
+        function updateDisplay() {
+            if (isRunning && !isPaused) {
+                elapsedTime = Date.now() - startTime;
+            }
+            
+            const hours = Math.floor(elapsedTime / 3600000);
+            const minutes = Math.floor((elapsedTime % 3600000) / 60000);
+            const seconds = Math.floor((elapsedTime % 60000) / 1000);
+            const milliseconds = elapsedTime % 1000;
+            
+            const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            const millisecondsString = `.${milliseconds.toString().padStart(3, '0')}`;
+            
+            document.getElementById('timeDisplay').textContent = timeString;
+            document.getElementById('millisecondsDisplay').textContent = millisecondsString;
+            
+            updateStats();
+        }
+
+        function updateButtons() {
+            const startBtn = document.getElementById('startBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const lapBtn = document.getElementById('lapBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            
+            if (isRunning) {
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                lapBtn.disabled = isPaused;
+                stopBtn.disabled = false;
+                
+                if (isPaused) {
+                    pauseBtn.textContent = '再開';
+                } else {
+                    pauseBtn.textContent = '一時停止';
+                }
+            } else {
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                lapBtn.disabled = true;
+                stopBtn.disabled = true;
+                pauseBtn.textContent = '一時停止';
+            }
+        }
+
+        function updateLapDisplay() {
+            const lapList = document.getElementById('lapList');
+            
+            if (laps.length === 0) {
+                lapList.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">ラップタイムを記録すると、ここに表示されます</div>';
+                return;
+            }
+            
+            // 最速・最遅ラップの判定
+            const lapTimes = laps.map(lap => lap.lapTime);
+            const fastestTime = Math.min(...lapTimes);
+            const slowestTime = Math.max(...lapTimes);
+            
+            lapList.innerHTML = '';
+            
+            laps.slice().reverse().forEach((lap, index) => {
+                const lapItem = document.createElement('div');
+                lapItem.className = 'lap-item';
+                
+                if (lap.lapTime === fastestTime && laps.length > 1) {
+                    lapItem.classList.add('fastest');
+                }
+                if (lap.lapTime === slowestTime && laps.length > 1) {
+                    lapItem.classList.add('slowest');
+                }
+                
+                const lapNumber = document.createElement('div');
+                lapNumber.className = 'lap-number';
+                lapNumber.textContent = `ラップ${lap.lapNumber}`;
+                
+                const lapTime = document.createElement('div');
+                lapTime.className = 'lap-time';
+                lapTime.textContent = formatTime(lap.lapTime);
+                
+                const lapDiff = document.createElement('div');
+                lapDiff.className = 'lap-diff';
+                
+                if (lap.lapNumber > 1) {
+                    const prevLap = laps[lap.lapNumber - 2];
+                    const diff = lap.lapTime - prevLap.lapTime;
+                    lapDiff.textContent = `${diff >= 0 ? '+' : ''}${formatTime(Math.abs(diff))}`;
+                    lapDiff.classList.add(diff >= 0 ? 'positive' : 'negative');
+                } else {
+                    lapDiff.textContent = '--';
+                }
+                
+                lapItem.appendChild(lapNumber);
+                lapItem.appendChild(lapTime);
+                lapItem.appendChild(lapDiff);
+                
+                lapList.appendChild(lapItem);
+            });
+        }
+
+        function updateStats() {
+            const totalTimeElement = document.getElementById('totalTime');
+            const lapCountElement = document.getElementById('lapCount');
+            const fastestLapElement = document.getElementById('fastestLap');
+            const slowestLapElement = document.getElementById('slowestLap');
+            const averageLapElement = document.getElementById('averageLap');
+            
+            totalTimeElement.textContent = formatTime(elapsedTime);
+            lapCountElement.textContent = laps.length;
+            
+            if (laps.length > 0) {
+                const lapTimes = laps.map(lap => lap.lapTime);
+                const fastestTime = Math.min(...lapTimes);
+                const slowestTime = Math.max(...lapTimes);
+                const averageTime = lapTimes.reduce((sum, time) => sum + time, 0) / lapTimes.length;
+                
+                fastestLapElement.textContent = formatTime(fastestTime);
+                slowestLapElement.textContent = formatTime(slowestTime);
+                averageLapElement.textContent = formatTime(averageTime);
+            } else {
+                fastestLapElement.textContent = '--:--:--';
+                slowestLapElement.textContent = '--:--:--';
+                averageLapElement.textContent = '--:--:--';
+            }
+        }
+
+        function formatTime(milliseconds) {
+            const hours = Math.floor(milliseconds / 3600000);
+            const minutes = Math.floor((milliseconds % 3600000) / 60000);
+            const seconds = Math.floor((milliseconds % 60000) / 1000);
+            const ms = Math.floor((milliseconds % 1000) / 10);
+            
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+        }
+
+        function exportData() {
+            const data = {
+                totalTime: elapsedTime,
+                lapCount: laps.length,
+                laps: laps.map(lap => ({
+                    lapNumber: lap.lapNumber,
+                    totalTime: lap.totalTime,
+                    lapTime: lap.lapTime,
+                    formattedTotalTime: formatTime(lap.totalTime),
+                    formattedLapTime: formatTime(lap.lapTime),
+                    timestamp: lap.timestamp.toISOString()
+                })),
+                exportedAt: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `stopwatch_data_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('データを出力しました');
+        }
+
+        function clearLaps() {
+            if (laps.length === 0) {
+                showNotification('クリアするラップがありません');
+                return;
+            }
+            
+            if (confirm('すべてのラップタイムを削除しますか？')) {
+                laps = [];
+                lastLapTime = 0;
+                updateLapDisplay();
+                updateStats();
+                showNotification('ラップタイムをクリアしました');
+            }
+        }
+
+        function showHelp() {
+            const helpMessage = `ストップウォッチの使い方:
+
+1. 開始ボタンで計測開始
+2. 一時停止ボタンで一時停止/再開
+3. ラップボタンで区間タイムを記録
+4. 停止ボタンで計測停止
+5. リセットボタンで初期状態に戻る
+
+ラップタイムの色分け:
+- 緑: 最速ラップ
+- 赤: 最遅ラップ
+
+統計情報で総時間、ラップ数、最速/最遅/平均ラップを確認できます。`;
+            
+            alert(helpMessage);
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        function init() {
+            updateButtons();
+            updateDisplay();
+            updateLapDisplay();
+            updateStats();
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // キーボードショートカット
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (!isRunning) {
+                    startStopwatch();
+                } else {
+                    pauseStopwatch();
+                }
+            } else if (e.code === 'KeyL' && isRunning && !isPaused) {
+                recordLap();
+            } else if (e.code === 'KeyR') {
+                resetStopwatch();
+            }
+        });
+    </script>
+</body>
+</html>

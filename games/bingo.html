@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ビンゴゲーム - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .bingo-game {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .bingo-card {
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 20px;
+            border: 3px solid #667eea;
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .bingo-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            letter-spacing: 0.2em;
+        }
+
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .bingo-cell {
+            aspect-ratio: 1;
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .bingo-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .bingo-cell.marked {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border-color: #28a745;
+            transform: scale(0.95);
+        }
+
+        .bingo-cell.marked::after {
+            content: '✓';
+            position: absolute;
+            font-size: 2rem;
+            color: white;
+            font-weight: 700;
+        }
+
+        .bingo-cell.free {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+            border-color: #ffc107;
+        }
+
+        .bingo-cell.winning-line {
+            animation: winningPulse 1s infinite alternate;
+        }
+
+        @keyframes winningPulse {
+            0% { box-shadow: 0 0 10px rgba(220, 53, 69, 0.5); }
+            100% { box-shadow: 0 0 20px rgba(220, 53, 69, 1); }
+        }
+
+        .control-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .number-display {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .current-number {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .number-label {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .control-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .control-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .control-btn.primary {
+            background: #e74c3c;
+            font-size: 1.3rem;
+            padding: 20px;
+        }
+
+        .control-btn.primary:hover {
+            background: #c0392b;
+        }
+
+        .called-numbers {
+            background: #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .called-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .numbers-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .called-number {
+            background: #6c757d;
+            color: white;
+            padding: 8px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .called-number.recent {
+            background: #28a745;
+            animation: recentPulse 2s ease;
+        }
+
+        @keyframes recentPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .game-status {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .status-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .bingo-alert {
+            background: linear-gradient(45deg, #e74c3c, #f39c12);
+            animation: bingoAlert 1s infinite alternate;
+        }
+
+        @keyframes bingoAlert {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+
+        .stats-section {
+            background: #d4edda;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stats-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #155724;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.bingo {
+            background: #e74c3c;
+            font-size: 1.2rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .bingo-game {
+                padding: 20px;
+            }
+            
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+            
+            .bingo-grid {
+                max-width: 300px;
+            }
+            
+            .bingo-cell {
+                font-size: 1rem;
+            }
+            
+            .current-number {
+                font-size: 3rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bingo-game">
+        <div class="header">
+            <h1>🎯 ビンゴゲーム</h1>
+            <p>数字が呼ばれたらカードにマークして、一列揃えよう！</p>
+        </div>
+
+        <div class="game-area">
+            <div class="bingo-card">
+                <div class="card-header">
+                    <div class="bingo-title">B I N G O</div>
+                </div>
+                <div class="bingo-grid" id="bingoGrid">
+                    <!-- ビンゴカードがここに生成されます -->
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <div class="number-display">
+                    <div class="current-number" id="currentNumber">--</div>
+                    <div class="number-label">次の番号</div>
+                </div>
+
+                <div class="control-buttons">
+                    <button class="control-btn primary" onclick="drawNumber()" id="drawBtn">🎲 番号を引く</button>
+                    <button class="control-btn" onclick="newGame()">🔄 新しいゲーム</button>
+                    <button class="control-btn" onclick="autoMark()">🤖 自動マーク</button>
+                </div>
+
+                <div class="called-numbers">
+                    <div class="called-title">呼ばれた番号</div>
+                    <div class="numbers-grid" id="calledNumbers">
+                        <!-- 呼ばれた番号がここに表示されます -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-status" id="gameStatus">
+            <div class="status-text">新しいゲームを開始してください</div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-title">📊 統計</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="gamesPlayed">0</div>
+                    <div class="stat-label">プレイ回数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="gamesWon">0</div>
+                    <div class="stat-label">ビンゴ達成</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="winRate">0</div>
+                    <div class="stat-label">勝率(%)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="fastestWin">-</div>
+                    <div class="stat-label">最速記録</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalNumbers">0</div>
+                    <div class="stat-label">総番号数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgNumbers">0</div>
+                    <div class="stat-label">平均番号数</div>
+                </div>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let gameState = {
+            bingoCard: [],
+            calledNumbers: [],
+            markedCells: [],
+            gameStarted: false,
+            gameWon: false,
+            startTime: null,
+            availableNumbers: []
+        };
+
+        let gameStats = {
+            gamesPlayed: 0,
+            gamesWon: 0,
+            totalNumbers: 0,
+            fastestWin: null
+        };
+
+        const bingoColumns = {
+            B: { min: 1, max: 15 },
+            I: { min: 16, max: 30 },
+            N: { min: 31, max: 45 },
+            G: { min: 46, max: 60 },
+            O: { min: 61, max: 75 }
+        };
+
+        function loadStats() {
+            const saved = localStorage.getItem('bingoStats');
+            if (saved) {
+                gameStats = { ...gameStats, ...JSON.parse(saved) };
+                updateStatsDisplay();
+            }
+        }
+
+        function saveStats() {
+            localStorage.setItem('bingoStats', JSON.stringify(gameStats));
+        }
+
+        function generateBingoCard() {
+            gameState.bingoCard = [];
+            gameState.markedCells = Array(25).fill(false);
+            
+            const columns = ['B', 'I', 'N', 'G', 'O'];
+            
+            for (let col = 0; col < 5; col++) {
+                const columnNumbers = [];
+                const range = bingoColumns[columns[col]];
+                const availableNums = [];
+                
+                for (let i = range.min; i <= range.max; i++) {
+                    availableNums.push(i);
+                }
+                
+                // 各列から5つの数字をランダムに選択
+                for (let row = 0; row < 5; row++) {
+                    if (col === 2 && row === 2) {
+                        // 中央のフリースペース
+                        columnNumbers.push('FREE');
+                        gameState.markedCells[12] = true; // 中央は最初からマーク済み
+                    } else {
+                        const randomIndex = Math.floor(Math.random() * availableNums.length);
+                        columnNumbers.push(availableNums.splice(randomIndex, 1)[0]);
+                    }
+                }
+                
+                gameState.bingoCard.push(columnNumbers);
+            }
+        }
+
+        function renderBingoCard() {
+            const grid = document.getElementById('bingoGrid');
+            grid.innerHTML = '';
+            
+            for (let row = 0; row < 5; row++) {
+                for (let col = 0; col < 5; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'bingo-cell';
+                    const index = row * 5 + col;
+                    const value = gameState.bingoCard[col][row];
+                    
+                    cell.textContent = value;
+                    cell.dataset.index = index;
+                    
+                    if (value === 'FREE') {
+                        cell.classList.add('free');
+                    }
+                    
+                    if (gameState.markedCells[index]) {
+                        cell.classList.add('marked');
+                    }
+                    
+                    cell.addEventListener('click', () => toggleCell(index));
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function toggleCell(index) {
+            if (!gameState.gameStarted || gameState.gameWon) return;
+            
+            const row = Math.floor(index / 5);
+            const col = index % 5;
+            const value = gameState.bingoCard[col][row];
+            
+            if (value === 'FREE') return; // フリースペースはトグルできない
+            
+            // 呼ばれた番号のみマークできる
+            if (gameState.calledNumbers.includes(value)) {
+                gameState.markedCells[index] = !gameState.markedCells[index];
+                renderBingoCard();
+                checkForBingo();
+            } else {
+                showNotification('この番号はまだ呼ばれていません', 'error');
+            }
+        }
+
+        function drawNumber() {
+            if (gameState.gameWon) {
+                showNotification('ゲームは終了しています', 'error');
+                return;
+            }
+            
+            if (!gameState.gameStarted) {
+                startGame();
+            }
+            
+            if (gameState.availableNumbers.length === 0) {
+                showNotification('すべての番号が呼ばれました', 'error');
+                return;
+            }
+            
+            const randomIndex = Math.floor(Math.random() * gameState.availableNumbers.length);
+            const drawnNumber = gameState.availableNumbers.splice(randomIndex, 1)[0];
+            
+            gameState.calledNumbers.push(drawnNumber);
+            gameStats.totalNumbers++;
+            
+            document.getElementById('currentNumber').textContent = drawnNumber;
+            updateCalledNumbers();
+            updateGameStatus(`番号 ${drawnNumber} が呼ばれました！`);
+            showNotification(`番号 ${drawnNumber} が呼ばれました！`);
+        }
+
+        function startGame() {
+            gameState.gameStarted = true;
+            gameState.gameWon = false;
+            gameState.calledNumbers = [];
+            gameState.startTime = Date.now();
+            gameState.availableNumbers = [];
+            
+            // 1-75の番号を準備
+            for (let i = 1; i <= 75; i++) {
+                gameState.availableNumbers.push(i);
+            }
+            
+            gameStats.gamesPlayed++;
+            generateBingoCard();
+            renderBingoCard();
+            updateCalledNumbers();
+            updateGameStatus('ゲーム開始！番号を引いてください');
+            updateStatsDisplay();
+        }
+
+        function newGame() {
+            gameState.gameStarted = false;
+            gameState.gameWon = false;
+            gameState.calledNumbers = [];
+            gameState.availableNumbers = [];
+            
+            document.getElementById('currentNumber').textContent = '--';
+            updateCalledNumbers();
+            updateGameStatus('新しいゲームを開始してください');
+            
+            startGame();
+            showNotification('新しいゲームを開始しました！');
+        }
+
+        function autoMark() {
+            if (!gameState.gameStarted || gameState.gameWon) {
+                showNotification('ゲームが開始されていません', 'error');
+                return;
+            }
+            
+            let marked = 0;
+            
+            for (let i = 0; i < 25; i++) {
+                if (gameState.markedCells[i]) continue;
+                
+                const row = Math.floor(i / 5);
+                const col = i % 5;
+                const value = gameState.bingoCard[col][row];
+                
+                if (value !== 'FREE' && gameState.calledNumbers.includes(value)) {
+                    gameState.markedCells[i] = true;
+                    marked++;
+                }
+            }
+            
+            if (marked > 0) {
+                renderBingoCard();
+                checkForBingo();
+                showNotification(`${marked}個の番号を自動マークしました`);
+            } else {
+                showNotification('マークできる番号がありません', 'error');
+            }
+        }
+
+        function updateCalledNumbers() {
+            const container = document.getElementById('calledNumbers');
+            container.innerHTML = '';
+            
+            gameState.calledNumbers.forEach((number, index) => {
+                const numberDiv = document.createElement('div');
+                numberDiv.className = 'called-number';
+                numberDiv.textContent = number;
+                
+                if (index === gameState.calledNumbers.length - 1) {
+                    numberDiv.classList.add('recent');
+                }
+                
+                container.appendChild(numberDiv);
+            });
+        }
+
+        function checkForBingo() {
+            const winningLines = [];
+            
+            // 横のライン
+            for (let row = 0; row < 5; row++) {
+                let count = 0;
+                const line = [];
+                for (let col = 0; col < 5; col++) {
+                    const index = row * 5 + col;
+                    line.push(index);
+                    if (gameState.markedCells[index]) count++;
+                }
+                if (count === 5) winningLines.push(line);
+            }
+            
+            // 縦のライン
+            for (let col = 0; col < 5; col++) {
+                let count = 0;
+                const line = [];
+                for (let row = 0; row < 5; row++) {
+                    const index = row * 5 + col;
+                    line.push(index);
+                    if (gameState.markedCells[index]) count++;
+                }
+                if (count === 5) winningLines.push(line);
+            }
+            
+            // 斜めのライン（左上から右下）
+            let count1 = 0;
+            const line1 = [];
+            for (let i = 0; i < 5; i++) {
+                const index = i * 5 + i;
+                line1.push(index);
+                if (gameState.markedCells[index]) count1++;
+            }
+            if (count1 === 5) winningLines.push(line1);
+            
+            // 斜めのライン（右上から左下）
+            let count2 = 0;
+            const line2 = [];
+            for (let i = 0; i < 5; i++) {
+                const index = i * 5 + (4 - i);
+                line2.push(index);
+                if (gameState.markedCells[index]) count2++;
+            }
+            if (count2 === 5) winningLines.push(line2);
+            
+            if (winningLines.length > 0) {
+                gameWon(winningLines);
+            }
+        }
+
+        function gameWon(winningLines) {
+            gameState.gameWon = true;
+            gameStats.gamesWon++;
+            
+            const gameTime = Math.floor((Date.now() - gameState.startTime) / 1000);
+            const numbersCalled = gameState.calledNumbers.length;
+            
+            if (!gameStats.fastestWin || numbersCalled < gameStats.fastestWin) {
+                gameStats.fastestWin = numbersCalled;
+            }
+            
+            // 勝利ラインをハイライト
+            winningLines.forEach(line => {
+                line.forEach(index => {
+                    const cell = document.querySelector(`[data-index="${index}"]`);
+                    cell.classList.add('winning-line');
+                });
+            });
+            
+            const statusElement = document.getElementById('gameStatus');
+            statusElement.classList.add('bingo-alert');
+            updateGameStatus(`🎉 BINGO! ${numbersCalled}番で達成！`);
+            showNotification(`🎯 BINGO達成！${numbersCalled}番で完成！`, 'bingo');
+            
+            updateStatsDisplay();
+            saveStats();
+        }
+
+        function updateGameStatus(message) {
+            document.getElementById('gameStatus').innerHTML = `<div class="status-text">${message}</div>`;
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('gamesPlayed').textContent = gameStats.gamesPlayed;
+            document.getElementById('gamesWon').textContent = gameStats.gamesWon;
+            
+            const winRate = gameStats.gamesPlayed > 0 ? 
+                Math.round((gameStats.gamesWon / gameStats.gamesPlayed) * 100) : 0;
+            document.getElementById('winRate').textContent = winRate;
+            
+            document.getElementById('fastestWin').textContent = gameStats.fastestWin || '-';
+            document.getElementById('totalNumbers').textContent = gameStats.totalNumbers;
+            
+            const avgNumbers = gameStats.gamesWon > 0 ? 
+                Math.round(gameStats.totalNumbers / gameStats.gamesWon) : 0;
+            document.getElementById('avgNumbers').textContent = avgNumbers;
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        function init() {
+            loadStats();
+            generateBingoCard();
+            renderBingoCard();
+            updateStatsDisplay();
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // ページを離れる前に自動保存
+        window.addEventListener('beforeunload', saveStats);
+    </script>
+</body>
+</html>

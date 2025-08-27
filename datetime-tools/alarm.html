@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アラーム - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .alarm-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .current-time {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+
+        .current-time h2 {
+            color: #333;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .time-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 10px;
+        }
+
+        .date-display {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .alarm-form {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-title {
+            color: #333;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .alarm-list {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .alarm-list h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .alarm-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .alarm-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .alarm-item.active {
+            border: 2px solid #28a745;
+            background: #d4edda;
+        }
+
+        .alarm-item.ringing {
+            border: 2px solid #dc3545;
+            background: #f8d7da;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .alarm-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .alarm-time {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            font-family: 'Courier New', monospace;
+        }
+
+        .alarm-status {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-ringing {
+            background: #dc3545;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+
+        .alarm-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .detail-value {
+            font-size: 0.9rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .alarm-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        .alarm-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .modal-time {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #dc3545;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .modal-label {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .alarm-container {
+                padding: 20px;
+            }
+            
+            .time-display {
+                font-size: 2rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .alarm-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .alarm-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="alarm-container">
+        <div class="header">
+            <h1>アラーム</h1>
+            <p>指定時刻にアラームを設定</p>
+        </div>
+
+        <div class="current-time">
+            <h2>現在時刻</h2>
+            <div class="time-display" id="currentTime">00:00:00</div>
+            <div class="date-display" id="currentDate">2024年1月1日</div>
+        </div>
+
+        <div class="alarm-form">
+            <div class="form-title">新しいアラームを設定</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="alarmTime">時刻</label>
+                    <input type="time" id="alarmTime" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="alarmLabel">ラベル</label>
+                    <input type="text" id="alarmLabel" class="form-control" placeholder="アラームの名前" maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label for="alarmSound">音</label>
+                    <select id="alarmSound" class="form-control">
+                        <option value="beep">ビープ音</option>
+                        <option value="chime">チャイム</option>
+                        <option value="bell">ベル</option>
+                        <option value="alarm">アラーム</option>
+                        <option value="gentle">優しい音</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="alarmRepeat">繰り返し</label>
+                    <select id="alarmRepeat" class="form-control">
+                        <option value="none">なし</option>
+                        <option value="daily">毎日</option>
+                        <option value="weekdays">平日</option>
+                        <option value="weekends">週末</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-primary" onclick="addAlarm()">アラーム追加</button>
+                <button class="btn btn-secondary" onclick="clearForm()">クリア</button>
+            </div>
+        </div>
+
+        <div class="alarm-list">
+            <h3>設定済みアラーム</h3>
+            <div id="alarmList">
+                <div style="text-align: center; color: #666; padding: 20px;">
+                    設定されたアラームがありません
+                </div>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div id="alarmModal" class="alarm-modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-title">アラーム</div>
+            <div class="modal-time" id="modalTime">00:00</div>
+            <div class="modal-label" id="modalLabel">アラームの時刻です</div>
+            <div class="modal-actions">
+                <button class="btn btn-danger" onclick="stopAlarm()">停止</button>
+                <button class="btn btn-warning" onclick="snoozeAlarm()">スヌーズ (5分)</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let alarms = [];
+        let alarmCheckInterval;
+        let currentRingingAlarm = null;
+        let audioContext;
+        let sounds = {};
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                createSounds();
+            }
+        }
+
+        function createSounds() {
+            sounds = {
+                beep: () => createBeepSound(800, 0.5),
+                chime: () => createChimeSound(),
+                bell: () => createBellSound(),
+                alarm: () => createAlarmSound(),
+                gentle: () => createGentleSound()
+            };
+        }
+
+        function createBeepSound(frequency, duration) {
+            return () => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            };
+        }
+
+        function createChimeSound() {
+            return () => {
+                const frequencies = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+                frequencies.forEach((freq, index) => {
+                    setTimeout(() => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.value = freq;
+                        oscillator.type = 'sine';
+                        
+                        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.8);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.8);
+                    }, index * 300);
+                });
+            };
+        }
+
+        function createBellSound() {
+            return () => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 440;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 2);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 2);
+            };
+        }
+
+        function createAlarmSound() {
+            return () => {
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.value = 880;
+                        oscillator.type = 'square';
+                        
+                        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.2);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.2);
+                    }, i * 300);
+                }
+            };
+        }
+
+        function createGentleSound() {
+            return () => {
+                const frequencies = [261.63, 329.63, 392.00]; // C4, E4, G4
+                frequencies.forEach((freq, index) => {
+                    setTimeout(() => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.value = freq;
+                        oscillator.type = 'sine';
+                        
+                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1.5);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 1.5);
+                    }, index * 500);
+                });
+            };
+        }
+
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('ja-JP', { hour12: false });
+            const dateString = now.toLocaleDateString('ja-JP', { 
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            });
+            
+            document.getElementById('currentTime').textContent = timeString;
+            document.getElementById('currentDate').textContent = dateString;
+        }
+
+        function addAlarm() {
+            const timeInput = document.getElementById('alarmTime');
+            const labelInput = document.getElementById('alarmLabel');
+            const soundSelect = document.getElementById('alarmSound');
+            const repeatSelect = document.getElementById('alarmRepeat');
+            
+            if (!timeInput.value) {
+                showNotification('時刻を設定してください', 'error');
+                return;
+            }
+            
+            const alarm = {
+                id: Date.now(),
+                time: timeInput.value,
+                label: labelInput.value || 'アラーム',
+                sound: soundSelect.value,
+                repeat: repeatSelect.value,
+                active: true,
+                created: new Date()
+            };
+            
+            alarms.push(alarm);
+            renderAlarms();
+            clearForm();
+            showNotification('アラームを追加しました');
+            
+            // 初回のアラームチェック開始
+            if (alarms.length === 1) {
+                startAlarmCheck();
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('alarmTime').value = '';
+            document.getElementById('alarmLabel').value = '';
+            document.getElementById('alarmSound').value = 'beep';
+            document.getElementById('alarmRepeat').value = 'none';
+        }
+
+        function renderAlarms() {
+            const alarmList = document.getElementById('alarmList');
+            
+            if (alarms.length === 0) {
+                alarmList.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">設定されたアラームがありません</div>';
+                return;
+            }
+            
+            alarmList.innerHTML = '';
+            
+            alarms.forEach(alarm => {
+                const alarmItem = document.createElement('div');
+                alarmItem.className = `alarm-item ${alarm.active ? 'active' : ''}`;
+                alarmItem.id = `alarm-${alarm.id}`;
+                
+                const statusClass = alarm.active ? 'status-active' : 'status-inactive';
+                const statusText = alarm.active ? 'アクティブ' : '無効';
+                
+                alarmItem.innerHTML = `
+                    <div class="alarm-header">
+                        <div class="alarm-time">${alarm.time}</div>
+                        <div class="alarm-status ${statusClass}">${statusText}</div>
+                    </div>
+                    <div class="alarm-details">
+                        <div class="detail-item">
+                            <div class="detail-label">ラベル</div>
+                            <div class="detail-value">${alarm.label}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">音</div>
+                            <div class="detail-value">${getSoundName(alarm.sound)}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">繰り返し</div>
+                            <div class="detail-value">${getRepeatName(alarm.repeat)}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">作成日時</div>
+                            <div class="detail-value">${alarm.created.toLocaleString('ja-JP')}</div>
+                        </div>
+                    </div>
+                    <div class="alarm-actions">
+                        <button class="btn btn-sm ${alarm.active ? 'btn-warning' : 'btn-success'}" 
+                                onclick="toggleAlarm(${alarm.id})">
+                            ${alarm.active ? '無効にする' : '有効にする'}
+                        </button>
+                        <button class="btn btn-sm btn-secondary" onclick="testAlarm(${alarm.id})">テスト</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteAlarm(${alarm.id})">削除</button>
+                    </div>
+                `;
+                
+                alarmList.appendChild(alarmItem);
+            });
+        }
+
+        function getSoundName(soundValue) {
+            const soundNames = {
+                beep: 'ビープ音',
+                chime: 'チャイム',
+                bell: 'ベル',
+                alarm: 'アラーム',
+                gentle: '優しい音'
+            };
+            return soundNames[soundValue] || soundValue;
+        }
+
+        function getRepeatName(repeatValue) {
+            const repeatNames = {
+                none: 'なし',
+                daily: '毎日',
+                weekdays: '平日',
+                weekends: '週末'
+            };
+            return repeatNames[repeatValue] || repeatValue;
+        }
+
+        function toggleAlarm(id) {
+            const alarm = alarms.find(a => a.id === id);
+            if (alarm) {
+                alarm.active = !alarm.active;
+                renderAlarms();
+                showNotification(`アラームを${alarm.active ? '有効' : '無効'}にしました`);
+            }
+        }
+
+        function testAlarm(id) {
+            const alarm = alarms.find(a => a.id === id);
+            if (alarm) {
+                initAudio();
+                if (sounds[alarm.sound]) {
+                    sounds[alarm.sound]();
+                }
+                showNotification('テストアラームを再生しました');
+            }
+        }
+
+        function deleteAlarm(id) {
+            if (confirm('このアラームを削除しますか？')) {
+                alarms = alarms.filter(a => a.id !== id);
+                renderAlarms();
+                showNotification('アラームを削除しました');
+                
+                if (alarms.length === 0) {
+                    stopAlarmCheck();
+                }
+            }
+        }
+
+        function startAlarmCheck() {
+            if (alarmCheckInterval) {
+                clearInterval(alarmCheckInterval);
+            }
+            
+            alarmCheckInterval = setInterval(() => {
+                checkAlarms();
+            }, 1000);
+        }
+
+        function stopAlarmCheck() {
+            if (alarmCheckInterval) {
+                clearInterval(alarmCheckInterval);
+                alarmCheckInterval = null;
+            }
+        }
+
+        function checkAlarms() {
+            const now = new Date();
+            const currentTime = now.toTimeString().slice(0, 5); // HH:MM format
+            const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+            
+            alarms.forEach(alarm => {
+                if (!alarm.active) return;
+                
+                if (alarm.time === currentTime) {
+                    // 繰り返し設定のチェック
+                    let shouldRing = false;
+                    
+                    switch (alarm.repeat) {
+                        case 'none':
+                            shouldRing = true;
+                            alarm.active = false; // 一度だけ鳴らす
+                            break;
+                        case 'daily':
+                            shouldRing = true;
+                            break;
+                        case 'weekdays':
+                            shouldRing = currentDay >= 1 && currentDay <= 5;
+                            break;
+                        case 'weekends':
+                            shouldRing = currentDay === 0 || currentDay === 6;
+                            break;
+                    }
+                    
+                    if (shouldRing) {
+                        triggerAlarm(alarm);
+                    }
+                }
+            });
+            
+            renderAlarms();
+        }
+
+        function triggerAlarm(alarm) {
+            currentRingingAlarm = alarm;
+            
+            // モーダル表示
+            document.getElementById('modalTime').textContent = alarm.time;
+            document.getElementById('modalLabel').textContent = alarm.label;
+            document.getElementById('alarmModal').style.display = 'flex';
+            
+            // アラーム音を鳴らす
+            initAudio();
+            if (sounds[alarm.sound]) {
+                sounds[alarm.sound]();
+            }
+            
+            // アラーム項目をハイライト
+            const alarmElement = document.getElementById(`alarm-${alarm.id}`);
+            if (alarmElement) {
+                alarmElement.classList.add('ringing');
+            }
+            
+            // ブラウザ通知
+            if (Notification.permission === 'granted') {
+                new Notification('アラーム', {
+                    body: `${alarm.time} - ${alarm.label}`,
+                    icon: '/favicon.ico'
+                });
+            }
+        }
+
+        function stopAlarm() {
+            if (currentRingingAlarm) {
+                const alarmElement = document.getElementById(`alarm-${currentRingingAlarm.id}`);
+                if (alarmElement) {
+                    alarmElement.classList.remove('ringing');
+                }
+                currentRingingAlarm = null;
+            }
+            
+            document.getElementById('alarmModal').style.display = 'none';
+            renderAlarms();
+        }
+
+        function snoozeAlarm() {
+            if (currentRingingAlarm) {
+                const snoozeTime = new Date();
+                snoozeTime.setMinutes(snoozeTime.getMinutes() + 5);
+                
+                const snoozeAlarm = {
+                    ...currentRingingAlarm,
+                    id: Date.now(),
+                    time: snoozeTime.toTimeString().slice(0, 5),
+                    label: currentRingingAlarm.label + ' (スヌーズ)',
+                    repeat: 'none'
+                };
+                
+                alarms.push(snoozeAlarm);
+                showNotification('5分後にスヌーズアラームが鳴ります');
+            }
+            
+            stopAlarm();
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        function init() {
+            updateCurrentTime();
+            renderAlarms();
+            
+            // 現在時刻の更新
+            setInterval(updateCurrentTime, 1000);
+            
+            // 通知の許可を求める
+            if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+                Notification.requestPermission();
+            }
+            
+            // アラームがあればチェック開始
+            if (alarms.length > 0) {
+                startAlarmCheck();
+            }
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // ページを離れる時の確認
+        window.addEventListener('beforeunload', (e) => {
+            if (alarms.some(alarm => alarm.active)) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
+</body>
+</html>

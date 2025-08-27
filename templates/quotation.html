@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>見積書テンプレート - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quotation-app {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .add-item-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .add-item-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .item-container {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        .quotation-preview {
+            padding: 40px;
+            font-family: 'Times New Roman', serif;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .quotation-header {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 30px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .quotation-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .quotation-info {
+            text-align: right;
+            font-size: 0.95rem;
+        }
+
+        .quotation-parties {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .party-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #667eea;
+            border-bottom: 1px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .party-details {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .quotation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9rem;
+        }
+
+        .quotation-table th,
+        .quotation-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .quotation-table th {
+            background-color: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        .quotation-table td.number {
+            text-align: right;
+        }
+
+        .quotation-table .total-row {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .quotation-table .grand-total-row {
+            background-color: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        .quotation-notes {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .quotation-notes h4 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .validity-period {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #856404;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+        }
+
+        .control-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .quotation-preview {
+                padding: 20px;
+                font-size: 0.9rem;
+            }
+            
+            .quotation-header {
+                grid-template-columns: 1fr;
+            }
+            
+            .quotation-parties {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .quotation-app {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header, .form-section, .controls {
+                display: none;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+                padding: 0;
+                gap: 0;
+            }
+            
+            .preview-section {
+                border: none;
+                max-height: none;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quotation-app">
+        <div class="header">
+            <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+            <h1>📋 見積書テンプレート</h1>
+            <p>プロフェッショナルな見積書を作成</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="section-title">基本情報</div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="quotationNumber">見積書番号</label>
+                            <input type="text" id="quotationNumber" placeholder="QUO-2024-001">
+                        </div>
+                        <div>
+                            <label for="quotationDate">見積日</label>
+                            <input type="date" id="quotationDate">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="validityPeriod">見積有効期限</label>
+                            <input type="date" id="validityPeriod">
+                        </div>
+                        <div>
+                            <label for="projectTitle">件名・プロジェクト名</label>
+                            <input type="text" id="projectTitle" placeholder="Webサイト制作">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">見積提出者情報</div>
+                <div class="form-group">
+                    <label for="senderName">会社名・氏名</label>
+                    <input type="text" id="senderName" placeholder="株式会社○○">
+                </div>
+
+                <div class="form-group">
+                    <label for="senderAddress">住所</label>
+                    <textarea id="senderAddress" placeholder="〒000-0000 東京都○○区○○ 1-2-3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="senderPhone">電話番号</label>
+                            <input type="tel" id="senderPhone" placeholder="03-0000-0000">
+                        </div>
+                        <div>
+                            <label for="senderEmail">メールアドレス</label>
+                            <input type="email" id="senderEmail" placeholder="quote@company.com">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">見積先情報</div>
+                <div class="form-group">
+                    <label for="clientName">会社名・氏名</label>
+                    <input type="text" id="clientName" placeholder="株式会社△△">
+                </div>
+
+                <div class="form-group">
+                    <label for="clientAddress">住所</label>
+                    <textarea id="clientAddress" placeholder="〒111-1111 大阪府○○市○○ 4-5-6"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="clientPhone">電話番号</label>
+                            <input type="tel" id="clientPhone" placeholder="06-0000-0000">
+                        </div>
+                        <div>
+                            <label for="clientContact">担当者</label>
+                            <input type="text" id="clientContact" placeholder="田中様">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">見積項目</div>
+                <div id="itemsList"></div>
+                <button class="add-item-btn" onclick="addItem()">+ 項目を追加</button>
+
+                <div class="section-title">税金・割引</div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="taxRate">消費税率（%）</label>
+                            <input type="number" id="taxRate" value="10" min="0" max="100" step="0.1">
+                        </div>
+                        <div>
+                            <label for="discount">割引額</label>
+                            <input type="number" id="discount" value="0" min="0" step="1">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">条件・備考</div>
+                <div class="form-group">
+                    <label for="conditions">作業条件・納期</label>
+                    <textarea id="conditions" placeholder="納期：契約後2ヶ月&#10;支払条件：着手金50%、完成時50%"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">備考・注意事項</label>
+                    <textarea id="notes" placeholder="本見積書に記載されていない作業は別途お見積りとなります。"></textarea>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="quotation-preview" id="quotationPreview">
+                    <div class="quotation-header">
+                        <div>
+                            <div class="quotation-title">見積書</div>
+                            <div id="previewProjectTitle" style="font-size: 1.2rem; margin-top: 10px; color: #666;"></div>
+                        </div>
+                        <div class="quotation-info">
+                            <div id="previewQuotationNumber"></div>
+                            <div id="previewQuotationDate"></div>
+                            <div id="previewValidityPeriod"></div>
+                        </div>
+                    </div>
+
+                    <div class="quotation-parties">
+                        <div class="party-section">
+                            <h3>見積提出者</h3>
+                            <div class="party-details" id="previewSender"></div>
+                        </div>
+                        <div class="party-section">
+                            <h3>見積先</h3>
+                            <div class="party-details" id="previewClient"></div>
+                        </div>
+                    </div>
+
+                    <div class="validity-period" id="previewValidityNotice" style="display: none;">
+                        <div>本見積書の有効期限: <span id="previewValidityDate"></span></div>
+                    </div>
+
+                    <table class="quotation-table" id="previewTable">
+                        <thead>
+                            <tr>
+                                <th>項目</th>
+                                <th>数量</th>
+                                <th>単価</th>
+                                <th>金額</th>
+                            </tr>
+                        </thead>
+                        <tbody id="previewTableBody">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #666;">項目を追加してください</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="quotation-notes" id="previewNotes" style="display: none;">
+                        <h4>条件・備考</h4>
+                        <div id="previewConditions"></div>
+                        <div id="previewNotesContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="printQuotation()">🖨️ 印刷</button>
+            <button class="control-btn secondary" onclick="saveQuotation()">💾 保存</button>
+            <button class="control-btn secondary" onclick="loadQuotation()">📂 読み込み</button>
+            <button class="control-btn secondary" onclick="clearForm()">🗑️ クリア</button>
+        </div>
+    </div>
+
+    <script>
+        let itemCount = 0;
+
+        function addItem() {
+            itemCount++;
+            const itemsList = document.getElementById('itemsList');
+            const div = document.createElement('div');
+            div.className = 'item-container';
+            div.innerHTML = `
+                <div class="item-header">
+                    <strong>項目 ${itemCount}</strong>
+                    <button class="remove-btn" onclick="removeItem(this)">削除</button>
+                </div>
+                <div class="form-group">
+                    <label>項目名・説明</label>
+                    <textarea id="itemName${itemCount}" placeholder="Webサイトデザイン・制作"></textarea>
+                </div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label>数量</label>
+                            <input type="number" id="itemQty${itemCount}" value="1" min="1" step="1">
+                        </div>
+                        <div>
+                            <label>単価</label>
+                            <input type="number" id="itemPrice${itemCount}" value="0" min="0" step="1">
+                        </div>
+                    </div>
+                </div>
+            `;
+            itemsList.appendChild(div);
+            
+            // イベントリスナーを追加
+            document.getElementById(`itemName${itemCount}`).addEventListener('input', updatePreview);
+            document.getElementById(`itemQty${itemCount}`).addEventListener('input', updatePreview);
+            document.getElementById(`itemPrice${itemCount}`).addEventListener('input', updatePreview);
+            
+            updatePreview();
+        }
+
+        function removeItem(button) {
+            button.closest('.item-container').remove();
+            updatePreview();
+        }
+
+        function updatePreview() {
+            // 基本情報
+            const quotationNumber = document.getElementById('quotationNumber').value;
+            const quotationDate = document.getElementById('quotationDate').value;
+            const validityPeriod = document.getElementById('validityPeriod').value;
+            const projectTitle = document.getElementById('projectTitle').value;
+
+            // 提出者情報
+            const senderName = document.getElementById('senderName').value;
+            const senderAddress = document.getElementById('senderAddress').value;
+            const senderPhone = document.getElementById('senderPhone').value;
+            const senderEmail = document.getElementById('senderEmail').value;
+
+            // 見積先情報
+            const clientName = document.getElementById('clientName').value;
+            const clientAddress = document.getElementById('clientAddress').value;
+            const clientPhone = document.getElementById('clientPhone').value;
+            const clientContact = document.getElementById('clientContact').value;
+
+            // 税金・割引
+            const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+            const discount = parseFloat(document.getElementById('discount').value) || 0;
+
+            // 条件・備考
+            const conditions = document.getElementById('conditions').value;
+            const notes = document.getElementById('notes').value;
+
+            // 基本情報の更新
+            document.getElementById('previewQuotationNumber').textContent = 
+                quotationNumber ? `見積書番号: ${quotationNumber}` : '';
+            document.getElementById('previewQuotationDate').textContent = 
+                quotationDate ? `見積日: ${formatDate(quotationDate)}` : '';
+            
+            if (validityPeriod) {
+                document.getElementById('previewValidityPeriod').textContent = `有効期限: ${formatDate(validityPeriod)}`;
+                document.getElementById('previewValidityDate').textContent = formatDate(validityPeriod);
+                document.getElementById('previewValidityNotice').style.display = 'block';
+            } else {
+                document.getElementById('previewValidityPeriod').textContent = '';
+                document.getElementById('previewValidityNotice').style.display = 'none';
+            }
+
+            document.getElementById('previewProjectTitle').textContent = projectTitle || '';
+
+            // 当事者情報の更新
+            updatePartyInfo('Sender', senderName, senderAddress, senderPhone, senderEmail);
+            updatePartyInfo('Client', clientName, clientAddress, clientPhone, '', clientContact);
+
+            // 見積項目テーブルの更新
+            updateItemsTable(taxRate, discount);
+
+            // 条件・備考の更新
+            updateNotes(conditions, notes);
+        }
+
+        function updatePartyInfo(party, name, address, phone, email, contact) {
+            let html = '';
+            if (name) html += `<div><strong>${name}</strong></div>`;
+            if (contact) html += `<div>${contact}</div>`;
+            if (address) html += `<div>${address}</div>`;
+            if (phone) html += `<div>TEL: ${phone}</div>`;
+            if (email) html += `<div>Email: ${email}</div>`;
+
+            document.getElementById(`preview${party}`).innerHTML = html;
+        }
+
+        function updateItemsTable(taxRate, discount) {
+            const itemsList = document.getElementById('itemsList');
+            const items = itemsList.querySelectorAll('.item-container');
+            const tableBody = document.getElementById('previewTableBody');
+            
+            let html = '';
+            let subtotal = 0;
+
+            if (items.length === 0) {
+                html = '<tr><td colspan="4" style="text-align: center; color: #666;">項目を追加してください</td></tr>';
+            } else {
+                items.forEach(item => {
+                    const name = item.querySelector('textarea[id^="itemName"]').value;
+                    const qty = parseInt(item.querySelector('input[id^="itemQty"]').value) || 0;
+                    const price = parseFloat(item.querySelector('input[id^="itemPrice"]').value) || 0;
+                    const amount = qty * price;
+                    subtotal += amount;
+
+                    html += `<tr>
+                        <td>${name.replace(/\n/g, '<br>') || '項目名未設定'}</td>
+                        <td class="number">${qty.toLocaleString()}</td>
+                        <td class="number">¥${price.toLocaleString()}</td>
+                        <td class="number">¥${amount.toLocaleString()}</td>
+                    </tr>`;
+                });
+
+                // 小計
+                html += `<tr class="total-row">
+                    <td colspan="3">小計</td>
+                    <td class="number">¥${subtotal.toLocaleString()}</td>
+                </tr>`;
+
+                // 割引
+                if (discount > 0) {
+                    html += `<tr>
+                        <td colspan="3">割引</td>
+                        <td class="number">-¥${discount.toLocaleString()}</td>
+                    </tr>`;
+                }
+
+                // 税抜合計
+                const discountedSubtotal = subtotal - discount;
+                if (taxRate > 0) {
+                    html += `<tr>
+                        <td colspan="3">税抜合計</td>
+                        <td class="number">¥${discountedSubtotal.toLocaleString()}</td>
+                    </tr>`;
+                }
+
+                // 消費税
+                const tax = Math.floor(discountedSubtotal * (taxRate / 100));
+                if (taxRate > 0) {
+                    html += `<tr>
+                        <td colspan="3">消費税 (${taxRate}%)</td>
+                        <td class="number">¥${tax.toLocaleString()}</td>
+                    </tr>`;
+                }
+
+                // 総見積額
+                const total = discountedSubtotal + tax;
+                html += `<tr class="grand-total-row">
+                    <td colspan="3">総見積額</td>
+                    <td class="number">¥${total.toLocaleString()}</td>
+                </tr>`;
+            }
+
+            tableBody.innerHTML = html;
+        }
+
+        function updateNotes(conditions, notes) {
+            let html = '';
+            if (conditions) html += `<div><strong>作業条件・納期:</strong><br>${conditions.replace(/\n/g, '<br>')}</div>`;
+            if (notes) html += `<div style="margin-top: 15px;"><strong>備考・注意事項:</strong><br>${notes.replace(/\n/g, '<br>')}</div>`;
+
+            if (html) {
+                document.getElementById('previewConditions').innerHTML = html;
+                document.getElementById('previewNotes').style.display = 'block';
+            } else {
+                document.getElementById('previewNotes').style.display = 'none';
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${year}年${month}月${day}日`;
+        }
+
+        function printQuotation() {
+            window.print();
+        }
+
+        function saveQuotation() {
+            const data = {
+                quotationNumber: document.getElementById('quotationNumber').value,
+                quotationDate: document.getElementById('quotationDate').value,
+                validityPeriod: document.getElementById('validityPeriod').value,
+                projectTitle: document.getElementById('projectTitle').value,
+                senderName: document.getElementById('senderName').value,
+                senderAddress: document.getElementById('senderAddress').value,
+                senderPhone: document.getElementById('senderPhone').value,
+                senderEmail: document.getElementById('senderEmail').value,
+                clientName: document.getElementById('clientName').value,
+                clientAddress: document.getElementById('clientAddress').value,
+                clientPhone: document.getElementById('clientPhone').value,
+                clientContact: document.getElementById('clientContact').value,
+                taxRate: document.getElementById('taxRate').value,
+                discount: document.getElementById('discount').value,
+                conditions: document.getElementById('conditions').value,
+                notes: document.getElementById('notes').value,
+                items: []
+            };
+
+            // 項目データの収集
+            const items = document.getElementById('itemsList').querySelectorAll('.item-container');
+            items.forEach(item => {
+                data.items.push({
+                    name: item.querySelector('textarea[id^="itemName"]').value,
+                    qty: item.querySelector('input[id^="itemQty"]').value,
+                    price: item.querySelector('input[id^="itemPrice"]').value
+                });
+            });
+
+            localStorage.setItem('quotationData', JSON.stringify(data));
+            alert('見積書を保存しました！');
+        }
+
+        function loadQuotation() {
+            const savedData = localStorage.getItem('quotationData');
+            if (!savedData) {
+                alert('保存されたデータがありません。');
+                return;
+            }
+
+            const data = JSON.parse(savedData);
+            
+            // 基本情報の読み込み
+            Object.keys(data).forEach(key => {
+                if (key !== 'items') {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.value = data[key] || '';
+                    }
+                }
+            });
+
+            // 項目リストをクリア
+            document.getElementById('itemsList').innerHTML = '';
+            itemCount = 0;
+
+            // 項目の読み込み
+            if (data.items) {
+                data.items.forEach(item => {
+                    addItem();
+                    const container = document.getElementById('itemsList').lastElementChild;
+                    container.querySelector('textarea[id^="itemName"]').value = item.name || '';
+                    container.querySelector('input[id^="itemQty"]').value = item.qty || '';
+                    container.querySelector('input[id^="itemPrice"]').value = item.price || '';
+                });
+            }
+
+            updatePreview();
+            alert('見積書を読み込みました！');
+        }
+
+        function clearForm() {
+            if (confirm('すべての入力内容をクリアしますか？')) {
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    if (element.id === 'taxRate') {
+                        element.value = '10';
+                    } else if (element.id === 'discount') {
+                        element.value = '0';
+                    } else {
+                        element.value = '';
+                    }
+                });
+                document.getElementById('itemsList').innerHTML = '';
+                itemCount = 0;
+                updatePreview();
+            }
+        }
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            // 現在の日付を設定
+            const today = new Date();
+            document.getElementById('quotationDate').value = today.toISOString().split('T')[0];
+            
+            // 1ヶ月後を有効期限に設定
+            const validityDate = new Date();
+            validityDate.setMonth(validityDate.getMonth() + 1);
+            document.getElementById('validityPeriod').value = validityDate.toISOString().split('T')[0];
+            
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

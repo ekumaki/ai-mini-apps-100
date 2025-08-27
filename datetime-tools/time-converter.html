@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>時間換算 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .time-converter {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .converter-modes {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .mode-btn:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        .converter-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .converter-section.active {
+            display: block;
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .input-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #333;
+            min-width: 100px;
+        }
+
+        .input-control {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            flex: 1;
+        }
+
+        .input-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .unit-select {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .convert-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .convert-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .result-section {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .result-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .result-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .result-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #155724;
+            margin-bottom: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .result-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .comparison-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .comparison-title {
+            color: #856404;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .comparison-item {
+            background: white;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .comparison-icon {
+            font-size: 2rem;
+        }
+
+        .comparison-text {
+            flex: 1;
+        }
+
+        .comparison-value {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 3px;
+        }
+
+        .comparison-desc {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .quick-convert {
+            background: #e1ecf4;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .quick-convert-title {
+            color: #0c5460;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .quick-convert-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .quick-btn {
+            background: white;
+            border: 2px solid #b3d4fc;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .quick-btn:hover {
+            background: #b3d4fc;
+        }
+
+        .quick-value {
+            font-weight: 600;
+            color: #0c5460;
+            margin-bottom: 3px;
+        }
+
+        .quick-unit {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .time-converter {
+                padding: 20px;
+            }
+            
+            .converter-modes {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .input-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .input-group label {
+                min-width: auto;
+            }
+            
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="time-converter">
+        <div class="header">
+            <h1>時間換算</h1>
+            <p>時間単位を相互に変換するツール</p>
+        </div>
+
+        <div class="converter-modes">
+            <button class="mode-btn active" onclick="setMode('standard')">標準換算</button>
+            <button class="mode-btn" onclick="setMode('duration')">期間換算</button>
+            <button class="mode-btn" onclick="setMode('speed')">速度換算</button>
+        </div>
+
+        <div class="converter-section active" id="standard">
+            <div class="section-title">時間単位の相互変換</div>
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="standardValue">数値</label>
+                    <input type="number" id="standardValue" class="input-control" placeholder="変換する値" step="any">
+                </div>
+                <div class="input-group">
+                    <label for="fromUnit">変換元</label>
+                    <select id="fromUnit" class="unit-select">
+                        <option value="milliseconds">ミリ秒</option>
+                        <option value="seconds" selected>秒</option>
+                        <option value="minutes">分</option>
+                        <option value="hours">時間</option>
+                        <option value="days">日</option>
+                        <option value="weeks">週</option>
+                        <option value="months">月</option>
+                        <option value="years">年</option>
+                    </select>
+                </div>
+                <button class="convert-btn" onclick="convertStandard()">換算</button>
+            </div>
+        </div>
+
+        <div class="converter-section" id="duration">
+            <div class="section-title">期間の詳細換算</div>
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="durationDays">日数</label>
+                    <input type="number" id="durationDays" class="input-control" placeholder="日数" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="durationHours">時間</label>
+                    <input type="number" id="durationHours" class="input-control" placeholder="時間" min="0" max="23">
+                </div>
+                <div class="input-group">
+                    <label for="durationMinutes">分</label>
+                    <input type="number" id="durationMinutes" class="input-control" placeholder="分" min="0" max="59">
+                </div>
+                <div class="input-group">
+                    <label for="durationSeconds">秒</label>
+                    <input type="number" id="durationSeconds" class="input-control" placeholder="秒" min="0" max="59">
+                </div>
+                <button class="convert-btn" onclick="convertDuration()">換算</button>
+            </div>
+        </div>
+
+        <div class="converter-section" id="speed">
+            <div class="section-title">速度・頻度換算</div>
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="speedValue">数値</label>
+                    <input type="number" id="speedValue" class="input-control" placeholder="速度・頻度の値" step="any">
+                </div>
+                <div class="input-group">
+                    <label for="speedUnit">単位</label>
+                    <select id="speedUnit" class="unit-select">
+                        <option value="per_second">回/秒</option>
+                        <option value="per_minute">回/分</option>
+                        <option value="per_hour">回/時</option>
+                        <option value="per_day">回/日</option>
+                        <option value="per_week">回/週</option>
+                        <option value="per_month">回/月</option>
+                        <option value="per_year">回/年</option>
+                    </select>
+                </div>
+                <button class="convert-btn" onclick="convertSpeed()">換算</button>
+            </div>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-title">換算結果</div>
+            <div class="result-grid" id="resultGrid">
+                <!-- 結果がここに表示されます -->
+            </div>
+        </div>
+
+        <div class="comparison-section" id="comparisonSection" style="display: none;">
+            <div class="comparison-title">分かりやすい例え</div>
+            <div class="comparison-grid" id="comparisonGrid">
+                <!-- 比較がここに表示されます -->
+            </div>
+        </div>
+
+        <div class="quick-convert">
+            <div class="quick-convert-title">クイック換算</div>
+            <div class="quick-convert-grid">
+                <button class="quick-btn" onclick="quickConvert(1, 'hours')">
+                    <div class="quick-value">1時間</div>
+                    <div class="quick-unit">→ 分・秒</div>
+                </button>
+                <button class="quick-btn" onclick="quickConvert(1, 'days')">
+                    <div class="quick-value">1日</div>
+                    <div class="quick-unit">→ 時間・分</div>
+                </button>
+                <button class="quick-btn" onclick="quickConvert(1, 'weeks')">
+                    <div class="quick-value">1週間</div>
+                    <div class="quick-unit">→ 日・時間</div>
+                </button>
+                <button class="quick-btn" onclick="quickConvert(1, 'months')">
+                    <div class="quick-value">1ヶ月</div>
+                    <div class="quick-unit">→ 日・時間</div>
+                </button>
+                <button class="quick-btn" onclick="quickConvert(1, 'years')">
+                    <div class="quick-value">1年</div>
+                    <div class="quick-unit">→ 日・時間</div>
+                </button>
+                <button class="quick-btn" onclick="quickConvert(86400, 'seconds')">
+                    <div class="quick-value">86400秒</div>
+                    <div class="quick-unit">→ 日・時間</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" onclick="exportResult()">結果出力</button>
+            <button class="action-btn secondary" onclick="resetAll()">リセット</button>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let currentMode = 'standard';
+        let lastResult = null;
+
+        const conversionFactors = {
+            milliseconds: 1,
+            seconds: 1000,
+            minutes: 60000,
+            hours: 3600000,
+            days: 86400000,
+            weeks: 604800000,
+            months: 2592000000, // 30日として計算
+            years: 31536000000  // 365日として計算
+        };
+
+        function setMode(mode) {
+            currentMode = mode;
+            
+            // ボタンの状態を更新
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // セクションの表示を切り替え
+            document.querySelectorAll('.converter-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(mode).classList.add('active');
+            
+            // 結果セクションを非表示
+            document.getElementById('resultSection').classList.remove('show');
+            document.getElementById('comparisonSection').style.display = 'none';
+        }
+
+        function convertStandard() {
+            const value = parseFloat(document.getElementById('standardValue').value);
+            const fromUnit = document.getElementById('fromUnit').value;
+            
+            if (isNaN(value)) {
+                showNotification('有効な数値を入力してください', 'error');
+                return;
+            }
+            
+            // ミリ秒に変換
+            const milliseconds = value * conversionFactors[fromUnit];
+            
+            const results = [
+                { label: 'ミリ秒', value: formatNumber(milliseconds), unit: 'ms' },
+                { label: '秒', value: formatNumber(milliseconds / 1000), unit: 's' },
+                { label: '分', value: formatNumber(milliseconds / 60000), unit: 'min' },
+                { label: '時間', value: formatNumber(milliseconds / 3600000), unit: 'h' },
+                { label: '日', value: formatNumber(milliseconds / 86400000), unit: 'd' },
+                { label: '週', value: formatNumber(milliseconds / 604800000), unit: 'w' },
+                { label: '月（30日）', value: formatNumber(milliseconds / 2592000000), unit: 'mo' },
+                { label: '年（365日）', value: formatNumber(milliseconds / 31536000000), unit: 'y' }
+            ];
+            
+            lastResult = {
+                type: 'standard',
+                value: value,
+                unit: fromUnit,
+                results: results
+            };
+            
+            displayResults(results);
+            displayComparisons(milliseconds);
+            showNotification('換算が完了しました');
+        }
+
+        function convertDuration() {
+            const days = parseInt(document.getElementById('durationDays').value) || 0;
+            const hours = parseInt(document.getElementById('durationHours').value) || 0;
+            const minutes = parseInt(document.getElementById('durationMinutes').value) || 0;
+            const seconds = parseInt(document.getElementById('durationSeconds').value) || 0;
+            
+            if (days === 0 && hours === 0 && minutes === 0 && seconds === 0) {
+                showNotification('少なくとも1つの値を入力してください', 'error');
+                return;
+            }
+            
+            // 総秒数を計算
+            const totalSeconds = seconds + (minutes * 60) + (hours * 3600) + (days * 86400);
+            const totalMilliseconds = totalSeconds * 1000;
+            
+            const results = [
+                { label: '総秒数', value: formatNumber(totalSeconds), unit: '秒' },
+                { label: '総分数', value: formatNumber(totalSeconds / 60), unit: '分' },
+                { label: '総時間数', value: formatNumber(totalSeconds / 3600), unit: '時間' },
+                { label: '総日数', value: formatNumber(totalSeconds / 86400), unit: '日' },
+                { label: '総週数', value: formatNumber(totalSeconds / 604800), unit: '週' },
+                { label: '総ミリ秒', value: formatNumber(totalMilliseconds), unit: 'ミリ秒' }
+            ];
+            
+            lastResult = {
+                type: 'duration',
+                days: days,
+                hours: hours,
+                minutes: minutes,
+                seconds: seconds,
+                results: results
+            };
+            
+            displayResults(results);
+            displayComparisons(totalMilliseconds);
+            showNotification('期間換算が完了しました');
+        }
+
+        function convertSpeed() {
+            const value = parseFloat(document.getElementById('speedValue').value);
+            const unit = document.getElementById('speedUnit').value;
+            
+            if (isNaN(value)) {
+                showNotification('有効な数値を入力してください', 'error');
+                return;
+            }
+            
+            // 1秒あたりに換算
+            let perSecond = value;
+            switch (unit) {
+                case 'per_minute': perSecond = value / 60; break;
+                case 'per_hour': perSecond = value / 3600; break;
+                case 'per_day': perSecond = value / 86400; break;
+                case 'per_week': perSecond = value / 604800; break;
+                case 'per_month': perSecond = value / 2592000; break;
+                case 'per_year': perSecond = value / 31536000; break;
+            }
+            
+            const results = [
+                { label: '毎秒', value: formatNumber(perSecond), unit: '回/秒' },
+                { label: '毎分', value: formatNumber(perSecond * 60), unit: '回/分' },
+                { label: '毎時', value: formatNumber(perSecond * 3600), unit: '回/時' },
+                { label: '毎日', value: formatNumber(perSecond * 86400), unit: '回/日' },
+                { label: '毎週', value: formatNumber(perSecond * 604800), unit: '回/週' },
+                { label: '毎月', value: formatNumber(perSecond * 2592000), unit: '回/月' },
+                { label: '毎年', value: formatNumber(perSecond * 31536000), unit: '回/年' }
+            ];
+            
+            lastResult = {
+                type: 'speed',
+                value: value,
+                unit: unit,
+                results: results
+            };
+            
+            displayResults(results);
+            showNotification('速度換算が完了しました');
+        }
+
+        function quickConvert(value, unit) {
+            document.getElementById('standardValue').value = value;
+            document.getElementById('fromUnit').value = unit;
+            setMode('standard');
+            convertStandard();
+        }
+
+        function displayResults(results) {
+            const resultSection = document.getElementById('resultSection');
+            const resultGrid = document.getElementById('resultGrid');
+            
+            resultGrid.innerHTML = '';
+            
+            results.forEach(result => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <div class="result-value">${result.value}</div>
+                    <div class="result-label">${result.label}</div>
+                `;
+                resultGrid.appendChild(resultItem);
+            });
+            
+            resultSection.classList.add('show');
+        }
+
+        function displayComparisons(milliseconds) {
+            const comparisonSection = document.getElementById('comparisonSection');
+            const comparisonGrid = document.getElementById('comparisonGrid');
+            
+            const seconds = milliseconds / 1000;
+            const minutes = seconds / 60;
+            const hours = minutes / 60;
+            const days = hours / 24;
+            
+            const comparisons = [];
+            
+            if (seconds < 1) {
+                comparisons.push({
+                    icon: '⚡',
+                    value: '瞬間',
+                    desc: 'まばたきよりも速い'
+                });
+            } else if (seconds < 60) {
+                comparisons.push({
+                    icon: '👏',
+                    value: `約${Math.round(seconds)}回`,
+                    desc: '拍手ができる回数'
+                });
+            } else if (minutes < 60) {
+                comparisons.push({
+                    icon: '☕',
+                    value: `約${Math.round(minutes)}杯`,
+                    desc: 'コーヒーを飲む時間'
+                });
+            } else if (hours < 24) {
+                comparisons.push({
+                    icon: '🎬',
+                    value: `約${Math.round(hours / 2)}本`,
+                    desc: '映画を見られる本数'
+                });
+            } else if (days < 365) {
+                comparisons.push({
+                    icon: '🌍',
+                    value: `約${Math.round(days)}回`,
+                    desc: '地球が自転する回数'
+                });
+            } else {
+                comparisons.push({
+                    icon: '🎂',
+                    value: `約${Math.round(days / 365)}回`,
+                    desc: '誕生日を迎える回数'
+                });
+            }
+            
+            // 追加の比較
+            if (seconds >= 86400) {
+                comparisons.push({
+                    icon: '💤',
+                    value: `約${Math.round(days * 8)}時間`,
+                    desc: '睡眠時間（8時間/日）'
+                });
+            }
+            
+            if (seconds >= 60) {
+                comparisons.push({
+                    icon: '💓',
+                    value: `約${Math.round(seconds * 70 / 60)}回`,
+                    desc: '心臓の鼓動（70回/分）'
+                });
+            }
+            
+            comparisonGrid.innerHTML = '';
+            comparisons.forEach(comp => {
+                const compItem = document.createElement('div');
+                compItem.className = 'comparison-item';
+                compItem.innerHTML = `
+                    <div class="comparison-icon">${comp.icon}</div>
+                    <div class="comparison-text">
+                        <div class="comparison-value">${comp.value}</div>
+                        <div class="comparison-desc">${comp.desc}</div>
+                    </div>
+                `;
+                comparisonGrid.appendChild(compItem);
+            });
+            
+            if (comparisons.length > 0) {
+                comparisonSection.style.display = 'block';
+            }
+        }
+
+        function formatNumber(num) {
+            if (Math.abs(num) < 0.01) {
+                return num.toExponential(2);
+            } else if (Math.abs(num) < 1) {
+                return num.toFixed(4);
+            } else if (Math.abs(num) < 100) {
+                return num.toFixed(2);
+            } else if (Math.abs(num) < 10000) {
+                return num.toFixed(1);
+            } else {
+                return num.toLocaleString('ja-JP', { maximumFractionDigits: 0 });
+            }
+        }
+
+        function exportResult() {
+            if (!lastResult) {
+                showNotification('エクスポートする結果がありません', 'error');
+                return;
+            }
+            
+            let exportText = '時間換算結果\n';
+            exportText += `換算日時: ${new Date().toLocaleString('ja-JP')}\n\n`;
+            
+            if (lastResult.type === 'standard') {
+                exportText += `入力値: ${lastResult.value} ${getUnitText(lastResult.unit)}\n\n`;
+            } else if (lastResult.type === 'duration') {
+                exportText += `入力期間: ${lastResult.days}日 ${lastResult.hours}時間 ${lastResult.minutes}分 ${lastResult.seconds}秒\n\n`;
+            } else if (lastResult.type === 'speed') {
+                exportText += `入力値: ${lastResult.value} ${getSpeedUnitText(lastResult.unit)}\n\n`;
+            }
+            
+            exportText += '換算結果:\n';
+            lastResult.results.forEach(result => {
+                exportText += `${result.label}: ${result.value} ${result.unit}\n`;
+            });
+            
+            const blob = new Blob([exportText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `time_conversion_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('結果を出力しました');
+        }
+
+        function getUnitText(unit) {
+            const unitMap = {
+                milliseconds: 'ミリ秒',
+                seconds: '秒',
+                minutes: '分',
+                hours: '時間',
+                days: '日',
+                weeks: '週',
+                months: '月',
+                years: '年'
+            };
+            return unitMap[unit] || unit;
+        }
+
+        function getSpeedUnitText(unit) {
+            const unitMap = {
+                per_second: '回/秒',
+                per_minute: '回/分',
+                per_hour: '回/時',
+                per_day: '回/日',
+                per_week: '回/週',
+                per_month: '回/月',
+                per_year: '回/年'
+            };
+            return unitMap[unit] || unit;
+        }
+
+        function resetAll() {
+            document.getElementById('standardValue').value = '';
+            document.getElementById('durationDays').value = '';
+            document.getElementById('durationHours').value = '';
+            document.getElementById('durationMinutes').value = '';
+            document.getElementById('durationSeconds').value = '';
+            document.getElementById('speedValue').value = '';
+            
+            document.getElementById('resultSection').classList.remove('show');
+            document.getElementById('comparisonSection').style.display = 'none';
+            
+            lastResult = null;
+            showNotification('リセットしました');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        function init() {
+            // 特に初期化処理なし
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

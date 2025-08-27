@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>単位変換ツール - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .converter {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .unit-type {
+            margin-bottom: 20px;
+        }
+
+        .unit-type label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .unit-type select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .unit-type select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .conversion-row {
+            display: grid;
+            grid-template-columns: 1fr 60px 1fr;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .input-group input,
+        .input-group select {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .swap-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            align-self: end;
+            margin-bottom: 12px;
+        }
+
+        .swap-btn:hover {
+            background: #5a6fd8;
+            transform: rotate(180deg);
+        }
+
+        .result {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .result-unit {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 500px) {
+            .conversion-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .swap-btn {
+                justify-self: center;
+                align-self: center;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="converter">
+        <div class="header">
+            <h1>単位変換ツール</h1>
+            <p>長さ、重さ、温度などの単位を変換</p>
+        </div>
+
+        <div class="unit-type">
+            <label for="unitCategory">変換する単位の種類:</label>
+            <select id="unitCategory" onchange="changeCategory()">
+                <option value="length">長さ</option>
+                <option value="weight">重さ</option>
+                <option value="temperature">温度</option>
+                <option value="volume">体積</option>
+            </select>
+        </div>
+
+        <div class="conversion-row">
+            <div class="input-group">
+                <label for="fromValue">変換元</label>
+                <input type="number" id="fromValue" placeholder="数値を入力" oninput="convert()">
+                <select id="fromUnit" onchange="convert()"></select>
+            </div>
+
+            <button class="swap-btn" onclick="swapUnits()" title="単位を入れ替え">⇄</button>
+
+            <div class="input-group">
+                <label for="toValue">変換先</label>
+                <input type="number" id="toValue" placeholder="結果" readonly>
+                <select id="toUnit" onchange="convert()"></select>
+            </div>
+        </div>
+
+        <div class="result">
+            <div class="result-value" id="resultValue">結果がここに表示されます</div>
+            <div class="result-unit" id="resultUnit"></div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        const unitData = {
+            length: {
+                name: '長さ',
+                units: {
+                    'mm': { name: 'ミリメートル', factor: 0.001 },
+                    'cm': { name: 'センチメートル', factor: 0.01 },
+                    'm': { name: 'メートル', factor: 1 },
+                    'km': { name: 'キロメートル', factor: 1000 },
+                    'inch': { name: 'インチ', factor: 0.0254 },
+                    'ft': { name: 'フィート', factor: 0.3048 },
+                    'yard': { name: 'ヤード', factor: 0.9144 },
+                    'mile': { name: 'マイル', factor: 1609.344 }
+                }
+            },
+            weight: {
+                name: '重さ',
+                units: {
+                    'mg': { name: 'ミリグラム', factor: 0.000001 },
+                    'g': { name: 'グラム', factor: 0.001 },
+                    'kg': { name: 'キログラム', factor: 1 },
+                    't': { name: 'トン', factor: 1000 },
+                    'oz': { name: 'オンス', factor: 0.0283495 },
+                    'lb': { name: 'ポンド', factor: 0.453592 },
+                    'stone': { name: 'ストーン', factor: 6.35029 }
+                }
+            },
+            temperature: {
+                name: '温度',
+                units: {
+                    'celsius': { name: '摂氏 (°C)', factor: 1 },
+                    'fahrenheit': { name: '華氏 (°F)', factor: 1 },
+                    'kelvin': { name: 'ケルビン (K)', factor: 1 }
+                }
+            },
+            volume: {
+                name: '体積',
+                units: {
+                    'ml': { name: 'ミリリットル', factor: 0.001 },
+                    'l': { name: 'リットル', factor: 1 },
+                    'kl': { name: 'キロリットル', factor: 1000 },
+                    'cup': { name: 'カップ', factor: 0.236588 },
+                    'pint': { name: 'パイント', factor: 0.473176 },
+                    'quart': { name: 'クォート', factor: 0.946353 },
+                    'gallon': { name: 'ガロン', factor: 3.78541 }
+                }
+            }
+        };
+
+        let currentCategory = 'length';
+
+        function changeCategory() {
+            currentCategory = document.getElementById('unitCategory').value;
+            populateUnits();
+            convert();
+        }
+
+        function populateUnits() {
+            const fromUnit = document.getElementById('fromUnit');
+            const toUnit = document.getElementById('toUnit');
+            
+            fromUnit.innerHTML = '';
+            toUnit.innerHTML = '';
+
+            const units = unitData[currentCategory].units;
+            const unitKeys = Object.keys(units);
+
+            unitKeys.forEach(key => {
+                const option1 = new Option(units[key].name, key);
+                const option2 = new Option(units[key].name, key);
+                fromUnit.add(option1);
+                toUnit.add(option2);
+            });
+
+            // デフォルト選択
+            if (unitKeys.length > 1) {
+                toUnit.selectedIndex = 1;
+            }
+        }
+
+        function convert() {
+            const fromValue = parseFloat(document.getElementById('fromValue').value);
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            const toValueInput = document.getElementById('toValue');
+            const resultValue = document.getElementById('resultValue');
+            const resultUnit = document.getElementById('resultUnit');
+
+            if (isNaN(fromValue) || fromValue === '') {
+                toValueInput.value = '';
+                resultValue.textContent = '数値を入力してください';
+                resultUnit.textContent = '';
+                return;
+            }
+
+            let result;
+
+            if (currentCategory === 'temperature') {
+                result = convertTemperature(fromValue, fromUnit, toUnit);
+            } else {
+                const fromFactor = unitData[currentCategory].units[fromUnit].factor;
+                const toFactor = unitData[currentCategory].units[toUnit].factor;
+                result = (fromValue * fromFactor) / toFactor;
+            }
+
+            toValueInput.value = result.toFixed(6).replace(/\.?0+$/, '');
+            
+            const fromUnitName = unitData[currentCategory].units[fromUnit].name;
+            const toUnitName = unitData[currentCategory].units[toUnit].name;
+            
+            resultValue.textContent = `${fromValue} ${fromUnitName} = ${result.toFixed(6).replace(/\.?0+$/, '')} ${toUnitName}`;
+            resultUnit.textContent = '';
+        }
+
+        function convertTemperature(value, from, to) {
+            let celsius;
+
+            // まず摂氏に変換
+            switch (from) {
+                case 'celsius':
+                    celsius = value;
+                    break;
+                case 'fahrenheit':
+                    celsius = (value - 32) * 5/9;
+                    break;
+                case 'kelvin':
+                    celsius = value - 273.15;
+                    break;
+            }
+
+            // 摂氏から目標単位に変換
+            switch (to) {
+                case 'celsius':
+                    return celsius;
+                case 'fahrenheit':
+                    return celsius * 9/5 + 32;
+                case 'kelvin':
+                    return celsius + 273.15;
+            }
+        }
+
+        function swapUnits() {
+            const fromUnit = document.getElementById('fromUnit');
+            const toUnit = document.getElementById('toUnit');
+            const fromValue = document.getElementById('fromValue');
+            const toValue = document.getElementById('toValue');
+
+            // 単位を交換
+            const tempUnit = fromUnit.value;
+            fromUnit.value = toUnit.value;
+            toUnit.value = tempUnit;
+
+            // 値を交換
+            const tempValue = fromValue.value;
+            fromValue.value = toValue.value;
+            toValue.value = tempValue;
+
+            convert();
+        }
+
+        // 初期化
+        populateUnits();
+        convert();
+    </script>
+</body>
+</html>

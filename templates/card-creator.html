@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カード作成 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .card-app {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .card-type-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .card-type-button {
+            padding: 15px 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .card-type-button:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .card-type-button.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .color-option.active {
+            border-color: #333;
+            transform: scale(1.1);
+        }
+
+        .card-preview {
+            padding: 30px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 500px;
+        }
+
+        .business-card {
+            width: 350px;
+            height: 200px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 25px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .greeting-card {
+            width: 300px;
+            height: 400px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .id-card {
+            width: 320px;
+            height: 200px;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            background: white;
+            color: #333;
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            border: 2px solid #667eea;
+        }
+
+        .membership-card {
+            width: 350px;
+            height: 220px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 25px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .invitation-card {
+            width: 280px;
+            height: 380px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .card-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .card-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .card-subtitle {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .card-info {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 5px;
+        }
+
+        .card-message {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin: 20px 0;
+        }
+
+        .card-decorative {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            z-index: 1;
+        }
+
+        .decorative-1 {
+            top: -50px;
+            right: -50px;
+        }
+
+        .decorative-2 {
+            bottom: -50px;
+            left: -50px;
+        }
+
+        .id-photo {
+            width: 80px;
+            height: 100px;
+            background: #ddd;
+            border-radius: 4px;
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .id-info {
+            flex: 1;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+        }
+
+        .control-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-preview {
+                padding: 15px;
+                min-height: 300px;
+            }
+            
+            .business-card {
+                width: 250px;
+                height: 140px;
+                padding: 15px;
+            }
+            
+            .greeting-card {
+                width: 200px;
+                height: 280px;
+                padding: 20px;
+            }
+            
+            .id-card {
+                width: 240px;
+                height: 150px;
+                padding: 15px;
+            }
+            
+            .card-type-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .card-app {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header, .form-section, .controls {
+                display: none;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+                padding: 0;
+                gap: 0;
+            }
+            
+            .preview-section {
+                border: none;
+                max-height: none;
+                overflow: visible;
+            }
+            
+            .card-preview {
+                background: white;
+                padding: 20mm;
+                min-height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card-app">
+        <div class="header">
+            <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+            <h1>🎴 カード作成</h1>
+            <p>名刺・グリーティングカード・IDカードなどを作成</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="section-title">カードの種類</div>
+                <div class="card-type-selector">
+                    <div class="card-type-button active" onclick="selectCardType('business')">
+                        <div>💼</div>
+                        <div>名刺</div>
+                    </div>
+                    <div class="card-type-button" onclick="selectCardType('greeting')">
+                        <div>💌</div>
+                        <div>グリーティング</div>
+                    </div>
+                    <div class="card-type-button" onclick="selectCardType('id')">
+                        <div>🆔</div>
+                        <div>IDカード</div>
+                    </div>
+                    <div class="card-type-button" onclick="selectCardType('membership')">
+                        <div>🎫</div>
+                        <div>メンバーズ</div>
+                    </div>
+                    <div class="card-type-button" onclick="selectCardType('invitation')">
+                        <div>💐</div>
+                        <div>招待状</div>
+                    </div>
+                </div>
+
+                <div class="section-title">デザイン設定</div>
+                <div class="form-group">
+                    <label>カラーテーマ</label>
+                    <div class="color-palette">
+                        <div class="color-option active" style="background: linear-gradient(135deg, #667eea, #764ba2)" onclick="selectColor('blue')"></div>
+                        <div class="color-option" style="background: linear-gradient(135deg, #f093fb, #f5576c)" onclick="selectColor('pink')"></div>
+                        <div class="color-option" style="background: linear-gradient(135deg, #4facfe, #00f2fe)" onclick="selectColor('cyan')"></div>
+                        <div class="color-option" style="background: linear-gradient(135deg, #43e97b, #38f9d7)" onclick="selectColor('green')"></div>
+                        <div class="color-option" style="background: linear-gradient(135deg, #fa709a, #fee140)" onclick="selectColor('orange')"></div>
+                        <div class="color-option" style="background: linear-gradient(135deg, #a8edea, #fed6e3)" onclick="selectColor('pastel')"></div>
+                    </div>
+                </div>
+
+                <div class="section-title">カード内容</div>
+                <div class="form-group">
+                    <label for="cardTitle">タイトル・見出し</label>
+                    <input type="text" id="cardTitle" placeholder="会社名・イベント名など">
+                </div>
+
+                <div class="form-group">
+                    <label for="cardName">氏名・主要テキスト</label>
+                    <input type="text" id="cardName" placeholder="山田 太郎">
+                </div>
+
+                <div class="form-group">
+                    <label for="cardSubtitle">サブタイトル・役職</label>
+                    <input type="text" id="cardSubtitle" placeholder="営業部長">
+                </div>
+
+                <div class="form-group">
+                    <label for="cardPhone">電話番号</label>
+                    <input type="text" id="cardPhone" placeholder="03-1234-5678">
+                </div>
+
+                <div class="form-group">
+                    <label for="cardEmail">メールアドレス</label>
+                    <input type="email" id="cardEmail" placeholder="yamada@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="cardAddress">住所・所在地</label>
+                    <textarea id="cardAddress" placeholder="東京都○○区○○1-1-1"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="cardWebsite">ウェブサイト・URL</label>
+                    <input type="url" id="cardWebsite" placeholder="https://example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="cardMessage">メッセージ・追加情報</label>
+                    <textarea id="cardMessage" placeholder="特別なメッセージや追加情報"></textarea>
+                </div>
+
+                <div class="section-title">ID/メンバーズカード専用</div>
+                <div class="form-group">
+                    <label for="cardNumber">カード番号・ID</label>
+                    <input type="text" id="cardNumber" placeholder="1234567890">
+                </div>
+
+                <div class="form-group">
+                    <label for="cardExpiry">有効期限</label>
+                    <input type="text" id="cardExpiry" placeholder="2025/12">
+                </div>
+
+                <div class="form-group">
+                    <label for="cardDepartment">部署・グループ</label>
+                    <input type="text" id="cardDepartment" placeholder="営業部">
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="card-preview">
+                    <div class="business-card" id="cardPreview">
+                        <div class="card-background" id="cardBackground"></div>
+                        <div class="card-decorative decorative-1"></div>
+                        <div class="card-decorative decorative-2"></div>
+                        
+                        <div class="card-content">
+                            <div class="card-title" id="previewTitle">会社名</div>
+                            <div class="card-name" id="previewName">山田 太郎</div>
+                            <div class="card-subtitle" id="previewSubtitle">営業部長</div>
+                            <div class="card-info" id="previewPhone">📞 03-1234-5678</div>
+                            <div class="card-info" id="previewEmail">✉️ yamada@example.com</div>
+                            <div class="card-info" id="previewWebsite">🌐 https://example.com</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="printCard()">🖨️ 印刷</button>
+            <button class="control-btn secondary" onclick="saveCard()">💾 保存</button>
+            <button class="control-btn secondary" onclick="loadCard()">📂 読み込み</button>
+            <button class="control-btn secondary" onclick="clearForm()">🗑️ クリア</button>
+        </div>
+    </div>
+
+    <script>
+        let currentCardType = 'business';
+        let currentColor = 'blue';
+
+        const colorThemes = {
+            blue: 'linear-gradient(135deg, #667eea, #764ba2)',
+            pink: 'linear-gradient(135deg, #f093fb, #f5576c)',
+            cyan: 'linear-gradient(135deg, #4facfe, #00f2fe)',
+            green: 'linear-gradient(135deg, #43e97b, #38f9d7)',
+            orange: 'linear-gradient(135deg, #fa709a, #fee140)',
+            pastel: 'linear-gradient(135deg, #a8edea, #fed6e3)'
+        };
+
+        function selectCardType(type) {
+            currentCardType = type;
+            
+            // ボタンの状態更新
+            document.querySelectorAll('.card-type-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            event.target.closest('.card-type-button').classList.add('active');
+            
+            updateCardLayout();
+            updatePreview();
+        }
+
+        function selectColor(color) {
+            currentColor = color;
+            
+            // ボタンの状態更新
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            updatePreview();
+        }
+
+        function updateCardLayout() {
+            const cardPreview = document.getElementById('cardPreview');
+            
+            // クラスをリセット
+            cardPreview.className = '';
+            
+            // カードタイプに応じたクラスとHTML構造を設定
+            switch (currentCardType) {
+                case 'business':
+                    cardPreview.className = 'business-card';
+                    cardPreview.innerHTML = `
+                        <div class="card-background" id="cardBackground"></div>
+                        <div class="card-decorative decorative-1"></div>
+                        <div class="card-decorative decorative-2"></div>
+                        <div class="card-content">
+                            <div class="card-title" id="previewTitle">会社名</div>
+                            <div class="card-name" id="previewName">山田 太郎</div>
+                            <div class="card-subtitle" id="previewSubtitle">営業部長</div>
+                            <div class="card-info" id="previewPhone">📞 03-1234-5678</div>
+                            <div class="card-info" id="previewEmail">✉️ yamada@example.com</div>
+                            <div class="card-info" id="previewWebsite">🌐 https://example.com</div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'greeting':
+                    cardPreview.className = 'greeting-card';
+                    cardPreview.innerHTML = `
+                        <div class="card-background" id="cardBackground"></div>
+                        <div class="card-decorative decorative-1"></div>
+                        <div class="card-decorative decorative-2"></div>
+                        <div class="card-content">
+                            <div class="card-title" id="previewTitle">お祝い</div>
+                            <div class="card-message" id="previewMessage">心よりお祝い申し上げます</div>
+                            <div class="card-name" id="previewName">山田 太郎</div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'id':
+                    cardPreview.className = 'id-card';
+                    cardPreview.innerHTML = `
+                        <div class="id-photo">写真</div>
+                        <div class="id-info">
+                            <div class="card-title" id="previewTitle">社員証</div>
+                            <div class="card-name" id="previewName">山田 太郎</div>
+                            <div class="card-subtitle" id="previewDepartment">営業部</div>
+                            <div class="card-info" id="previewNumber">ID: 1234567890</div>
+                            <div class="card-info" id="previewExpiry">有効期限: 2025/12</div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'membership':
+                    cardPreview.className = 'membership-card';
+                    cardPreview.innerHTML = `
+                        <div class="card-background" id="cardBackground"></div>
+                        <div class="card-decorative decorative-1"></div>
+                        <div class="card-decorative decorative-2"></div>
+                        <div class="card-content">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div>
+                                    <div class="card-title" id="previewTitle">VIPメンバー</div>
+                                    <div class="card-name" id="previewName">山田 太郎</div>
+                                    <div class="card-subtitle" id="previewSubtitle">ゴールドメンバー</div>
+                                </div>
+                                <div style="text-align: right; font-size: 0.8rem;">
+                                    <div id="previewNumber">No. 1234567890</div>
+                                    <div id="previewExpiry">2025/12</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'invitation':
+                    cardPreview.className = 'invitation-card';
+                    cardPreview.innerHTML = `
+                        <div class="card-background" id="cardBackground"></div>
+                        <div class="card-decorative decorative-1"></div>
+                        <div class="card-decorative decorative-2"></div>
+                        <div class="card-content">
+                            <div class="card-title" id="previewTitle">ご招待</div>
+                            <div class="card-message" id="previewMessage">パーティーにご招待いたします</div>
+                            <div class="card-info" id="previewDetails">詳細情報</div>
+                            <div class="card-name" id="previewName">主催者</div>
+                        </div>
+                    `;
+                    break;
+            }
+        }
+
+        function updatePreview() {
+            const cardTitle = document.getElementById('cardTitle').value;
+            const cardName = document.getElementById('cardName').value;
+            const cardSubtitle = document.getElementById('cardSubtitle').value;
+            const cardPhone = document.getElementById('cardPhone').value;
+            const cardEmail = document.getElementById('cardEmail').value;
+            const cardAddress = document.getElementById('cardAddress').value;
+            const cardWebsite = document.getElementById('cardWebsite').value;
+            const cardMessage = document.getElementById('cardMessage').value;
+            const cardNumber = document.getElementById('cardNumber').value;
+            const cardExpiry = document.getElementById('cardExpiry').value;
+            const cardDepartment = document.getElementById('cardDepartment').value;
+
+            // 背景色の更新
+            const cardBackground = document.getElementById('cardBackground');
+            if (cardBackground) {
+                cardBackground.style.background = colorThemes[currentColor];
+            }
+
+            // カードタイプ別の内容更新
+            const titleElement = document.getElementById('previewTitle');
+            const nameElement = document.getElementById('previewName');
+            const subtitleElement = document.getElementById('previewSubtitle');
+
+            if (titleElement) titleElement.textContent = cardTitle || getDefaultTitle();
+            if (nameElement) nameElement.textContent = cardName || '山田 太郎';
+            if (subtitleElement) subtitleElement.textContent = cardSubtitle || getDefaultSubtitle();
+
+            // 共通要素の更新
+            const phoneElement = document.getElementById('previewPhone');
+            const emailElement = document.getElementById('previewEmail');
+            const websiteElement = document.getElementById('previewWebsite');
+            const messageElement = document.getElementById('previewMessage');
+
+            if (phoneElement) {
+                phoneElement.textContent = cardPhone ? `📞 ${cardPhone}` : '📞 03-1234-5678';
+                phoneElement.style.display = cardPhone ? 'block' : (currentCardType === 'business' ? 'block' : 'none');
+            }
+
+            if (emailElement) {
+                emailElement.textContent = cardEmail ? `✉️ ${cardEmail}` : '✉️ yamada@example.com';
+                emailElement.style.display = cardEmail ? 'block' : (currentCardType === 'business' ? 'block' : 'none');
+            }
+
+            if (websiteElement) {
+                websiteElement.textContent = cardWebsite ? `🌐 ${cardWebsite}` : '🌐 https://example.com';
+                websiteElement.style.display = cardWebsite ? 'block' : (currentCardType === 'business' ? 'block' : 'none');
+            }
+
+            if (messageElement) {
+                messageElement.textContent = cardMessage || getDefaultMessage();
+            }
+
+            // ID/メンバーズカード専用要素
+            const numberElement = document.getElementById('previewNumber');
+            const expiryElement = document.getElementById('previewExpiry');
+            const departmentElement = document.getElementById('previewDepartment');
+
+            if (numberElement) {
+                if (currentCardType === 'id') {
+                    numberElement.textContent = cardNumber ? `ID: ${cardNumber}` : 'ID: 1234567890';
+                } else if (currentCardType === 'membership') {
+                    numberElement.textContent = cardNumber ? `No. ${cardNumber}` : 'No. 1234567890';
+                }
+            }
+
+            if (expiryElement) {
+                expiryElement.textContent = cardExpiry ? `有効期限: ${cardExpiry}` : '有効期限: 2025/12';
+            }
+
+            if (departmentElement) {
+                departmentElement.textContent = cardDepartment || '営業部';
+            }
+
+            // 招待状専用
+            const detailsElement = document.getElementById('previewDetails');
+            if (detailsElement) {
+                detailsElement.textContent = cardAddress || '詳細情報';
+            }
+        }
+
+        function getDefaultTitle() {
+            switch (currentCardType) {
+                case 'business': return '会社名';
+                case 'greeting': return 'お祝い';
+                case 'id': return '社員証';
+                case 'membership': return 'VIPメンバー';
+                case 'invitation': return 'ご招待';
+                default: return 'タイトル';
+            }
+        }
+
+        function getDefaultSubtitle() {
+            switch (currentCardType) {
+                case 'business': return '営業部長';
+                case 'greeting': return '';
+                case 'id': return '営業部';
+                case 'membership': return 'ゴールドメンバー';
+                case 'invitation': return '';
+                default: return '';
+            }
+        }
+
+        function getDefaultMessage() {
+            switch (currentCardType) {
+                case 'greeting': return '心よりお祝い申し上げます';
+                case 'invitation': return 'パーティーにご招待いたします';
+                default: return '';
+            }
+        }
+
+        function printCard() {
+            window.print();
+        }
+
+        function saveCard() {
+            const data = {
+                cardType: currentCardType,
+                colorTheme: currentColor,
+                cardTitle: document.getElementById('cardTitle').value,
+                cardName: document.getElementById('cardName').value,
+                cardSubtitle: document.getElementById('cardSubtitle').value,
+                cardPhone: document.getElementById('cardPhone').value,
+                cardEmail: document.getElementById('cardEmail').value,
+                cardAddress: document.getElementById('cardAddress').value,
+                cardWebsite: document.getElementById('cardWebsite').value,
+                cardMessage: document.getElementById('cardMessage').value,
+                cardNumber: document.getElementById('cardNumber').value,
+                cardExpiry: document.getElementById('cardExpiry').value,
+                cardDepartment: document.getElementById('cardDepartment').value
+            };
+
+            localStorage.setItem('cardData', JSON.stringify(data));
+            alert('カードデザインを保存しました！');
+        }
+
+        function loadCard() {
+            const savedData = localStorage.getItem('cardData');
+            if (!savedData) {
+                alert('保存されたデータがありません。');
+                return;
+            }
+
+            const data = JSON.parse(savedData);
+            
+            // カードタイプの復元
+            if (data.cardType) {
+                selectCardType(data.cardType);
+            }
+            
+            // カラーテーマの復元
+            if (data.colorTheme) {
+                selectColor(data.colorTheme);
+            }
+            
+            // フォームに保存されたデータを読み込み
+            Object.keys(data).forEach(key => {
+                if (key !== 'cardType' && key !== 'colorTheme') {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.value = data[key] || '';
+                    }
+                }
+            });
+
+            updatePreview();
+            alert('カードデザインを読み込みました！');
+        }
+
+        function clearForm() {
+            if (confirm('すべての入力内容をクリアしますか？')) {
+                document.querySelectorAll('input, textarea').forEach(element => {
+                    element.value = '';
+                });
+                selectCardType('business');
+                selectColor('blue');
+                updatePreview();
+            }
+        }
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+                input.addEventListener('change', updatePreview);
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            updateCardLayout();
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

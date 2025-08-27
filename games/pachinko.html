@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>パチンコシミュレーター - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .pachinko-game {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .game-controls {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .game-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px 15px;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .info-value {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .balls {
+            color: #ffc107 !important;
+        }
+
+        .points {
+            color: #28a745 !important;
+        }
+
+        .power {
+            color: #dc3545 !important;
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .pachinko-board {
+            background: #1a1a2e;
+            border-radius: 15px;
+            border: 4px solid #667eea;
+            height: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ball {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, #ffd700, #ffa500);
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(255, 215, 0, 0.8);
+        }
+
+        .pin {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #silver;
+            border-radius: 50%;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .pocket {
+            position: absolute;
+            width: 40px;
+            height: 10px;
+            background: #28a745;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+        }
+
+        .special-pocket {
+            background: #dc3545;
+            box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+        }
+
+        .control-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            height: fit-content;
+        }
+
+        .power-control {
+            margin-bottom: 30px;
+        }
+
+        .power-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 10px;
+            border-radius: 5px;
+            background: #e9ecef;
+            outline: none;
+            margin: 10px 0;
+        }
+
+        .power-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 15px 25px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .action-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-btn.fire {
+            background: #e74c3c;
+            font-size: 1.3rem;
+            padding: 20px;
+        }
+
+        .action-btn.fire:hover {
+            background: #c0392b;
+        }
+
+        .auto-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .auto-btn {
+            flex: 1;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .auto-btn:hover {
+            background: #5a6268;
+        }
+
+        .auto-btn.active {
+            background: #28a745;
+        }
+
+        .stats-panel {
+            background: #e1ecf4;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stats-title {
+            color: #0c5460;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .notification-area {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-text {
+            color: #856404;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .jackpot {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            animation: jackpotPulse 1s infinite alternate;
+        }
+
+        @keyframes jackpotPulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        .stats-section {
+            background: #d4edda;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stats-title-main {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #155724;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.jackpot {
+            background: #e74c3c;
+            font-size: 1.2rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .pachinko-game {
+                padding: 20px;
+            }
+            
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+            
+            .pachinko-board {
+                height: 400px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="pachinko-game">
+        <div class="header">
+            <h1>🎰 パチンコシミュレーター</h1>
+            <p>玉を打ち出して大当たりを狙おう！</p>
+        </div>
+
+        <div class="game-controls">
+            <div class="game-info">
+                <div class="info-item">
+                    <div class="info-value balls" id="ballCount">100</div>
+                    <div class="info-label">保有玉数</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value points" id="totalPoints">0</div>
+                    <div class="info-label">総獲得点</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value power" id="powerDisplay">50</div>
+                    <div class="info-label">発射力(%)</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value" id="jackpotCount">0</div>
+                    <div class="info-label">大当たり回数</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="pachinko-board" id="pachinkoBoard">
+                <!-- ピンとポケットが動的に生成されます -->
+            </div>
+
+            <div class="control-panel">
+                <div class="power-control">
+                    <h3 style="color: #333; margin-bottom: 10px;">発射力調整</h3>
+                    <input type="range" min="10" max="100" value="50" class="power-slider" id="powerSlider">
+                </div>
+
+                <button class="action-btn fire" onclick="fireBall()" id="fireBtn">🔥 玉を打つ！</button>
+
+                <div class="auto-controls">
+                    <button class="auto-btn" onclick="toggleAuto()" id="autoBtn">自動発射</button>
+                    <button class="auto-btn" onclick="buyBalls()">玉購入</button>
+                </div>
+
+                <div class="stats-panel">
+                    <div class="stats-title">📊 現在のセッション</div>
+                    <div class="stat-row">
+                        <span>発射した玉:</span>
+                        <span id="ballsFired">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>獲得した玉:</span>
+                        <span id="ballsWon">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>当たり率:</span>
+                        <span id="hitRate">0%</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>収支:</span>
+                        <span id="netGain">0</span>
+                    </div>
+                </div>
+
+                <div class="notification-area">
+                    <div class="notification-text" id="gameNotification">
+                        発射ボタンを押してゲーム開始！
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-title-main">📈 統計情報</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalBallsFired">0</div>
+                    <div class="stat-label">総発射数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalBallsWon">0</div>
+                    <div class="stat-label">総獲得数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalJackpots">0</div>
+                    <div class="stat-label">総大当たり</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="bestStreak">0</div>
+                    <div class="stat-label">最高連チャン</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalPlayTime">0</div>
+                    <div class="stat-label">総プレイ時間(分)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="overallHitRate">0</div>
+                    <div class="stat-label">通算当たり率(%)</div>
+                </div>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let gameState = {
+            ballCount: 100,
+            totalPoints: 0,
+            power: 50,
+            isAutoMode: false,
+            autoInterval: null,
+            ballsFired: 0,
+            ballsWon: 0,
+            jackpotCount: 0,
+            currentStreak: 0,
+            sessionStartTime: Date.now(),
+            balls: [],
+            pins: [],
+            pockets: []
+        };
+
+        let gameStats = {
+            totalBallsFired: 0,
+            totalBallsWon: 0,
+            totalJackpots: 0,
+            bestStreak: 0,
+            totalPlayTime: 0
+        };
+
+        const board = document.getElementById('pachinkoBoard');
+        const boardWidth = 400;
+        const boardHeight = 500;
+
+        function loadStats() {
+            const saved = localStorage.getItem('pachinkoStats');
+            if (saved) {
+                gameStats = { ...gameStats, ...JSON.parse(saved) };
+                updateStatsDisplay();
+            }
+        }
+
+        function saveStats() {
+            localStorage.setItem('pachinkoStats', JSON.stringify(gameStats));
+        }
+
+        function initializeBoard() {
+            // ピンを配置
+            gameState.pins = [];
+            for (let row = 0; row < 15; row++) {
+                for (let col = 0; col < 8; col++) {
+                    if ((row + col) % 2 === 0) {
+                        const pin = {
+                            x: 50 + col * 40 + (row % 2) * 20,
+                            y: 50 + row * 25
+                        };
+                        gameState.pins.push(pin);
+                    }
+                }
+            }
+
+            // ポケットを配置
+            gameState.pockets = [
+                { x: 30, y: 450, width: 40, height: 10, value: 5, special: false },
+                { x: 100, y: 450, width: 40, height: 10, value: 10, special: false },
+                { x: 170, y: 450, width: 40, height: 10, value: 50, special: true },
+                { x: 240, y: 450, width: 40, height: 10, value: 10, special: false },
+                { x: 310, y: 450, width: 40, height: 10, value: 5, special: false }
+            ];
+
+            renderBoard();
+        }
+
+        function renderBoard() {
+            board.innerHTML = '';
+
+            // ピンを描画
+            gameState.pins.forEach(pin => {
+                const pinElement = document.createElement('div');
+                pinElement.className = 'pin';
+                pinElement.style.left = pin.x + 'px';
+                pinElement.style.top = pin.y + 'px';
+                board.appendChild(pinElement);
+            });
+
+            // ポケットを描画
+            gameState.pockets.forEach(pocket => {
+                const pocketElement = document.createElement('div');
+                pocketElement.className = pocket.special ? 'pocket special-pocket' : 'pocket';
+                pocketElement.style.left = pocket.x + 'px';
+                pocketElement.style.top = pocket.y + 'px';
+                pocketElement.style.width = pocket.width + 'px';
+                pocketElement.style.height = pocket.height + 'px';
+                board.appendChild(pocketElement);
+            });
+        }
+
+        function fireBall() {
+            if (gameState.ballCount <= 0) {
+                showNotification('玉がありません！玉を購入してください', 'error');
+                return;
+            }
+
+            gameState.ballCount--;
+            gameState.ballsFired++;
+            gameStats.totalBallsFired++;
+
+            const ball = {
+                x: 20,
+                y: 10,
+                vx: (gameState.power / 100) * 3 + Math.random() * 2 - 1,
+                vy: 0,
+                element: null
+            };
+
+            const ballElement = document.createElement('div');
+            ballElement.className = 'ball';
+            ballElement.style.left = ball.x + 'px';
+            ballElement.style.top = ball.y + 'px';
+            board.appendChild(ballElement);
+            ball.element = ballElement;
+
+            gameState.balls.push(ball);
+            updateDisplay();
+            updateNotification('玉を発射しました！');
+
+            animateBall(ball);
+        }
+
+        function animateBall(ball) {
+            const gravity = 0.3;
+            const friction = 0.98;
+            const bounce = 0.7;
+
+            function update() {
+                // 重力を適用
+                ball.vy += gravity;
+                
+                // 位置を更新
+                ball.x += ball.vx;
+                ball.y += ball.vy;
+
+                // 壁との衝突
+                if (ball.x <= 0 || ball.x >= boardWidth - 8) {
+                    ball.vx = -ball.vx * bounce;
+                    ball.x = ball.x <= 0 ? 0 : boardWidth - 8;
+                }
+
+                // ピンとの衝突チェック
+                gameState.pins.forEach(pin => {
+                    const dx = ball.x - pin.x;
+                    const dy = ball.y - pin.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 10) {
+                        const angle = Math.atan2(dy, dx);
+                        ball.vx = Math.cos(angle) * 2;
+                        ball.vy = Math.sin(angle) * 2;
+                    }
+                });
+
+                // ポケットとの衝突チェック
+                gameState.pockets.forEach(pocket => {
+                    if (ball.x >= pocket.x && ball.x <= pocket.x + pocket.width &&
+                        ball.y >= pocket.y && ball.y <= pocket.y + pocket.height) {
+                        
+                        // 当たり処理
+                        hitPocket(pocket);
+                        removeBall(ball);
+                        return;
+                    }
+                });
+
+                // 画面下に落ちた場合
+                if (ball.y > boardHeight) {
+                    removeBall(ball);
+                    return;
+                }
+
+                // 位置を更新
+                ball.element.style.left = ball.x + 'px';
+                ball.element.style.top = ball.y + 'px';
+
+                // 速度を減衰
+                ball.vx *= friction;
+                ball.vy *= friction;
+
+                // アニメーション継続
+                if (ball.element.parentNode) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            update();
+        }
+
+        function hitPocket(pocket) {
+            const points = pocket.value;
+            gameState.ballsWon += points;
+            gameState.totalPoints += points * 10;
+            gameStats.totalBallsWon += points;
+
+            if (pocket.special) {
+                // 大当たり処理
+                gameState.jackpotCount++;
+                gameState.currentStreak++;
+                gameStats.totalJackpots++;
+                
+                if (gameState.currentStreak > gameStats.bestStreak) {
+                    gameStats.bestStreak = gameState.currentStreak;
+                }
+
+                const bonus = 100 + Math.floor(Math.random() * 200);
+                gameState.ballCount += bonus;
+                gameState.ballsWon += bonus;
+                gameStats.totalBallsWon += bonus;
+
+                updateNotification(`🎉 大当たり！${bonus}個獲得！`, 'jackpot');
+                showNotification(`🎰 JACKPOT! ${bonus}個獲得！`, 'jackpot');
+                
+                // 大当たりエフェクト
+                board.classList.add('jackpot');
+                setTimeout(() => board.classList.remove('jackpot'), 2000);
+            } else {
+                gameState.ballCount += points;
+                updateNotification(`${points}個獲得！`);
+            }
+
+            updateDisplay();
+        }
+
+        function removeBall(ball) {
+            const index = gameState.balls.indexOf(ball);
+            if (index > -1) {
+                gameState.balls.splice(index, 1);
+            }
+            if (ball.element && ball.element.parentNode) {
+                ball.element.parentNode.removeChild(ball.element);
+            }
+        }
+
+        function toggleAuto() {
+            gameState.isAutoMode = !gameState.isAutoMode;
+            const btn = document.getElementById('autoBtn');
+            
+            if (gameState.isAutoMode) {
+                btn.textContent = '自動停止';
+                btn.classList.add('active');
+                gameState.autoInterval = setInterval(() => {
+                    if (gameState.ballCount > 0) {
+                        fireBall();
+                    } else {
+                        toggleAuto();
+                    }
+                }, 500);
+                updateNotification('自動発射モード開始');
+            } else {
+                btn.textContent = '自動発射';
+                btn.classList.remove('active');
+                if (gameState.autoInterval) {
+                    clearInterval(gameState.autoInterval);
+                    gameState.autoInterval = null;
+                }
+                updateNotification('自動発射モード停止');
+            }
+        }
+
+        function buyBalls() {
+            const cost = 1000;
+            const balls = 100;
+            
+            if (gameState.totalPoints >= cost) {
+                gameState.totalPoints -= cost;
+                gameState.ballCount += balls;
+                updateDisplay();
+                updateNotification(`${balls}個の玉を購入しました（${cost}点消費）`);
+                showNotification(`${balls}個の玉を購入！`);
+            } else {
+                showNotification('ポイントが不足しています', 'error');
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('ballCount').textContent = gameState.ballCount;
+            document.getElementById('totalPoints').textContent = gameState.totalPoints;
+            document.getElementById('powerDisplay').textContent = gameState.power;
+            document.getElementById('jackpotCount').textContent = gameState.jackpotCount;
+            
+            document.getElementById('ballsFired').textContent = gameState.ballsFired;
+            document.getElementById('ballsWon').textContent = gameState.ballsWon;
+            
+            const hitRate = gameState.ballsFired > 0 ? 
+                Math.round((gameState.ballsWon / gameState.ballsFired) * 100) : 0;
+            document.getElementById('hitRate').textContent = hitRate + '%';
+            
+            const netGain = gameState.ballsWon - gameState.ballsFired;
+            document.getElementById('netGain').textContent = netGain;
+
+            // 発射ボタンの状態
+            document.getElementById('fireBtn').disabled = gameState.ballCount <= 0;
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('totalBallsFired').textContent = gameStats.totalBallsFired;
+            document.getElementById('totalBallsWon').textContent = gameStats.totalBallsWon;
+            document.getElementById('totalJackpots').textContent = gameStats.totalJackpots;
+            document.getElementById('bestStreak').textContent = gameStats.bestStreak;
+            
+            const playTime = Math.floor((Date.now() - gameState.sessionStartTime + gameStats.totalPlayTime) / 60000);
+            document.getElementById('totalPlayTime').textContent = playTime;
+            
+            const overallHitRate = gameStats.totalBallsFired > 0 ? 
+                Math.round((gameStats.totalBallsWon / gameStats.totalBallsFired) * 100) : 0;
+            document.getElementById('overallHitRate').textContent = overallHitRate;
+        }
+
+        function updateNotification(message) {
+            document.getElementById('gameNotification').textContent = message;
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // パワースライダーのイベント
+        document.getElementById('powerSlider').addEventListener('input', (e) => {
+            gameState.power = parseInt(e.target.value);
+            updateDisplay();
+        });
+
+        // 初期化
+        function init() {
+            loadStats();
+            initializeBoard();
+            updateDisplay();
+            updateStatsDisplay();
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // ページを離れる前に統計を保存
+        window.addEventListener('beforeunload', () => {
+            gameStats.totalPlayTime += Date.now() - gameState.sessionStartTime;
+            saveStats();
+        });
+    </script>
+</body>
+</html>

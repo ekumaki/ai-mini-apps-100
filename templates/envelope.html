@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>封筒テンプレート - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .envelope-app {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .envelope-preview {
+            padding: 30px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 500px;
+        }
+
+        .envelope {
+            position: relative;
+            background: white;
+            border: 2px solid #333;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            font-family: 'Times New Roman', serif;
+        }
+
+        .envelope-long {
+            width: 400px;
+            height: 200px;
+        }
+
+        .envelope-square {
+            width: 300px;
+            height: 300px;
+        }
+
+        .envelope-a4 {
+            width: 350px;
+            height: 250px;
+        }
+
+        .envelope-postcard {
+            width: 280px;
+            height: 180px;
+        }
+
+        .stamp-area {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 50px;
+            height: 35px;
+            border: 1px dashed #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: #667eea;
+        }
+
+        .recipient-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 70%;
+        }
+
+        .recipient-postal {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+        }
+
+        .recipient-address {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .recipient-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .recipient-title {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .sender-area {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            font-size: 0.8rem;
+            line-height: 1.3;
+            max-width: 40%;
+        }
+
+        .sender-postal {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .sender-address {
+            margin-bottom: 5px;
+        }
+
+        .sender-name {
+            font-weight: bold;
+        }
+
+        .envelope-type-business {
+            background: #f8f9fa;
+        }
+
+        .envelope-type-personal {
+            background: #fff9c4;
+        }
+
+        .envelope-type-formal {
+            background: #e8f5e8;
+        }
+
+        .envelope-type-invitation {
+            background: #fce4ec;
+        }
+
+        .size-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .size-option {
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .size-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .size-option.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+        }
+
+        .control-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .envelope-preview {
+                padding: 15px;
+                min-height: 300px;
+            }
+            
+            .envelope-long {
+                width: 300px;
+                height: 150px;
+            }
+            
+            .envelope-square {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .envelope-a4 {
+                width: 250px;
+                height: 180px;
+            }
+            
+            .envelope-postcard {
+                width: 200px;
+                height: 130px;
+            }
+            
+            .size-selector {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .envelope-app {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header, .form-section, .controls {
+                display: none;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+                padding: 0;
+                gap: 0;
+            }
+            
+            .preview-section {
+                border: none;
+                max-height: none;
+                overflow: visible;
+            }
+            
+            .envelope-preview {
+                background: white;
+                padding: 20mm;
+                min-height: auto;
+            }
+            
+            .envelope {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="envelope-app">
+        <div class="header">
+            <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+            <h1>✉️ 封筒テンプレート</h1>
+            <p>手紙や文書の封筒を美しくデザイン</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="section-title">封筒設定</div>
+                <div class="form-group">
+                    <label>封筒サイズ</label>
+                    <div class="size-selector">
+                        <div class="size-option active" onclick="selectSize('long')">
+                            <div><strong>長形3号</strong></div>
+                            <div>120×235mm</div>
+                        </div>
+                        <div class="size-option" onclick="selectSize('square')">
+                            <div><strong>角形2号</strong></div>
+                            <div>240×332mm</div>
+                        </div>
+                        <div class="size-option" onclick="selectSize('a4')">
+                            <div><strong>角形A4</strong></div>
+                            <div>229×324mm</div>
+                        </div>
+                        <div class="size-option" onclick="selectSize('postcard')">
+                            <div><strong>洋形2号</strong></div>
+                            <div>114×162mm</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="envelopeType">封筒の用途</label>
+                    <select id="envelopeType">
+                        <option value="business">ビジネス用</option>
+                        <option value="personal">個人用</option>
+                        <option value="formal">正式文書</option>
+                        <option value="invitation">招待状</option>
+                    </select>
+                </div>
+
+                <div class="section-title">宛先情報</div>
+                <div class="form-group">
+                    <label for="recipientPostal">宛先郵便番号</label>
+                    <input type="text" id="recipientPostal" placeholder="123-4567">
+                </div>
+
+                <div class="form-group">
+                    <label for="recipientAddress">宛先住所</label>
+                    <textarea id="recipientAddress" placeholder="東京都○○区○○1-1-1&#10;○○マンション101号室"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="recipientName">宛先氏名</label>
+                            <input type="text" id="recipientName" placeholder="山田 太郎">
+                        </div>
+                        <div>
+                            <label for="recipientTitle">敬称・肩書き</label>
+                            <input type="text" id="recipientTitle" placeholder="様">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="recipientCompany">会社名・団体名</label>
+                    <input type="text" id="recipientCompany" placeholder="○○株式会社">
+                </div>
+
+                <div class="section-title">差出人情報</div>
+                <div class="form-group">
+                    <label for="senderPostal">差出人郵便番号</label>
+                    <input type="text" id="senderPostal" placeholder="987-6543">
+                </div>
+
+                <div class="form-group">
+                    <label for="senderAddress">差出人住所</label>
+                    <textarea id="senderAddress" placeholder="大阪府○○市○○2-2-2"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="senderName">差出人氏名</label>
+                            <input type="text" id="senderName" placeholder="佐藤 花子">
+                        </div>
+                        <div>
+                            <label for="senderTitle">肩書き</label>
+                            <input type="text" id="senderTitle" placeholder="営業部長">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="senderCompany">差出人会社名</label>
+                    <input type="text" id="senderCompany" placeholder="△△株式会社">
+                </div>
+
+                <div class="section-title">その他設定</div>
+                <div class="form-group">
+                    <label for="stampType">切手表示</label>
+                    <select id="stampType">
+                        <option value="show">表示する</option>
+                        <option value="hide">表示しない</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="orientation">文字方向</label>
+                    <select id="orientation">
+                        <option value="horizontal">横書き</option>
+                        <option value="vertical">縦書き</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="envelope-preview">
+                    <div class="envelope envelope-long envelope-type-business" id="envelopePreview">
+                        <div class="stamp-area" id="stampArea">切手</div>
+                        
+                        <div class="recipient-area">
+                            <div class="recipient-postal" id="previewRecipientPostal">123-4567</div>
+                            <div class="recipient-address" id="previewRecipientAddress">
+                                東京都○○区○○1-1-1<br>
+                                ○○マンション101号室
+                            </div>
+                            <div id="previewRecipientCompany"></div>
+                            <div class="recipient-name" id="previewRecipientName">山田 太郎 様</div>
+                        </div>
+
+                        <div class="sender-area">
+                            <div class="sender-postal" id="previewSenderPostal">987-6543</div>
+                            <div class="sender-address" id="previewSenderAddress">大阪府○○市○○2-2-2</div>
+                            <div id="previewSenderCompany"></div>
+                            <div class="sender-name" id="previewSenderName">佐藤 花子</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="printEnvelope()">🖨️ 印刷</button>
+            <button class="control-btn secondary" onclick="saveEnvelope()">💾 保存</button>
+            <button class="control-btn secondary" onclick="loadEnvelope()">📂 読み込み</button>
+            <button class="control-btn secondary" onclick="clearForm()">🗑️ クリア</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSize = 'long';
+
+        function selectSize(size) {
+            currentSize = size;
+            
+            // ボタンの状態更新
+            document.querySelectorAll('.size-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            event.target.closest('.size-option').classList.add('active');
+            
+            // 封筒クラスの更新
+            const envelope = document.getElementById('envelopePreview');
+            envelope.className = envelope.className.replace(/envelope-\w+(?=\s|$)/g, '');
+            envelope.classList.add(`envelope-${size}`);
+            
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const recipientPostal = document.getElementById('recipientPostal').value;
+            const recipientAddress = document.getElementById('recipientAddress').value;
+            const recipientName = document.getElementById('recipientName').value;
+            const recipientTitle = document.getElementById('recipientTitle').value;
+            const recipientCompany = document.getElementById('recipientCompany').value;
+            const senderPostal = document.getElementById('senderPostal').value;
+            const senderAddress = document.getElementById('senderAddress').value;
+            const senderName = document.getElementById('senderName').value;
+            const senderTitle = document.getElementById('senderTitle').value;
+            const senderCompany = document.getElementById('senderCompany').value;
+            const envelopeType = document.getElementById('envelopeType').value;
+            const stampType = document.getElementById('stampType').value;
+
+            // 封筒タイプの更新
+            const envelope = document.getElementById('envelopePreview');
+            envelope.className = envelope.className.replace(/envelope-type-\w+/g, '');
+            envelope.classList.add(`envelope-type-${envelopeType}`);
+
+            // 切手表示の制御
+            const stampArea = document.getElementById('stampArea');
+            stampArea.style.display = stampType === 'show' ? 'flex' : 'none';
+
+            // 宛先情報の更新
+            document.getElementById('previewRecipientPostal').textContent = 
+                recipientPostal || '123-4567';
+            
+            document.getElementById('previewRecipientAddress').innerHTML = 
+                (recipientAddress || '東京都○○区○○1-1-1\n○○マンション101号室').replace(/\n/g, '<br>');
+            
+            // 宛先会社名の表示制御
+            const recipientCompanyElement = document.getElementById('previewRecipientCompany');
+            if (recipientCompany) {
+                recipientCompanyElement.textContent = recipientCompany;
+                recipientCompanyElement.style.display = 'block';
+                recipientCompanyElement.style.marginBottom = '5px';
+                recipientCompanyElement.style.fontSize = '0.9rem';
+            } else {
+                recipientCompanyElement.style.display = 'none';
+            }
+            
+            // 宛先氏名の更新
+            let fullRecipientName = recipientName || '山田 太郎';
+            if (recipientTitle) {
+                fullRecipientName += ' ' + recipientTitle;
+            } else {
+                fullRecipientName += ' 様';
+            }
+            document.getElementById('previewRecipientName').textContent = fullRecipientName;
+
+            // 差出人情報の更新
+            document.getElementById('previewSenderPostal').textContent = 
+                senderPostal || '987-6543';
+            
+            document.getElementById('previewSenderAddress').textContent = 
+                senderAddress || '大阪府○○市○○2-2-2';
+            
+            // 差出人会社名の表示制御
+            const senderCompanyElement = document.getElementById('previewSenderCompany');
+            if (senderCompany) {
+                senderCompanyElement.textContent = senderCompany;
+                senderCompanyElement.style.display = 'block';
+                senderCompanyElement.style.marginBottom = '3px';
+            } else {
+                senderCompanyElement.style.display = 'none';
+            }
+            
+            // 差出人氏名の更新
+            let fullSenderName = senderName || '佐藤 花子';
+            if (senderTitle) {
+                fullSenderName = senderTitle + ' ' + fullSenderName;
+            }
+            document.getElementById('previewSenderName').textContent = fullSenderName;
+        }
+
+        function printEnvelope() {
+            window.print();
+        }
+
+        function saveEnvelope() {
+            const data = {
+                envelopeSize: currentSize,
+                envelopeType: document.getElementById('envelopeType').value,
+                recipientPostal: document.getElementById('recipientPostal').value,
+                recipientAddress: document.getElementById('recipientAddress').value,
+                recipientName: document.getElementById('recipientName').value,
+                recipientTitle: document.getElementById('recipientTitle').value,
+                recipientCompany: document.getElementById('recipientCompany').value,
+                senderPostal: document.getElementById('senderPostal').value,
+                senderAddress: document.getElementById('senderAddress').value,
+                senderName: document.getElementById('senderName').value,
+                senderTitle: document.getElementById('senderTitle').value,
+                senderCompany: document.getElementById('senderCompany').value,
+                stampType: document.getElementById('stampType').value,
+                orientation: document.getElementById('orientation').value
+            };
+
+            localStorage.setItem('envelopeData', JSON.stringify(data));
+            alert('封筒デザインを保存しました！');
+        }
+
+        function loadEnvelope() {
+            const savedData = localStorage.getItem('envelopeData');
+            if (!savedData) {
+                alert('保存されたデータがありません。');
+                return;
+            }
+
+            const data = JSON.parse(savedData);
+            
+            // 基本設定の読み込み
+            if (data.envelopeSize) {
+                selectSize(data.envelopeSize);
+            }
+            
+            // フォームに保存されたデータを読み込み
+            Object.keys(data).forEach(key => {
+                if (key !== 'envelopeSize') {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.value = data[key] || '';
+                    }
+                }
+            });
+
+            updatePreview();
+            alert('封筒デザインを読み込みました！');
+        }
+
+        function clearForm() {
+            if (confirm('すべての入力内容をクリアしますか？')) {
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    if (element.id === 'envelopeType') {
+                        element.value = 'business';
+                    } else if (element.id === 'stampType') {
+                        element.value = 'show';
+                    } else if (element.id === 'orientation') {
+                        element.value = 'horizontal';
+                    } else {
+                        element.value = '';
+                    }
+                });
+                selectSize('long');
+                updatePreview();
+            }
+        }
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+                input.addEventListener('change', updatePreview);
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

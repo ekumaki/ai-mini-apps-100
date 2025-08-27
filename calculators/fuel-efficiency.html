@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>燃費計算機 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .calculator {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .calculation-type {
+            margin-bottom: 30px;
+        }
+
+        .type-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .type-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .type-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .type-btn:hover:not(.active) {
+            background: #e9ecef;
+            border-color: #dee2e6;
+        }
+
+        .type-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .type-desc {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .calculation-content {
+            display: none;
+        }
+
+        .calculation-content.active {
+            display: block;
+        }
+
+        .formula-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d7ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #0066cc;
+        }
+
+        .formula {
+            font-weight: bold;
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 5px 8px;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .unit {
+            color: #666;
+            font-weight: 600;
+            min-width: 50px;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .calculate-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .result {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result-main {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .result-unit {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .detail-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .detail-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .efficiency-rating {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .efficiency-rating.poor {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+        }
+
+        .efficiency-rating.average {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        }
+
+        .efficiency-rating.good {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .efficiency-rating.excellent {
+            background: linear-gradient(135deg, #007bff 0%, #6f42c1 100%);
+        }
+
+        .rating-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .rating-desc {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .tips {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .tips-title {
+            font-weight: 600;
+            color: #155724;
+            margin-bottom: 10px;
+        }
+
+        .tips-list {
+            font-size: 0.9rem;
+            color: #155724;
+            line-height: 1.5;
+        }
+
+        .tips-list li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="header">
+            <h1>燃費計算機</h1>
+            <p>車の燃費を計算</p>
+        </div>
+
+        <div class="calculation-type">
+            <div class="type-buttons">
+                <button class="type-btn active" onclick="selectType('efficiency')">
+                    <div class="type-title">燃費計算</div>
+                    <div class="type-desc">走行距離と給油量から</div>
+                </button>
+                <button class="type-btn" onclick="selectType('cost')">
+                    <div class="type-title">燃費コスト</div>
+                    <div class="type-desc">燃費と燃料費から</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- 燃費計算 -->
+        <div class="calculation-content active" id="efficiency">
+            <div class="formula-info">
+                <strong>燃費計算式:</strong>
+                <div class="formula">燃費 = 走行距離 ÷ 給油量</div>
+            </div>
+
+            <div class="input-group">
+                <label for="distance">走行距離</label>
+                <div class="input-row">
+                    <input type="number" id="distance" placeholder="例: 500" min="0" step="0.1">
+                    <span class="unit">km</span>
+                </div>
+                <div class="error" id="distanceError"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="fuel">給油量</label>
+                <div class="input-row">
+                    <input type="number" id="fuel" placeholder="例: 40" min="0" step="0.1">
+                    <span class="unit">L</span>
+                </div>
+                <div class="error" id="fuelError"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="fuelPrice">燃料価格（オプション）</label>
+                <div class="input-row">
+                    <input type="number" id="fuelPrice" placeholder="例: 150" min="0" step="0.1">
+                    <span class="unit">円/L</span>
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateEfficiency()">燃費を計算</button>
+        </div>
+
+        <!-- 燃費コスト -->
+        <div class="calculation-content" id="cost">
+            <div class="formula-info">
+                <strong>燃費コスト計算式:</strong>
+                <div class="formula">燃料費 = 走行距離 ÷ 燃費 × 燃料価格</div>
+            </div>
+
+            <div class="input-group">
+                <label for="costDistance">走行距離</label>
+                <div class="input-row">
+                    <input type="number" id="costDistance" placeholder="例: 500" min="0" step="0.1">
+                    <span class="unit">km</span>
+                </div>
+                <div class="error" id="costDistanceError"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="costEfficiency">燃費</label>
+                <div class="input-row">
+                    <input type="number" id="costEfficiency" placeholder="例: 15" min="0" step="0.1">
+                    <span class="unit">km/L</span>
+                </div>
+                <div class="error" id="costEfficiencyError"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="costFuelPrice">燃料価格</label>
+                <div class="input-row">
+                    <input type="number" id="costFuelPrice" placeholder="例: 150" min="0" step="0.1">
+                    <span class="unit">円/L</span>
+                </div>
+                <div class="error" id="costFuelPriceError"></div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateCost()">燃料費を計算</button>
+        </div>
+
+        <div class="result" id="result">
+            <div class="result-main">
+                <div class="result-value" id="resultValue">0</div>
+                <div class="result-unit" id="resultUnit">km/L</div>
+            </div>
+
+            <div class="efficiency-rating" id="efficiencyRating">
+                <div class="rating-text" id="ratingText">燃費評価</div>
+                <div class="rating-desc" id="ratingDesc">評価説明</div>
+            </div>
+
+            <div class="result-details" id="resultDetails">
+                <!-- 詳細情報がここに表示されます -->
+            </div>
+        </div>
+
+        <div class="tips">
+            <div class="tips-title">燃費改善のヒント</div>
+            <ul class="tips-list">
+                <li>急発進・急ブレーキを避ける</li>
+                <li>適切な速度での運転（高速道路では80km/h程度）</li>
+                <li>エアコンの使用を控えめに</li>
+                <li>不要な荷物を降ろして車重を軽くする</li>
+                <li>定期的なメンテナンス（オイル交換、タイヤ空気圧）</li>
+            </ul>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        let currentType = 'efficiency';
+
+        function selectType(type) {
+            // ボタンの状態更新
+            document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // コンテンツの表示切り替え
+            document.querySelectorAll('.calculation-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(type).classList.add('active');
+
+            currentType = type;
+            clearErrors();
+            hideResult();
+        }
+
+        function calculateEfficiency() {
+            clearErrors();
+
+            const distance = parseFloat(document.getElementById('distance').value);
+            const fuel = parseFloat(document.getElementById('fuel').value);
+            const fuelPrice = parseFloat(document.getElementById('fuelPrice').value) || 0;
+
+            let hasError = false;
+
+            if (!distance || distance <= 0) {
+                showError('distanceError', '正しい走行距離を入力してください');
+                hasError = true;
+            }
+
+            if (!fuel || fuel <= 0) {
+                showError('fuelError', '正しい給油量を入力してください');
+                hasError = true;
+            }
+
+            if (hasError) {
+                hideResult();
+                return;
+            }
+
+            const efficiency = distance / fuel;
+            const totalCost = fuel * fuelPrice;
+            const costPerKm = fuelPrice > 0 ? totalCost / distance : 0;
+
+            displayEfficiencyResult(efficiency, distance, fuel, totalCost, costPerKm, fuelPrice);
+        }
+
+        function calculateCost() {
+            clearErrors();
+
+            const distance = parseFloat(document.getElementById('costDistance').value);
+            const efficiency = parseFloat(document.getElementById('costEfficiency').value);
+            const fuelPrice = parseFloat(document.getElementById('costFuelPrice').value);
+
+            let hasError = false;
+
+            if (!distance || distance <= 0) {
+                showError('costDistanceError', '正しい走行距離を入力してください');
+                hasError = true;
+            }
+
+            if (!efficiency || efficiency <= 0) {
+                showError('costEfficiencyError', '正しい燃費を入力してください');
+                hasError = true;
+            }
+
+            if (!fuelPrice || fuelPrice <= 0) {
+                showError('costFuelPriceError', '正しい燃料価格を入力してください');
+                hasError = true;
+            }
+
+            if (hasError) {
+                hideResult();
+                return;
+            }
+
+            const fuelNeeded = distance / efficiency;
+            const totalCost = fuelNeeded * fuelPrice;
+            const costPerKm = totalCost / distance;
+
+            displayCostResult(totalCost, distance, efficiency, fuelNeeded, costPerKm, fuelPrice);
+        }
+
+        function displayEfficiencyResult(efficiency, distance, fuel, totalCost, costPerKm, fuelPrice) {
+            document.getElementById('resultValue').textContent = efficiency.toFixed(2);
+            document.getElementById('resultUnit').textContent = 'km/L';
+
+            // 燃費評価
+            updateEfficiencyRating(efficiency);
+
+            // 詳細情報
+            let detailsHTML = `
+                <div class="detail-card">
+                    <div class="detail-value">${distance.toFixed(1)}</div>
+                    <div class="detail-label">走行距離 (km)</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${fuel.toFixed(1)}</div>
+                    <div class="detail-label">給油量 (L)</div>
+                </div>
+            `;
+
+            if (fuelPrice > 0) {
+                detailsHTML += `
+                    <div class="detail-card">
+                        <div class="detail-value">${totalCost.toFixed(0)}</div>
+                        <div class="detail-label">燃料費 (円)</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-value">${costPerKm.toFixed(2)}</div>
+                        <div class="detail-label">1kmあたり (円)</div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('resultDetails').innerHTML = detailsHTML;
+            document.getElementById('result').classList.add('show');
+        }
+
+        function displayCostResult(totalCost, distance, efficiency, fuelNeeded, costPerKm, fuelPrice) {
+            document.getElementById('resultValue').textContent = totalCost.toFixed(0);
+            document.getElementById('resultUnit').textContent = '円';
+
+            // 燃費評価
+            updateEfficiencyRating(efficiency);
+
+            // 詳細情報
+            const detailsHTML = `
+                <div class="detail-card">
+                    <div class="detail-value">${distance.toFixed(1)}</div>
+                    <div class="detail-label">走行距離 (km)</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${efficiency.toFixed(1)}</div>
+                    <div class="detail-label">燃費 (km/L)</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${fuelNeeded.toFixed(1)}</div>
+                    <div class="detail-label">必要燃料 (L)</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${costPerKm.toFixed(2)}</div>
+                    <div class="detail-label">1kmあたり (円)</div>
+                </div>
+            `;
+
+            document.getElementById('resultDetails').innerHTML = detailsHTML;
+            document.getElementById('result').classList.add('show');
+        }
+
+        function updateEfficiencyRating(efficiency) {
+            const rating = document.getElementById('efficiencyRating');
+            const ratingText = document.getElementById('ratingText');
+            const ratingDesc = document.getElementById('ratingDesc');
+
+            // 燃費評価基準
+            if (efficiency >= 20) {
+                rating.className = 'efficiency-rating excellent';
+                ratingText.textContent = '優秀';
+                ratingDesc.textContent = 'ハイブリッド車レベルの燃費です';
+            } else if (efficiency >= 15) {
+                rating.className = 'efficiency-rating good';
+                ratingText.textContent = '良好';
+                ratingDesc.textContent = '一般的な小型車レベルの燃費です';
+            } else if (efficiency >= 10) {
+                rating.className = 'efficiency-rating average';
+                ratingText.textContent = '平均的';
+                ratingDesc.textContent = '一般的な燃費です';
+            } else {
+                rating.className = 'efficiency-rating poor';
+                ratingText.textContent = '改善の余地あり';
+                ratingDesc.textContent = '燃費改善を検討してください';
+            }
+        }
+
+        function showError(elementId, message) {
+            document.getElementById(elementId).textContent = message;
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error').forEach(error => error.textContent = '');
+        }
+
+        function hideResult() {
+            document.getElementById('result').classList.remove('show');
+        }
+
+        // Enterキーで計算
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                if (currentType === 'efficiency') {
+                    calculateEfficiency();
+                } else {
+                    calculateCost();
+                }
+            }
+        });
+
+        // リアルタイム計算
+        document.getElementById('distance').addEventListener('input', function() {
+            const distance = this.value;
+            const fuel = document.getElementById('fuel').value;
+            if (distance && fuel) {
+                setTimeout(calculateEfficiency, 500);
+            }
+        });
+
+        document.getElementById('fuel').addEventListener('input', function() {
+            const distance = document.getElementById('distance').value;
+            const fuel = this.value;
+            if (distance && fuel) {
+                setTimeout(calculateEfficiency, 500);
+            }
+        });
+
+        document.getElementById('costDistance').addEventListener('input', function() {
+            const distance = this.value;
+            const efficiency = document.getElementById('costEfficiency').value;
+            const fuelPrice = document.getElementById('costFuelPrice').value;
+            if (distance && efficiency && fuelPrice) {
+                setTimeout(calculateCost, 500);
+            }
+        });
+
+        document.getElementById('costEfficiency').addEventListener('input', function() {
+            const distance = document.getElementById('costDistance').value;
+            const efficiency = this.value;
+            const fuelPrice = document.getElementById('costFuelPrice').value;
+            if (distance && efficiency && fuelPrice) {
+                setTimeout(calculateCost, 500);
+            }
+        });
+
+        document.getElementById('costFuelPrice').addEventListener('input', function() {
+            const distance = document.getElementById('costDistance').value;
+            const efficiency = document.getElementById('costEfficiency').value;
+            const fuelPrice = this.value;
+            if (distance && efficiency && fuelPrice) {
+                setTimeout(calculateCost, 500);
+            }
+        });
+    </script>
+</body>
+</html>

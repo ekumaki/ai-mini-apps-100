@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ブロック崩し - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .breakout-game {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .game-controls {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .game-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px 15px;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .info-value {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .score {
+            color: #28a745 !important;
+        }
+
+        .lives {
+            color: #dc3545 !important;
+        }
+
+        .game-area {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .game-canvas {
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            background: #1a1a2e;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-status {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .status-text.game-over {
+            color: #dc3545;
+        }
+
+        .status-text.level-complete {
+            color: #28a745;
+        }
+
+        .status-text.paused {
+            color: #ffc107;
+        }
+
+        .mobile-controls {
+            display: none;
+            background: #e1ecf4;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .mobile-controls-title {
+            color: #0c5460;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .paddle-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .paddle-btn {
+            background: white;
+            border: 2px solid #b3d4fc;
+            border-radius: 8px;
+            padding: 15px 25px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+            min-width: 100px;
+        }
+
+        .paddle-btn:hover {
+            background: #b3d4fc;
+            transform: scale(1.05);
+        }
+
+        .paddle-btn:active {
+            transform: scale(0.95);
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .action-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .action-btn.danger {
+            background: #dc3545;
+        }
+
+        .action-btn.danger:hover {
+            background: #c82333;
+        }
+
+        .stats-section {
+            background: #d4edda;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stats-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #155724;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .instructions-title {
+            color: #856404;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .instruction-list {
+            color: #856404;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .instruction-list li {
+            margin-bottom: 8px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .breakout-game {
+                padding: 20px;
+            }
+            
+            .game-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .game-info {
+                justify-content: center;
+            }
+            
+            .mobile-controls {
+                display: block;
+            }
+            
+            .game-canvas {
+                max-width: 100%;
+                height: auto;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="breakout-game">
+        <div class="header">
+            <h1>🧱 ブロック崩し</h1>
+            <p>パドルでボールを操ってブロックを全て壊そう！</p>
+        </div>
+
+        <div class="game-controls">
+            <div class="control-buttons">
+                <button class="control-btn active" onclick="setDifficulty('normal')">標準</button>
+                <button class="control-btn" onclick="setDifficulty('easy')">簡単</button>
+                <button class="control-btn" onclick="setDifficulty('hard')">困難</button>
+                <button class="control-btn" onclick="togglePowerUps()">パワーアップ</button>
+            </div>
+            
+            <div class="game-info">
+                <div class="info-item">
+                    <div class="info-value score" id="score">0</div>
+                    <div class="info-label">スコア</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value lives" id="lives">3</div>
+                    <div class="info-label">残機</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value" id="level">1</div>
+                    <div class="info-label">レベル</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value" id="blocks">0</div>
+                    <div class="info-label">残ブロック</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <canvas id="gameCanvas" class="game-canvas" width="600" height="450"></canvas>
+        </div>
+
+        <div class="mobile-controls">
+            <div class="mobile-controls-title">🎮 パドル操作</div>
+            <div class="paddle-controls">
+                <button class="paddle-btn" onmousedown="startMovePaddle('left')" onmouseup="stopMovePaddle()" ontouchstart="startMovePaddle('left')" ontouchend="stopMovePaddle()">← 左</button>
+                <button class="paddle-btn" onmousedown="startMovePaddle('right')" onmouseup="stopMovePaddle()" ontouchstart="startMovePaddle('right')" ontouchend="stopMovePaddle()">右 →</button>
+            </div>
+        </div>
+
+        <div class="game-status" id="gameStatus">
+            <div class="status-text">矢印キーまたはタッチでパドルを操作、スペースキーでゲーム開始</div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" onclick="startGame()">ゲーム開始</button>
+            <button class="action-btn secondary" onclick="pauseGame()">ポーズ</button>
+            <button class="action-btn secondary" onclick="resetGame()">リセット</button>
+            <button class="action-btn danger" onclick="resetStats()">統計リセット</button>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-title">📊 統計</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="gamesPlayed">0</div>
+                    <div class="stat-label">プレイ回数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="highScore">0</div>
+                    <div class="stat-label">最高スコア</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="maxLevel">1</div>
+                    <div class="stat-label">最高レベル</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalBlocks">0</div>
+                    <div class="stat-label">総ブロック破壊数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgScore">0</div>
+                    <div class="stat-label">平均スコア</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="completionRate">0</div>
+                    <div class="stat-label">クリア率(%)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <div class="instructions-title">🎯 遊び方</div>
+            <ul class="instruction-list">
+                <li><strong>操作:</strong> 矢印キー（PC）またはタッチボタン（モバイル）でパドル移動</li>
+                <li><strong>目標:</strong> 全てのブロックを壊してレベルクリア</li>
+                <li><strong>ルール:</strong> ボールを落とすと残機が減る（0になるとゲームオーバー）</li>
+                <li><strong>スコア:</strong> ブロックの色によって点数が異なる</li>
+                <li><strong>レベルアップ:</strong> 全ブロック破壊で次のレベルへ</li>
+                <li><strong>パワーアップ:</strong> 特殊ブロックから様々な効果を獲得</li>
+            </ul>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let gameState = {
+            paddle: {
+                x: canvas.width / 2 - 60,
+                y: canvas.height - 20,
+                width: 120,
+                height: 15,
+                speed: 8
+            },
+            ball: {
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                dx: 4,
+                dy: -4,
+                radius: 8,
+                speed: 6
+            },
+            blocks: [],
+            powerUps: [],
+            particles: [],
+            score: 0,
+            lives: 3,
+            level: 1,
+            gameRunning: false,
+            gamePaused: false,
+            gameLoop: null,
+            keys: {},
+            paddleMoving: null,
+            difficulty: 'normal',
+            powerUpsEnabled: true,
+            blocksRemaining: 0
+        };
+
+        let gameStats = {
+            gamesPlayed: 0,
+            highScore: 0,
+            maxLevel: 1,
+            totalBlocks: 0,
+            levelsCompleted: 0
+        };
+
+        const difficulties = {
+            easy: { ballSpeed: 4, paddleSpeed: 10, lives: 5 },
+            normal: { ballSpeed: 6, paddleSpeed: 8, lives: 3 },
+            hard: { ballSpeed: 8, paddleSpeed: 6, lives: 2 }
+        };
+
+        const blockColors = [
+            { color: '#e74c3c', points: 10 },  // 赤
+            { color: '#f39c12', points: 20 },  // オレンジ
+            { color: '#f1c40f', points: 30 },  // 黄色
+            { color: '#2ecc71', points: 40 },  // 緑
+            { color: '#3498db', points: 50 },  // 青
+            { color: '#9b59b6', points: 60 },  // 紫
+        ];
+
+        function loadStats() {
+            const saved = localStorage.getItem('breakoutStats');
+            if (saved) {
+                gameStats = { ...gameStats, ...JSON.parse(saved) };
+                updateStatsDisplay();
+            }
+        }
+
+        function saveStats() {
+            localStorage.setItem('breakoutStats', JSON.stringify(gameStats));
+        }
+
+        function setDifficulty(difficulty) {
+            gameState.difficulty = difficulty;
+            const config = difficulties[difficulty];
+            gameState.ball.speed = config.ballSpeed;
+            gameState.paddle.speed = config.paddleSpeed;
+            
+            // ボタンの状態更新
+            document.querySelectorAll('.control-btn').forEach(btn => {
+                if (btn.textContent.includes('標準') || btn.textContent.includes('簡単') || btn.textContent.includes('困難')) {
+                    btn.classList.remove('active');
+                }
+            });
+            event.target.classList.add('active');
+            
+            showNotification(`難易度を${difficulty === 'easy' ? '簡単' : difficulty === 'hard' ? '困難' : '標準'}に設定`);
+        }
+
+        function togglePowerUps() {
+            gameState.powerUpsEnabled = !gameState.powerUpsEnabled;
+            const btn = event.target;
+            btn.textContent = gameState.powerUpsEnabled ? 'パワーアップ: ON' : 'パワーアップ: OFF';
+            showNotification(gameState.powerUpsEnabled ? 'パワーアップ有効' : 'パワーアップ無効');
+        }
+
+        function createBlocks() {
+            gameState.blocks = [];
+            const rows = 6;
+            const cols = 10;
+            const blockWidth = 55;
+            const blockHeight = 20;
+            const padding = 5;
+            const offsetTop = 60;
+            const offsetLeft = (canvas.width - (cols * (blockWidth + padding) - padding)) / 2;
+
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    const colorIndex = Math.min(row, blockColors.length - 1);
+                    const block = {
+                        x: offsetLeft + col * (blockWidth + padding),
+                        y: offsetTop + row * (blockHeight + padding),
+                        width: blockWidth,
+                        height: blockHeight,
+                        color: blockColors[colorIndex].color,
+                        points: blockColors[colorIndex].points,
+                        destroyed: false,
+                        special: Math.random() < 0.1 && gameState.powerUpsEnabled
+                    };
+                    gameState.blocks.push(block);
+                }
+            }
+            
+            gameState.blocksRemaining = gameState.blocks.length;
+            updateDisplay();
+        }
+
+        function createParticles(x, y, color) {
+            for (let i = 0; i < 8; i++) {
+                gameState.particles.push({
+                    x: x,
+                    y: y,
+                    dx: (Math.random() - 0.5) * 8,
+                    dy: (Math.random() - 0.5) * 8,
+                    color: color,
+                    life: 30,
+                    maxLife: 30
+                });
+            }
+        }
+
+        function updateParticles() {
+            gameState.particles = gameState.particles.filter(particle => {
+                particle.x += particle.dx;
+                particle.y += particle.dy;
+                particle.life--;
+                return particle.life > 0;
+            });
+        }
+
+        function drawParticles() {
+            gameState.particles.forEach(particle => {
+                const alpha = particle.life / particle.maxLife;
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = particle.color;
+                ctx.fillRect(particle.x, particle.y, 3, 3);
+                ctx.restore();
+            });
+        }
+
+        function resetBall() {
+            gameState.ball.x = canvas.width / 2;
+            gameState.ball.y = canvas.height / 2;
+            gameState.ball.dx = (Math.random() > 0.5 ? 1 : -1) * gameState.ball.speed;
+            gameState.ball.dy = -gameState.ball.speed;
+        }
+
+        function movePaddle() {
+            if (gameState.paddleMoving === 'left') {
+                gameState.paddle.x = Math.max(0, gameState.paddle.x - gameState.paddle.speed);
+            } else if (gameState.paddleMoving === 'right') {
+                gameState.paddle.x = Math.min(canvas.width - gameState.paddle.width, gameState.paddle.x + gameState.paddle.speed);
+            }
+        }
+
+        function updateBall() {
+            gameState.ball.x += gameState.ball.dx;
+            gameState.ball.y += gameState.ball.dy;
+
+            // 壁との衝突
+            if (gameState.ball.x <= gameState.ball.radius || gameState.ball.x >= canvas.width - gameState.ball.radius) {
+                gameState.ball.dx = -gameState.ball.dx;
+            }
+            if (gameState.ball.y <= gameState.ball.radius) {
+                gameState.ball.dy = -gameState.ball.dy;
+            }
+
+            // パドルとの衝突
+            if (gameState.ball.y + gameState.ball.radius >= gameState.paddle.y &&
+                gameState.ball.x >= gameState.paddle.x &&
+                gameState.ball.x <= gameState.paddle.x + gameState.paddle.width &&
+                gameState.ball.dy > 0) {
+                
+                // パドルの中央からの相対位置で角度を変更
+                const hitPos = (gameState.ball.x - gameState.paddle.x) / gameState.paddle.width;
+                const angle = (hitPos - 0.5) * Math.PI / 3; // -60度から60度
+                const speed = Math.sqrt(gameState.ball.dx * gameState.ball.dx + gameState.ball.dy * gameState.ball.dy);
+                
+                gameState.ball.dx = Math.sin(angle) * speed;
+                gameState.ball.dy = -Math.cos(angle) * speed;
+            }
+
+            // ボールが画面下に落ちた場合
+            if (gameState.ball.y > canvas.height) {
+                gameState.lives--;
+                updateDisplay();
+                
+                if (gameState.lives <= 0) {
+                    gameOver();
+                } else {
+                    resetBall();
+                    showNotification(`残機: ${gameState.lives}`);
+                }
+            }
+        }
+
+        function checkBlockCollisions() {
+            gameState.blocks.forEach(block => {
+                if (block.destroyed) return;
+
+                if (gameState.ball.x + gameState.ball.radius >= block.x &&
+                    gameState.ball.x - gameState.ball.radius <= block.x + block.width &&
+                    gameState.ball.y + gameState.ball.radius >= block.y &&
+                    gameState.ball.y - gameState.ball.radius <= block.y + block.height) {
+                    
+                    // ブロック破壊
+                    block.destroyed = true;
+                    gameState.score += block.points;
+                    gameState.blocksRemaining--;
+                    gameStats.totalBlocks++;
+                    
+                    // パーティクル効果
+                    createParticles(
+                        block.x + block.width / 2,
+                        block.y + block.height / 2,
+                        block.color
+                    );
+                    
+                    // 特殊ブロックの効果
+                    if (block.special) {
+                        applyPowerUp();
+                    }
+                    
+                    // ボールの反射
+                    const ballCenterX = gameState.ball.x;
+                    const ballCenterY = gameState.ball.y;
+                    const blockCenterX = block.x + block.width / 2;
+                    const blockCenterY = block.y + block.height / 2;
+                    
+                    const dx = ballCenterX - blockCenterX;
+                    const dy = ballCenterY - blockCenterY;
+                    
+                    if (Math.abs(dx) > Math.abs(dy)) {
+                        gameState.ball.dx = -gameState.ball.dx;
+                    } else {
+                        gameState.ball.dy = -gameState.ball.dy;
+                    }
+                    
+                    updateDisplay();
+                    
+                    // レベルクリアチェック
+                    if (gameState.blocksRemaining <= 0) {
+                        levelComplete();
+                    }
+                }
+            });
+        }
+
+        function applyPowerUp() {
+            const powerUps = [
+                () => { gameState.score += 100; showNotification('ボーナス +100点!'); },
+                () => { gameState.lives++; showNotification('ライフ +1!'); },
+                () => { 
+                    gameState.paddle.width = Math.min(200, gameState.paddle.width + 20);
+                    showNotification('パドル拡大!');
+                    setTimeout(() => {
+                        gameState.paddle.width = Math.max(80, gameState.paddle.width - 20);
+                    }, 10000);
+                },
+                () => {
+                    const originalSpeed = gameState.ball.speed;
+                    gameState.ball.speed *= 0.7;
+                    showNotification('ボール減速!');
+                    setTimeout(() => {
+                        gameState.ball.speed = originalSpeed;
+                    }, 8000);
+                }
+            ];
+            
+            const randomPowerUp = powerUps[Math.floor(Math.random() * powerUps.length)];
+            randomPowerUp();
+        }
+
+        function levelComplete() {
+            gameState.level++;
+            gameStats.levelsCompleted++;
+            gameStats.maxLevel = Math.max(gameStats.maxLevel, gameState.level);
+            
+            // ボールスピード増加
+            gameState.ball.speed += 0.5;
+            
+            updateGameStatus('🎉 レベルクリア！次のレベルへ', 'level-complete');
+            showNotification(`レベル ${gameState.level} へ進みます！`);
+            
+            setTimeout(() => {
+                createBlocks();
+                resetBall();
+                updateGameStatus('レベル ' + gameState.level + ' スタート！');
+            }, 2000);
+        }
+
+        function gameOver() {
+            clearInterval(gameState.gameLoop);
+            gameState.gameRunning = false;
+
+            // 統計更新
+            gameStats.gamesPlayed++;
+            gameStats.highScore = Math.max(gameStats.highScore, gameState.score);
+
+            updateStatsDisplay();
+            saveStats();
+
+            updateGameStatus(`ゲームオーバー！ 最終スコア: ${gameState.score}`, 'game-over');
+            showNotification(`ゲームオーバー！ レベル${gameState.level} スコア: ${gameState.score}`, 'error');
+        }
+
+        function drawGame() {
+            // 背景をクリア
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // パドルを描画
+            ctx.fillStyle = '#3498db';
+            ctx.fillRect(gameState.paddle.x, gameState.paddle.y, gameState.paddle.width, gameState.paddle.height);
+            
+            // パドルのハイライト
+            ctx.fillStyle = '#5dade2';
+            ctx.fillRect(gameState.paddle.x, gameState.paddle.y, gameState.paddle.width, 5);
+
+            // ボールを描画
+            ctx.fillStyle = '#e74c3c';
+            ctx.beginPath();
+            ctx.arc(gameState.ball.x, gameState.ball.y, gameState.ball.radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // ボールの光沢効果
+            ctx.fillStyle = '#ff6b7a';
+            ctx.beginPath();
+            ctx.arc(gameState.ball.x - 3, gameState.ball.y - 3, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // ブロックを描画
+            gameState.blocks.forEach(block => {
+                if (!block.destroyed) {
+                    ctx.fillStyle = block.color;
+                    ctx.fillRect(block.x, block.y, block.width, block.height);
+                    
+                    // ブロックのハイライト
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.fillRect(block.x, block.y, block.width, 3);
+                    
+                    // 特殊ブロックの印
+                    if (block.special) {
+                        ctx.fillStyle = '#f1c40f';
+                        ctx.font = '12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('★', block.x + block.width / 2, block.y + block.height / 2 + 4);
+                    }
+                }
+            });
+
+            // パーティクルを描画
+            drawParticles();
+        }
+
+        function gameLoop() {
+            if (!gameState.gameRunning || gameState.gamePaused) return;
+            
+            movePaddle();
+            updateBall();
+            checkBlockCollisions();
+            updateParticles();
+            drawGame();
+            
+            gameState.gameLoop = requestAnimationFrame(gameLoop);
+        }
+
+        function startGame() {
+            if (gameState.gameRunning && !gameState.gamePaused) {
+                showNotification('ゲームは既に実行中です', 'error');
+                return;
+            }
+
+            if (gameState.gamePaused) {
+                resumeGame();
+                return;
+            }
+
+            // ゲーム初期化
+            const config = difficulties[gameState.difficulty];
+            gameState.score = 0;
+            gameState.lives = config.lives;
+            gameState.level = 1;
+            gameState.ball.speed = config.ballSpeed;
+            gameState.paddle.speed = config.paddleSpeed;
+            gameState.paddle.width = 120;
+            gameState.paddle.x = canvas.width / 2 - 60;
+            gameState.gameRunning = true;
+            gameState.gamePaused = false;
+
+            createBlocks();
+            resetBall();
+            updateDisplay();
+            updateGameStatus('ゲーム開始！ブロックを全て壊そう！');
+            gameLoop();
+        }
+
+        function pauseGame() {
+            if (!gameState.gameRunning) {
+                showNotification('ゲームが開始されていません', 'error');
+                return;
+            }
+
+            gameState.gamePaused = !gameState.gamePaused;
+            
+            if (gameState.gamePaused) {
+                cancelAnimationFrame(gameState.gameLoop);
+                updateGameStatus('ゲーム一時停止中', 'paused');
+                showNotification('ゲームを一時停止しました');
+            } else {
+                updateGameStatus('ゲーム再開！');
+                gameLoop();
+                showNotification('ゲームを再開しました');
+            }
+        }
+
+        function resumeGame() {
+            gameState.gamePaused = false;
+            updateGameStatus('ゲーム再開！');
+            gameLoop();
+            showNotification('ゲームを再開しました');
+        }
+
+        function resetGame() {
+            if (gameState.gameRunning && !confirm('ゲームをリセットしますか？')) {
+                return;
+            }
+
+            cancelAnimationFrame(gameState.gameLoop);
+            gameState.gameRunning = false;
+            gameState.gamePaused = false;
+            gameState.score = 0;
+            gameState.lives = 3;
+            gameState.level = 1;
+            gameState.paddle.x = canvas.width / 2 - 60;
+            gameState.paddle.width = 120;
+
+            createBlocks();
+            resetBall();
+            updateDisplay();
+            updateGameStatus('ゲーム開始ボタンを押してスタート');
+            drawGame();
+            showNotification('ゲームをリセットしました');
+        }
+
+        function startMovePaddle(direction) {
+            gameState.paddleMoving = direction;
+        }
+
+        function stopMovePaddle() {
+            gameState.paddleMoving = null;
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('lives').textContent = gameState.lives;
+            document.getElementById('level').textContent = gameState.level;
+            document.getElementById('blocks').textContent = gameState.blocksRemaining;
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('gamesPlayed').textContent = gameStats.gamesPlayed;
+            document.getElementById('highScore').textContent = gameStats.highScore;
+            document.getElementById('maxLevel').textContent = gameStats.maxLevel;
+            document.getElementById('totalBlocks').textContent = gameStats.totalBlocks;
+
+            const avgScore = gameStats.gamesPlayed > 0 ? 
+                Math.round((gameStats.highScore + gameState.score) / gameStats.gamesPlayed) : 0;
+            document.getElementById('avgScore').textContent = avgScore;
+
+            const completionRate = gameStats.gamesPlayed > 0 ? 
+                Math.round((gameStats.levelsCompleted / gameStats.gamesPlayed) * 100) : 0;
+            document.getElementById('completionRate').textContent = completionRate;
+        }
+
+        function updateGameStatus(message, type = '') {
+            const statusElement = document.getElementById('gameStatus');
+            statusElement.innerHTML = `<div class="status-text ${type}">${message}</div>`;
+        }
+
+        function resetStats() {
+            if (confirm('統計をリセットしますか？この操作は取り消せません。')) {
+                gameStats = {
+                    gamesPlayed: 0,
+                    highScore: 0,
+                    maxLevel: 1,
+                    totalBlocks: 0,
+                    levelsCompleted: 0
+                };
+                updateStatsDisplay();
+                localStorage.removeItem('breakoutStats');
+                showNotification('統計をリセットしました');
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // キーボードイベント
+        document.addEventListener('keydown', (e) => {
+            gameState.keys[e.key] = true;
+            
+            switch(e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    gameState.paddleMoving = 'left';
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    gameState.paddleMoving = 'right';
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    if (!gameState.gameRunning) {
+                        startGame();
+                    } else {
+                        pauseGame();
+                    }
+                    break;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            gameState.keys[e.key] = false;
+            
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                gameState.paddleMoving = null;
+            }
+        });
+
+        // マウス操作
+        canvas.addEventListener('mousemove', (e) => {
+            if (gameState.gameRunning) {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                gameState.paddle.x = Math.max(0, Math.min(canvas.width - gameState.paddle.width, mouseX - gameState.paddle.width / 2));
+            }
+        });
+
+        // 初期化
+        function init() {
+            loadStats();
+            updateDisplay();
+            updateStatsDisplay();
+            createBlocks();
+            drawGame();
+            updateGameStatus('ゲーム開始ボタンを押してスタート');
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // ページを離れる前に自動保存
+        window.addEventListener('beforeunload', saveStats);
+    </script>
+</body>
+</html>

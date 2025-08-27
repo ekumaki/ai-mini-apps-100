@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRコード生成ツール - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .qr-generator {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .option-group label {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .option-input {
+            padding: 8px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .option-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .color-input {
+            width: 50px;
+            height: 40px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .generate-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .generate-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .generate-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .result-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .qr-display {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+
+        .qr-placeholder {
+            color: #666;
+            font-style: italic;
+        }
+
+        .qr-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #218838;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .info-section {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-title {
+            font-weight: 600;
+            color: #155724;
+            margin-bottom: 15px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .info-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #155724;
+            margin-bottom: 5px;
+        }
+
+        .info-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .presets {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .presets-title {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .preset-btn {
+            background: white;
+            border: 2px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .preset-btn:hover {
+            background: #ffeaa7;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .qr-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="qr-generator">
+        <div class="header">
+            <h1>QRコード生成ツール</h1>
+            <p>テキストからQRコードを生成</p>
+        </div>
+
+        <div class="presets">
+            <div class="presets-title">クイック入力</div>
+            <div class="preset-buttons">
+                <button class="preset-btn" onclick="loadPreset('url')">URL</button>
+                <button class="preset-btn" onclick="loadPreset('email')">メール</button>
+                <button class="preset-btn" onclick="loadPreset('phone')">電話番号</button>
+                <button class="preset-btn" onclick="loadPreset('wifi')">Wi-Fi</button>
+                <button class="preset-btn" onclick="loadPreset('vcard')">連絡先</button>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="textInput">QRコード化するテキスト</label>
+                <textarea 
+                    id="textInput" 
+                    class="text-input" 
+                    placeholder="QRコードにしたいテキストを入力してください..."
+                    oninput="updateInfo()"
+                ></textarea>
+            </div>
+
+            <div class="options-grid">
+                <div class="option-group">
+                    <label for="sizeInput">サイズ (px)</label>
+                    <input type="number" id="sizeInput" class="option-input" value="200" min="100" max="1000">
+                </div>
+                <div class="option-group">
+                    <label for="marginInput">余白</label>
+                    <input type="number" id="marginInput" class="option-input" value="4" min="0" max="10">
+                </div>
+                <div class="option-group">
+                    <label for="errorCorrectionInput">エラー訂正レベル</label>
+                    <select id="errorCorrectionInput" class="option-input">
+                        <option value="L">L (低)</option>
+                        <option value="M" selected>M (中)</option>
+                        <option value="Q">Q (高)</option>
+                        <option value="H">H (最高)</option>
+                    </select>
+                </div>
+                <div class="option-group">
+                    <label for="foregroundColor">前景色</label>
+                    <input type="color" id="foregroundColor" class="color-input" value="#000000">
+                </div>
+                <div class="option-group">
+                    <label for="backgroundColor">背景色</label>
+                    <input type="color" id="backgroundColor" class="color-input" value="#ffffff">
+                </div>
+            </div>
+        </div>
+
+        <div class="generate-section">
+            <button class="generate-btn" onclick="generateQR()">QRコード生成</button>
+        </div>
+
+        <div class="result-section">
+            <div class="result-title">生成されたQRコード</div>
+            <div class="qr-display" id="qrDisplay">
+                <div class="qr-placeholder">QRコードがここに表示されます</div>
+            </div>
+            <div class="qr-actions">
+                <button class="action-btn" onclick="downloadQR()">PNG保存</button>
+                <button class="action-btn" onclick="downloadQR('svg')">SVG保存</button>
+                <button class="action-btn secondary" onclick="copyQR()">画像コピー</button>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-title">QRコード情報</div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-value" id="textLength">0</div>
+                    <div class="info-label">文字数</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value" id="dataBytes">0</div>
+                    <div class="info-label">データサイズ (bytes)</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value" id="qrVersion">-</div>
+                    <div class="info-label">QRバージョン</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value" id="qrCapacity">-</div>
+                    <div class="info-label">最大容量</div>
+                </div>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        let currentQRDataURL = null;
+
+        const presets = {
+            url: 'https://example.com',
+            email: 'mailto:example@example.com?subject=件名&body=本文',
+            phone: 'tel:+81-90-1234-5678',
+            wifi: 'WIFI:T:WPA;S:ネットワーク名;P:パスワード;;',
+            vcard: 'BEGIN:VCARD\nVERSION:3.0\nFN:山田太郎\nORG:会社名\nTEL:090-1234-5678\nEMAIL:taro@example.com\nEND:VCARD'
+        };
+
+        function loadPreset(type) {
+            const textInput = document.getElementById('textInput');
+            textInput.value = presets[type];
+            updateInfo();
+        }
+
+        function updateInfo() {
+            const text = document.getElementById('textInput').value;
+            const textLength = text.length;
+            const dataBytes = new TextEncoder().encode(text).length;
+            
+            document.getElementById('textLength').textContent = textLength;
+            document.getElementById('dataBytes').textContent = dataBytes;
+            
+            // QRコードの推定バージョンと容量を計算
+            const version = estimateQRVersion(dataBytes);
+            const capacity = getQRCapacity(version);
+            
+            document.getElementById('qrVersion').textContent = version || '-';
+            document.getElementById('qrCapacity').textContent = capacity ? capacity + ' bytes' : '-';
+        }
+
+        function estimateQRVersion(dataBytes) {
+            // 簡易的なQRバージョン推定
+            if (dataBytes <= 25) return 1;
+            if (dataBytes <= 47) return 2;
+            if (dataBytes <= 77) return 3;
+            if (dataBytes <= 114) return 4;
+            if (dataBytes <= 154) return 5;
+            if (dataBytes <= 195) return 6;
+            if (dataBytes <= 224) return 7;
+            if (dataBytes <= 279) return 8;
+            if (dataBytes <= 335) return 9;
+            if (dataBytes <= 395) return 10;
+            return '10+';
+        }
+
+        function getQRCapacity(version) {
+            const capacities = {
+                1: 25, 2: 47, 3: 77, 4: 114, 5: 154,
+                6: 195, 7: 224, 8: 279, 9: 335, 10: 395
+            };
+            return capacities[version];
+        }
+
+        function generateQR() {
+            const text = document.getElementById('textInput').value;
+            const size = parseInt(document.getElementById('sizeInput').value);
+            const margin = parseInt(document.getElementById('marginInput').value);
+            const errorCorrectionLevel = document.getElementById('errorCorrectionInput').value;
+            const foregroundColor = document.getElementById('foregroundColor').value;
+            const backgroundColor = document.getElementById('backgroundColor').value;
+
+            if (!text.trim()) {
+                alert('QRコード化するテキストを入力してください');
+                return;
+            }
+
+            const options = {
+                width: size,
+                margin: margin,
+                errorCorrectionLevel: errorCorrectionLevel,
+                color: {
+                    dark: foregroundColor,
+                    light: backgroundColor
+                }
+            };
+
+            const qrDisplay = document.getElementById('qrDisplay');
+            qrDisplay.innerHTML = '';
+
+            QRCode.toCanvas(text, options, (error, canvas) => {
+                if (error) {
+                    console.error('QRコード生成エラー:', error);
+                    qrDisplay.innerHTML = '<div class="qr-placeholder">QRコード生成に失敗しました</div>';
+                    return;
+                }
+
+                qrDisplay.appendChild(canvas);
+                
+                // データURLを保存
+                currentQRDataURL = canvas.toDataURL();
+                
+                updateInfo();
+            });
+        }
+
+        function downloadQR(format = 'png') {
+            if (!currentQRDataURL && format === 'png') {
+                alert('QRコードがまだ生成されていません');
+                return;
+            }
+
+            const text = document.getElementById('textInput').value;
+            const fileName = `qrcode_${Date.now()}`;
+
+            if (format === 'svg') {
+                const size = parseInt(document.getElementById('sizeInput').value);
+                const margin = parseInt(document.getElementById('marginInput').value);
+                const errorCorrectionLevel = document.getElementById('errorCorrectionInput').value;
+                const foregroundColor = document.getElementById('foregroundColor').value;
+                const backgroundColor = document.getElementById('backgroundColor').value;
+
+                const options = {
+                    width: size,
+                    margin: margin,
+                    errorCorrectionLevel: errorCorrectionLevel,
+                    color: {
+                        dark: foregroundColor,
+                        light: backgroundColor
+                    }
+                };
+
+                QRCode.toString(text, { type: 'svg', ...options }, (error, svg) => {
+                    if (error) {
+                        console.error('SVG生成エラー:', error);
+                        alert('SVG生成に失敗しました');
+                        return;
+                    }
+
+                    const blob = new Blob([svg], { type: 'image/svg+xml' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName + '.svg';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+            } else {
+                const a = document.createElement('a');
+                a.href = currentQRDataURL;
+                a.download = fileName + '.png';
+                a.click();
+            }
+        }
+
+        function copyQR() {
+            if (!currentQRDataURL) {
+                alert('QRコードがまだ生成されていません');
+                return;
+            }
+
+            // Canvas要素を取得
+            const canvas = document.querySelector('#qrDisplay canvas');
+            if (!canvas) {
+                alert('QRコードが見つかりません');
+                return;
+            }
+
+            canvas.toBlob((blob) => {
+                const item = new ClipboardItem({ 'image/png': blob });
+                navigator.clipboard.write([item]).then(() => {
+                    alert('QRコードがクリップボードにコピーされました！');
+                }).catch((err) => {
+                    console.error('コピーに失敗しました:', err);
+                    alert('コピーに失敗しました');
+                });
+            });
+        }
+
+        // 初期設定
+        loadPreset('url');
+        updateInfo();
+    </script>
+</body>
+</html>

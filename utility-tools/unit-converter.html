@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>単位変換 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .unit-converter {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .category-tab {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .category-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .category-tab:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        .converter-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 1.5rem;
+        }
+
+        .converter-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-control {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            flex: 1;
+        }
+
+        .input-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .unit-select {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            min-width: 120px;
+        }
+
+        .arrow-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #667eea;
+        }
+
+        .convert-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            grid-column: 1 / -1;
+            margin-top: 20px;
+        }
+
+        .convert-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .quick-conversions {
+            background: #e1ecf4;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .quick-title {
+            color: #0c5460;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .quick-item {
+            background: white;
+            border: 2px solid #b3d4fc;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .quick-item:hover {
+            background: #b3d4fc;
+        }
+
+        .quick-value {
+            font-weight: 600;
+            color: #0c5460;
+            margin-bottom: 3px;
+        }
+
+        .quick-desc {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .result-display {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .result-display.show {
+            display: block;
+        }
+
+        .result-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #155724;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .detail-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #155724;
+            margin-bottom: 3px;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .formula-display {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .formula-title {
+            color: #856404;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .formula-text {
+            font-family: 'Courier New', monospace;
+            color: #856404;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .unit-converter {
+                padding: 20px;
+            }
+            
+            .category-tabs {
+                flex-wrap: nowrap;
+                overflow-x: scroll;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .converter-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .arrow-container {
+                transform: rotate(90deg);
+            }
+            
+            .quick-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="unit-converter">
+        <div class="header">
+            <h1>単位変換</h1>
+            <p>様々な単位を相互に変換</p>
+        </div>
+
+        <div class="category-tabs">
+            <button class="category-tab active" onclick="setCategory('length')">長さ</button>
+            <button class="category-tab" onclick="setCategory('weight')">重さ</button>
+            <button class="category-tab" onclick="setCategory('area')">面積</button>
+            <button class="category-tab" onclick="setCategory('volume')">体積</button>
+            <button class="category-tab" onclick="setCategory('temperature')">温度</button>
+            <button class="category-tab" onclick="setCategory('speed')">速度</button>
+            <button class="category-tab" onclick="setCategory('pressure')">圧力</button>
+            <button class="category-tab" onclick="setCategory('energy')">エネルギー</button>
+        </div>
+
+        <div class="converter-section">
+            <div class="section-title">
+                <span class="section-icon" id="categoryIcon">📏</span>
+                <span id="categoryTitle">長さの変換</span>
+            </div>
+            <div class="converter-grid">
+                <div class="input-group">
+                    <label for="fromValue">変換元</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="fromValue" class="input-control" placeholder="数値を入力" step="any">
+                        <select id="fromUnit" class="unit-select">
+                            <!-- 単位オプションがここに追加されます -->
+                        </select>
+                    </div>
+                </div>
+                <div class="arrow-container">
+                    →
+                </div>
+                <div class="input-group">
+                    <label for="toValue">変換先</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="toValue" class="input-control" placeholder="結果" readonly>
+                        <select id="toUnit" class="unit-select">
+                            <!-- 単位オプションがここに追加されます -->
+                        </select>
+                    </div>
+                </div>
+                <button class="convert-btn" onclick="convert()">変換</button>
+            </div>
+        </div>
+
+        <div class="result-display" id="resultDisplay">
+            <div class="result-title">変換結果</div>
+            <div class="result-value" id="resultValue">0</div>
+            <div class="result-details" id="resultDetails">
+                <!-- 詳細結果がここに表示されます -->
+            </div>
+            <div class="formula-display">
+                <div class="formula-title">計算式</div>
+                <div class="formula-text" id="formulaText"></div>
+            </div>
+        </div>
+
+        <div class="quick-conversions">
+            <div class="quick-title">よく使う変換</div>
+            <div class="quick-grid" id="quickGrid">
+                <!-- クイック変換がここに表示されます -->
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" onclick="swapUnits()">単位入れ替え</button>
+            <button class="action-btn" onclick="exportResult()">結果出力</button>
+            <button class="action-btn secondary" onclick="resetAll()">リセット</button>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let currentCategory = 'length';
+        let lastResult = null;
+
+        const categories = {
+            length: {
+                icon: '📏',
+                title: '長さの変換',
+                units: {
+                    mm: { name: 'ミリメートル', factor: 1 },
+                    cm: { name: 'センチメートル', factor: 10 },
+                    m: { name: 'メートル', factor: 1000 },
+                    km: { name: 'キロメートル', factor: 1000000 },
+                    inch: { name: 'インチ', factor: 25.4 },
+                    ft: { name: 'フィート', factor: 304.8 },
+                    yard: { name: 'ヤード', factor: 914.4 },
+                    mile: { name: 'マイル', factor: 1609344 }
+                },
+                quickConversions: [
+                    { from: 1, fromUnit: 'm', toUnit: 'cm', desc: '1メートル → センチメートル' },
+                    { from: 1, fromUnit: 'km', toUnit: 'm', desc: '1キロメートル → メートル' },
+                    { from: 1, fromUnit: 'inch', toUnit: 'cm', desc: '1インチ → センチメートル' },
+                    { from: 1, fromUnit: 'ft', toUnit: 'm', desc: '1フィート → メートル' }
+                ]
+            },
+            weight: {
+                icon: '⚖️',
+                title: '重さの変換',
+                units: {
+                    mg: { name: 'ミリグラム', factor: 1 },
+                    g: { name: 'グラム', factor: 1000 },
+                    kg: { name: 'キログラム', factor: 1000000 },
+                    t: { name: 'トン', factor: 1000000000 },
+                    oz: { name: 'オンス', factor: 28349.5 },
+                    lb: { name: 'ポンド', factor: 453592 },
+                    grain: { name: 'グレーン', factor: 64.79891 }
+                },
+                quickConversions: [
+                    { from: 1, fromUnit: 'kg', toUnit: 'g', desc: '1キログラム → グラム' },
+                    { from: 1, fromUnit: 't', toUnit: 'kg', desc: '1トン → キログラム' },
+                    { from: 1, fromUnit: 'lb', toUnit: 'kg', desc: '1ポンド → キログラム' },
+                    { from: 1, fromUnit: 'oz', toUnit: 'g', desc: '1オンス → グラム' }
+                ]
+            },
+            area: {
+                icon: '📐',
+                title: '面積の変換',
+                units: {
+                    mm2: { name: '平方ミリメートル', factor: 1 },
+                    cm2: { name: '平方センチメートル', factor: 100 },
+                    m2: { name: '平方メートル', factor: 1000000 },
+                    km2: { name: '平方キロメートル', factor: 1000000000000 },
+                    a: { name: 'アール', factor: 100000000 },
+                    ha: { name: 'ヘクタール', factor: 10000000000 },
+                    sqft: { name: '平方フィート', factor: 92903.04 },
+                    acre: { name: 'エーカー', factor: 4046856422.4 }
+                },
+                quickConversions: [
+                    { from: 1, fromUnit: 'm2', toUnit: 'cm2', desc: '1平方メートル → 平方センチメートル' },
+                    { from: 1, fromUnit: 'ha', toUnit: 'm2', desc: '1ヘクタール → 平方メートル' },
+                    { from: 1, fromUnit: 'km2', toUnit: 'ha', desc: '1平方キロメートル → ヘクタール' },
+                    { from: 1, fromUnit: 'acre', toUnit: 'm2', desc: '1エーカー → 平方メートル' }
+                ]
+            },
+            volume: {
+                icon: '📦',
+                title: '体積の変換',
+                units: {
+                    ml: { name: 'ミリリットル', factor: 1 },
+                    l: { name: 'リットル', factor: 1000 },
+                    m3: { name: '立方メートル', factor: 1000000 },
+                    cc: { name: '立方センチメートル', factor: 1 },
+                    gal_us: { name: 'ガロン(米)', factor: 3785.41 },
+                    gal_uk: { name: 'ガロン(英)', factor: 4546.09 },
+                    qt: { name: 'クォート', factor: 946.353 },
+                    pt: { name: 'パイント', factor: 473.176 }
+                },
+                quickConversions: [
+                    { from: 1, fromUnit: 'l', toUnit: 'ml', desc: '1リットル → ミリリットル' },
+                    { from: 1, fromUnit: 'm3', toUnit: 'l', desc: '1立方メートル → リットル' },
+                    { from: 1, fromUnit: 'gal_us', toUnit: 'l', desc: '1ガロン(米) → リットル' },
+                    { from: 1, fromUnit: 'cc', toUnit: 'ml', desc: '1cc → ミリリットル' }
+                ]
+            },
+            temperature: {
+                icon: '🌡️',
+                title: '温度の変換',
+                units: {
+                    c: { name: '摂氏(°C)', factor: 1, offset: 0 },
+                    f: { name: '華氏(°F)', factor: 1.8, offset: 32 },
+                    k: { name: 'ケルビン(K)', factor: 1, offset: 273.15 }
+                },
+                quickConversions: [
+                    { from: 0, fromUnit: 'c', toUnit: 'f', desc: '0°C → 華氏' },
+                    { from: 100, fromUnit: 'c', toUnit: 'f', desc: '100°C → 華氏' },
+                    { from: 32, fromUnit: 'f', toUnit: 'c', desc: '32°F → 摂氏' },
+                    { from: 0, fromUnit: 'c', toUnit: 'k', desc: '0°C → ケルビン' }
+                ],
+                isTemperature: true
+            },
+            speed: {
+                icon: '🚀',
+                title: '速度の変換',
+                units: {
+                    mps: { name: 'メートル/秒', factor: 1 },
+                    kmph: { name: 'キロメートル/時', factor: 0.277778 },
+                    mph: { name: 'マイル/時', factor: 0.44704 },
+                    knot: { name: 'ノット', factor: 0.514444 },
+                    fps: { name: 'フィート/秒', factor: 0.3048 },
+                    mach: { name: 'マッハ', factor: 340.29 }
+                },
+                quickConversions: [
+                    { from: 100, fromUnit: 'kmph', toUnit: 'mps', desc: '100km/h → m/s' },
+                    { from: 60, fromUnit: 'mph', toUnit: 'kmph', desc: '60mph → km/h' },
+                    { from: 1, fromUnit: 'mach', toUnit: 'kmph', desc: 'マッハ1 → km/h' },
+                    { from: 30, fromUnit: 'knot', toUnit: 'kmph', desc: '30ノット → km/h' }
+                ]
+            },
+            pressure: {
+                icon: '🔵',
+                title: '圧力の変換',
+                units: {
+                    pa: { name: 'パスカル', factor: 1 },
+                    kpa: { name: 'キロパスカル', factor: 1000 },
+                    hpa: { name: 'ヘクトパスカル', factor: 100 },
+                    bar: { name: 'バール', factor: 100000 },
+                    atm: { name: '気圧', factor: 101325 },
+                    psi: { name: 'PSI', factor: 6894.76 },
+                    mmhg: { name: 'mmHg', factor: 133.322 }
+                },
+                quickConversions: [
+                    { from: 1, fromUnit: 'atm', toUnit: 'hpa', desc: '1気圧 → ヘクトパスカル' },
+                    { from: 1, fromUnit: 'bar', toUnit: 'kpa', desc: '1バール → キロパスカル' },
+                    { from: 760, fromUnit: 'mmhg', toUnit: 'hpa', desc: '760mmHg → hPa' },
+                    { from: 14.7, fromUnit: 'psi', toUnit: 'bar', desc: '14.7PSI → バール' }
+                ]
+            },
+            energy: {
+                icon: '⚡',
+                title: 'エネルギーの変換',
+                units: {
+                    j: { name: 'ジュール', factor: 1 },
+                    kj: { name: 'キロジュール', factor: 1000 },
+                    cal: { name: 'カロリー', factor: 4.184 },
+                    kcal: { name: 'キロカロリー', factor: 4184 },
+                    wh: { name: 'ワット時', factor: 3600 },
+                    kwh: { name: 'キロワット時', factor: 3600000 },
+                    btu: { name: 'BTU', factor: 1055.06 }
+                },
+                quickConversions: [
+                    { from: 1, fromUnit: 'kcal', toUnit: 'kj', desc: '1kcal → キロジュール' },
+                    { from: 1, fromUnit: 'kwh', toUnit: 'j', desc: '1kWh → ジュール' },
+                    { from: 100, fromUnit: 'cal', toUnit: 'j', desc: '100cal → ジュール' },
+                    { from: 1, fromUnit: 'btu', toUnit: 'j', desc: '1BTU → ジュール' }
+                ]
+            }
+        };
+
+        function setCategory(category) {
+            currentCategory = category;
+            
+            // タブの状態を更新
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent === getCategoryButtonText(category)) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // カテゴリ情報を更新
+            const categoryData = categories[category];
+            document.getElementById('categoryIcon').textContent = categoryData.icon;
+            document.getElementById('categoryTitle').textContent = categoryData.title;
+            
+            // 単位選択肢を更新
+            updateUnitOptions();
+            
+            // クイック変換を更新
+            updateQuickConversions();
+            
+            // 結果をクリア
+            document.getElementById('resultDisplay').classList.remove('show');
+            document.getElementById('fromValue').value = '';
+            document.getElementById('toValue').value = '';
+        }
+
+        function getCategoryButtonText(category) {
+            const texts = {
+                length: '長さ',
+                weight: '重さ',
+                area: '面積',
+                volume: '体積',
+                temperature: '温度',
+                speed: '速度',
+                pressure: '圧力',
+                energy: 'エネルギー'
+            };
+            return texts[category];
+        }
+
+        function updateUnitOptions() {
+            const categoryData = categories[currentCategory];
+            const fromSelect = document.getElementById('fromUnit');
+            const toSelect = document.getElementById('toUnit');
+            
+            fromSelect.innerHTML = '';
+            toSelect.innerHTML = '';
+            
+            Object.entries(categoryData.units).forEach(([key, unit]) => {
+                const fromOption = document.createElement('option');
+                fromOption.value = key;
+                fromOption.textContent = unit.name;
+                fromSelect.appendChild(fromOption);
+                
+                const toOption = document.createElement('option');
+                toOption.value = key;
+                toOption.textContent = unit.name;
+                toSelect.appendChild(toOption);
+            });
+            
+            // デフォルトで異なる単位を選択
+            const unitKeys = Object.keys(categoryData.units);
+            if (unitKeys.length > 1) {
+                toSelect.value = unitKeys[1];
+            }
+        }
+
+        function updateQuickConversions() {
+            const categoryData = categories[currentCategory];
+            const quickGrid = document.getElementById('quickGrid');
+            
+            quickGrid.innerHTML = '';
+            
+            categoryData.quickConversions.forEach(quick => {
+                const quickItem = document.createElement('div');
+                quickItem.className = 'quick-item';
+                quickItem.onclick = () => quickConvert(quick.from, quick.fromUnit, quick.toUnit);
+                
+                quickItem.innerHTML = `
+                    <div class="quick-value">${quick.desc}</div>
+                    <div class="quick-desc">クリックで変換</div>
+                `;
+                
+                quickGrid.appendChild(quickItem);
+            });
+        }
+
+        function convert() {
+            const fromValue = parseFloat(document.getElementById('fromValue').value);
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            
+            if (isNaN(fromValue)) {
+                showNotification('有効な数値を入力してください', 'error');
+                return;
+            }
+            
+            const categoryData = categories[currentCategory];
+            let result;
+            
+            if (categoryData.isTemperature) {
+                result = convertTemperature(fromValue, fromUnit, toUnit);
+            } else {
+                const fromFactor = categoryData.units[fromUnit].factor;
+                const toFactor = categoryData.units[toUnit].factor;
+                result = (fromValue * fromFactor) / toFactor;
+            }
+            
+            document.getElementById('toValue').value = formatNumber(result);
+            
+            lastResult = {
+                fromValue: fromValue,
+                fromUnit: fromUnit,
+                toUnit: toUnit,
+                result: result,
+                category: currentCategory
+            };
+            
+            displayResult(fromValue, fromUnit, result, toUnit);
+            showNotification('変換が完了しました');
+        }
+
+        function convertTemperature(value, from, to) {
+            // まず摂氏に変換
+            let celsius;
+            if (from === 'c') {
+                celsius = value;
+            } else if (from === 'f') {
+                celsius = (value - 32) / 1.8;
+            } else if (from === 'k') {
+                celsius = value - 273.15;
+            }
+            
+            // 目的の単位に変換
+            if (to === 'c') {
+                return celsius;
+            } else if (to === 'f') {
+                return celsius * 1.8 + 32;
+            } else if (to === 'k') {
+                return celsius + 273.15;
+            }
+        }
+
+        function quickConvert(value, fromUnit, toUnit) {
+            document.getElementById('fromValue').value = value;
+            document.getElementById('fromUnit').value = fromUnit;
+            document.getElementById('toUnit').value = toUnit;
+            convert();
+        }
+
+        function displayResult(fromValue, fromUnit, result, toUnit) {
+            const resultDisplay = document.getElementById('resultDisplay');
+            const resultValue = document.getElementById('resultValue');
+            const resultDetails = document.getElementById('resultDetails');
+            const formulaText = document.getElementById('formulaText');
+            
+            const categoryData = categories[currentCategory];
+            const fromUnitName = categoryData.units[fromUnit].name;
+            const toUnitName = categoryData.units[toUnit].name;
+            
+            resultValue.textContent = `${formatNumber(result)} ${toUnitName}`;
+            
+            // 詳細結果
+            resultDetails.innerHTML = '';
+            
+            // 他の単位での結果も表示
+            Object.entries(categoryData.units).forEach(([key, unit]) => {
+                if (key !== fromUnit && key !== toUnit) {
+                    let otherResult;
+                    if (categoryData.isTemperature) {
+                        otherResult = convertTemperature(fromValue, fromUnit, key);
+                    } else {
+                        const fromFactor = categoryData.units[fromUnit].factor;
+                        const otherFactor = unit.factor;
+                        otherResult = (fromValue * fromFactor) / otherFactor;
+                    }
+                    
+                    const detailItem = document.createElement('div');
+                    detailItem.className = 'detail-item';
+                    detailItem.innerHTML = `
+                        <div class="detail-value">${formatNumber(otherResult)}</div>
+                        <div class="detail-label">${unit.name}</div>
+                    `;
+                    resultDetails.appendChild(detailItem);
+                }
+            });
+            
+            // 計算式
+            if (categoryData.isTemperature) {
+                formulaText.textContent = `温度変換: ${fromValue} ${fromUnitName} = ${formatNumber(result)} ${toUnitName}`;
+            } else {
+                const fromFactor = categoryData.units[fromUnit].factor;
+                const toFactor = categoryData.units[toUnit].factor;
+                formulaText.textContent = `${fromValue} × ${fromFactor} ÷ ${toFactor} = ${formatNumber(result)}`;
+            }
+            
+            resultDisplay.classList.add('show');
+        }
+
+        function formatNumber(num) {
+            if (Math.abs(num) < 0.01) {
+                return num.toExponential(2);
+            } else if (Math.abs(num) < 1) {
+                return num.toFixed(4);
+            } else if (Math.abs(num) < 100) {
+                return num.toFixed(2);
+            } else if (Math.abs(num) < 10000) {
+                return num.toFixed(1);
+            } else {
+                return num.toLocaleString('ja-JP', { maximumFractionDigits: 0 });
+            }
+        }
+
+        function swapUnits() {
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            const fromValue = document.getElementById('fromValue').value;
+            const toValue = document.getElementById('toValue').value;
+            
+            document.getElementById('fromUnit').value = toUnit;
+            document.getElementById('toUnit').value = fromUnit;
+            document.getElementById('fromValue').value = toValue;
+            document.getElementById('toValue').value = fromValue;
+            
+            if (fromValue && toValue) {
+                convert();
+            }
+        }
+
+        function exportResult() {
+            if (!lastResult) {
+                showNotification('エクスポートする結果がありません', 'error');
+                return;
+            }
+            
+            const categoryData = categories[lastResult.category];
+            const fromUnitName = categoryData.units[lastResult.fromUnit].name;
+            const toUnitName = categoryData.units[lastResult.toUnit].name;
+            
+            let exportText = '単位変換結果\n';
+            exportText += `変換日時: ${new Date().toLocaleString('ja-JP')}\n\n`;
+            exportText += `カテゴリ: ${categoryData.title}\n`;
+            exportText += `変換元: ${lastResult.fromValue} ${fromUnitName}\n`;
+            exportText += `変換先: ${formatNumber(lastResult.result)} ${toUnitName}\n`;
+            
+            const blob = new Blob([exportText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `unit_conversion_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('結果を出力しました');
+        }
+
+        function resetAll() {
+            document.getElementById('fromValue').value = '';
+            document.getElementById('toValue').value = '';
+            document.getElementById('resultDisplay').classList.remove('show');
+            lastResult = null;
+            showNotification('リセットしました');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        function init() {
+            setCategory('length');
+            
+            // エンターキーで変換
+            document.getElementById('fromValue').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    convert();
+                }
+            });
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>挨拶状テンプレート - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .greeting-app {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .greeting-preview {
+            padding: 30px;
+            font-family: 'Times New Roman', serif;
+            color: #333;
+            text-align: center;
+            min-height: 500px;
+            position: relative;
+            background: linear-gradient(45deg, #f8f9fa 0%, #fff 100%);
+        }
+
+        .season-decoration {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            height: 30px;
+            background: repeating-linear-gradient(
+                90deg,
+                #667eea 0px,
+                #667eea 10px,
+                transparent 10px,
+                transparent 20px
+            );
+            opacity: 0.3;
+        }
+
+        .card-header {
+            margin-top: 50px;
+            margin-bottom: 40px;
+        }
+
+        .greeting-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .season-message {
+            font-size: 1.2rem;
+            color: #555;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .card-body {
+            margin: 30px 0;
+            line-height: 1.8;
+        }
+
+        .main-message {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            text-align: justify;
+            text-align-last: center;
+            white-space: pre-wrap;
+        }
+
+        .news-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .news-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .news-content {
+            font-size: 1rem;
+            text-align: left;
+            white-space: pre-wrap;
+        }
+
+        .wishes-section {
+            font-size: 1rem;
+            margin: 25px 0;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .card-footer {
+            margin-top: 40px;
+            text-align: right;
+        }
+
+        .date-info {
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .sender-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .sender-info {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .decorative-element {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 20px;
+            background: linear-gradient(90deg, transparent, #667eea, transparent);
+            opacity: 0.5;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+        }
+
+        .control-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .greeting-preview {
+                padding: 20px;
+                min-height: 400px;
+            }
+            
+            .greeting-title {
+                font-size: 2rem;
+            }
+            
+            .season-message {
+                font-size: 1rem;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .greeting-app {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header, .form-section, .controls {
+                display: none;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+                padding: 0;
+                gap: 0;
+            }
+            
+            .preview-section {
+                border: none;
+                max-height: none;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="greeting-app">
+        <div class="header">
+            <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+            <h1>🎊 挨拶状テンプレート</h1>
+            <p>季節の挨拶や年賀状を美しく作成</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="section-title">挨拶状の種類</div>
+                <div class="form-group">
+                    <label for="greetingType">挨拶状の用途</label>
+                    <select id="greetingType">
+                        <option value="newyear">年賀状</option>
+                        <option value="summer">暑中見舞い</option>
+                        <option value="winter">寒中見舞い</option>
+                        <option value="moving">転居挨拶</option>
+                        <option value="business">転職・退職挨拶</option>
+                        <option value="opening">開店・開業挨拶</option>
+                        <option value="seasonal">季節の挨拶</option>
+                        <option value="other">その他</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="customTitle">カスタムタイトル</label>
+                    <input type="text" id="customTitle" placeholder="謹賀新年">
+                </div>
+
+                <div class="section-title">メッセージ内容</div>
+                <div class="form-group">
+                    <label for="seasonMessage">季節の挨拶</label>
+                    <input type="text" id="seasonMessage" placeholder="新春のお慶びを申し上げます">
+                </div>
+
+                <div class="form-group">
+                    <label for="mainMessage">主要メッセージ</label>
+                    <textarea id="mainMessage" placeholder="旧年中は格別のご厚情を賜り、誠にありがとうございました。"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="newsContent">近況報告・お知らせ</label>
+                    <textarea id="newsContent" placeholder="おかげさまで家族一同元気に過ごしております。"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="wishes">今後の抱負・お願い</label>
+                    <textarea id="wishes" placeholder="本年もどうぞよろしくお願い申し上げます。"></textarea>
+                </div>
+
+                <div class="section-title">日付・送信者情報</div>
+                <div class="form-group">
+                    <label for="greetingDate">日付</label>
+                    <input type="date" id="greetingDate">
+                </div>
+
+                <div class="form-group">
+                    <label for="yearInfo">年号・年情報</label>
+                    <input type="text" id="yearInfo" placeholder="令和六年 元旦">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="senderName">送信者氏名</label>
+                            <input type="text" id="senderName" placeholder="山田 太郎">
+                        </div>
+                        <div>
+                            <label for="familyName">家族名・連名</label>
+                            <input type="text" id="familyName" placeholder="山田家一同">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="senderInfo">住所・連絡先</label>
+                    <textarea id="senderInfo" placeholder="〒123-4567 東京都○○区○○1-1-1"></textarea>
+                </div>
+
+                <div class="section-title">デザイン設定</div>
+                <div class="form-group">
+                    <label for="decorationStyle">装飾スタイル</label>
+                    <select id="decorationStyle">
+                        <option value="simple">シンプル</option>
+                        <option value="elegant">エレガント</option>
+                        <option value="traditional">和風</option>
+                        <option value="modern">モダン</option>
+                        <option value="colorful">カラフル</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="seasonTheme">季節テーマ</label>
+                    <select id="seasonTheme">
+                        <option value="spring">春</option>
+                        <option value="summer">夏</option>
+                        <option value="autumn">秋</option>
+                        <option value="winter">冬</option>
+                        <option value="newyear">新年</option>
+                        <option value="neutral">中性</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="greeting-preview" id="greetingPreview">
+                    <div class="season-decoration"></div>
+                    
+                    <div class="card-header">
+                        <div class="greeting-title" id="previewTitle">謹賀新年</div>
+                        <div class="season-message" id="previewSeasonMessage">
+                            新春のお慶びを申し上げます
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="main-message" id="previewMainMessage">
+                            旧年中は格別のご厚情を賜り、誠にありがとうございました。
+                        </div>
+
+                        <div class="news-section" id="newsSection" style="display: none;">
+                            <div class="news-title">近況報告</div>
+                            <div class="news-content" id="previewNewsContent"></div>
+                        </div>
+
+                        <div class="wishes-section" id="wishesSection">
+                            <div id="previewWishes">
+                                本年もどうぞよろしくお願い申し上げます。
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="date-info" id="previewYearInfo">令和六年 元旦</div>
+                        <div class="sender-name" id="previewSenderName">山田 太郎</div>
+                        <div class="sender-info" id="previewSenderInfo"></div>
+                    </div>
+
+                    <div class="decorative-element"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="printGreeting()">🖨️ 印刷</button>
+            <button class="control-btn secondary" onclick="saveGreeting()">💾 保存</button>
+            <button class="control-btn secondary" onclick="loadGreeting()">📂 読み込み</button>
+            <button class="control-btn secondary" onclick="clearForm()">🗑️ クリア</button>
+        </div>
+    </div>
+
+    <script>
+        const greetingTitles = {
+            newyear: '謹賀新年',
+            summer: '暑中お見舞い申し上げます',
+            winter: '寒中お見舞い申し上げます',
+            moving: '転居のご挨拶',
+            business: 'ご挨拶',
+            opening: '開店のご挨拶',
+            seasonal: '季節のご挨拶',
+            other: 'ご挨拶'
+        };
+
+        const defaultSeasonMessages = {
+            newyear: '新春のお慶びを申し上げます',
+            summer: '暑い日が続いておりますが、いかがお過ごしでしょうか',
+            winter: '寒い日が続いておりますが、お元気でお過ごしでしょうか',
+            moving: 'この度転居いたしました',
+            business: 'この度転職いたしました',
+            opening: 'この度開店の運びとなりました',
+            seasonal: '季節の変わり目ですが、お元気でお過ごしでしょうか',
+            other: 'いつもお世話になっております'
+        };
+
+        const defaultMainMessages = {
+            newyear: '旧年中は格別のご厚情を賜り、誠にありがとうございました。',
+            summer: '平素は格別のご厚情を賜り、厚く御礼申し上げます。',
+            winter: '年末年始は何かとお忙しい中、ご丁寧な年賀状をいただき、ありがとうございました。',
+            moving: '長年住み慣れた土地を離れることになりましたが、新しい環境で心機一転がんばります。',
+            business: '長年お世話になりました職場を退職し、新しい環境でがんばることになりました。',
+            opening: '皆様のご支援により、念願の開店を迎えることができました。',
+            seasonal: 'おかげさまで家族一同元気に過ごしております。',
+            other: 'いつも温かいお心遣いをいただき、心より感謝しております。'
+        };
+
+        const defaultWishes = {
+            newyear: '本年もどうぞよろしくお願い申し上げます。',
+            summer: '暑さが続きますが、お体にお気をつけください。',
+            winter: '寒さ厳しき折、お体を大切にお過ごしください。',
+            moving: '今後ともご指導ご鞭撻のほど、よろしくお願い申し上げます。',
+            business: '今後ともご指導ご鞭撻のほど、よろしくお願い申し上げます。',
+            opening: 'お近くにお越しの際は、ぜひお立ち寄りください。',
+            seasonal: '季節の変わり目ですので、お体にお気をつけください。',
+            other: '今後ともよろしくお願い申し上げます。'
+        };
+
+        function updateGreetingType() {
+            const greetingType = document.getElementById('greetingType').value;
+            
+            // タイトルの自動更新
+            if (!document.getElementById('customTitle').value) {
+                document.getElementById('customTitle').value = greetingTitles[greetingType] || '';
+            }
+            
+            // 季節挨拶の自動更新
+            if (!document.getElementById('seasonMessage').value) {
+                document.getElementById('seasonMessage').value = defaultSeasonMessages[greetingType] || '';
+            }
+            
+            // メインメッセージの自動更新
+            if (!document.getElementById('mainMessage').value) {
+                document.getElementById('mainMessage').value = defaultMainMessages[greetingType] || '';
+            }
+            
+            // 今後の抱負の自動更新
+            if (!document.getElementById('wishes').value) {
+                document.getElementById('wishes').value = defaultWishes[greetingType] || '';
+            }
+            
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const customTitle = document.getElementById('customTitle').value;
+            const greetingType = document.getElementById('greetingType').value;
+            const seasonMessage = document.getElementById('seasonMessage').value;
+            const mainMessage = document.getElementById('mainMessage').value;
+            const newsContent = document.getElementById('newsContent').value;
+            const wishes = document.getElementById('wishes').value;
+            const greetingDate = document.getElementById('greetingDate').value;
+            const yearInfo = document.getElementById('yearInfo').value;
+            const senderName = document.getElementById('senderName').value;
+            const familyName = document.getElementById('familyName').value;
+            const senderInfo = document.getElementById('senderInfo').value;
+
+            // タイトルの更新
+            document.getElementById('previewTitle').textContent = 
+                customTitle || greetingTitles[greetingType] || 'ご挨拶';
+
+            // 季節メッセージの更新
+            document.getElementById('previewSeasonMessage').textContent = 
+                seasonMessage || defaultSeasonMessages[greetingType] || '';
+
+            // メインメッセージの更新
+            document.getElementById('previewMainMessage').textContent = 
+                mainMessage || defaultMainMessages[greetingType] || '';
+
+            // 近況報告の表示制御
+            if (newsContent) {
+                document.getElementById('previewNewsContent').textContent = newsContent;
+                document.getElementById('newsSection').style.display = 'block';
+            } else {
+                document.getElementById('newsSection').style.display = 'none';
+            }
+
+            // 今後の抱負の更新
+            document.getElementById('previewWishes').textContent = 
+                wishes || defaultWishes[greetingType] || '';
+
+            // 年情報の更新
+            let yearText = yearInfo;
+            if (!yearText && greetingDate) {
+                yearText = formatJapaneseDate(greetingDate);
+            } else if (!yearText) {
+                yearText = '令和六年 元旦';
+            }
+            document.getElementById('previewYearInfo').textContent = yearText;
+
+            // 送信者名の更新
+            let nameText = '';
+            if (familyName) {
+                nameText = familyName;
+            } else if (senderName) {
+                nameText = senderName;
+            } else {
+                nameText = '送信者名';
+            }
+            document.getElementById('previewSenderName').textContent = nameText;
+
+            // 送信者情報の更新
+            document.getElementById('previewSenderInfo').textContent = senderInfo;
+        }
+
+        function formatJapaneseDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            
+            // 令和年への変換
+            const reiwaStart = new Date('2019-05-01');
+            if (date >= reiwaStart) {
+                const reiwaYear = year - 2018;
+                return `令和${reiwaYear === 1 ? '元' : reiwaYear}年${month}月${day}日`;
+            } else {
+                const heiseiStart = new Date('1989-01-08');
+                if (date >= heiseiStart) {
+                    const heiseiYear = year - 1988;
+                    return `平成${heiseiYear === 1 ? '元' : heiseiYear}年${month}月${day}日`;
+                }
+            }
+            
+            return `${year}年${month}月${day}日`;
+        }
+
+        function printGreeting() {
+            window.print();
+        }
+
+        function saveGreeting() {
+            const data = {
+                greetingType: document.getElementById('greetingType').value,
+                customTitle: document.getElementById('customTitle').value,
+                seasonMessage: document.getElementById('seasonMessage').value,
+                mainMessage: document.getElementById('mainMessage').value,
+                newsContent: document.getElementById('newsContent').value,
+                wishes: document.getElementById('wishes').value,
+                greetingDate: document.getElementById('greetingDate').value,
+                yearInfo: document.getElementById('yearInfo').value,
+                senderName: document.getElementById('senderName').value,
+                familyName: document.getElementById('familyName').value,
+                senderInfo: document.getElementById('senderInfo').value,
+                decorationStyle: document.getElementById('decorationStyle').value,
+                seasonTheme: document.getElementById('seasonTheme').value
+            };
+
+            localStorage.setItem('greetingData', JSON.stringify(data));
+            alert('挨拶状を保存しました！');
+        }
+
+        function loadGreeting() {
+            const savedData = localStorage.getItem('greetingData');
+            if (!savedData) {
+                alert('保存されたデータがありません。');
+                return;
+            }
+
+            const data = JSON.parse(savedData);
+            
+            // フォームに保存されたデータを読み込み
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = data[key] || '';
+                }
+            });
+
+            updatePreview();
+            alert('挨拶状を読み込みました！');
+        }
+
+        function clearForm() {
+            if (confirm('すべての入力内容をクリアしますか？')) {
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    if (element.id === 'greetingType') {
+                        element.value = 'newyear';
+                    } else if (element.id === 'decorationStyle') {
+                        element.value = 'simple';
+                    } else if (element.id === 'seasonTheme') {
+                        element.value = 'newyear';
+                    } else {
+                        element.value = '';
+                    }
+                });
+                updateGreetingType();
+            }
+        }
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+                input.addEventListener('change', updatePreview);
+            });
+            
+            // 挨拶状タイプ変更時の特別処理
+            document.getElementById('greetingType').addEventListener('change', updateGreetingType);
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            updateGreetingType();
+        });
+    </script>
+</body>
+</html>

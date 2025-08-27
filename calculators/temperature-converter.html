@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>温度変換ツール - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .converter {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .info {
+            background: #e7f3ff;
+            border: 1px solid #b3d7ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #0066cc;
+        }
+
+        .conversion-row {
+            display: grid;
+            grid-template-columns: 1fr 60px 1fr;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .temp-input {
+            display: flex;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .temp-input:focus-within {
+            border-color: #667eea;
+        }
+
+        .temp-input input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .temp-select {
+            background: #f8f9fa;
+            border: none;
+            padding: 12px;
+            cursor: pointer;
+            min-width: 80px;
+            font-weight: 600;
+            border-left: 2px solid #e9ecef;
+        }
+
+        .swap-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .swap-btn:hover {
+            background: #5a6fd8;
+            transform: rotate(180deg);
+        }
+
+        .result {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .result-amount {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .result-unit {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .result-details {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .temperature-scale {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .scale-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .scale-visual {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            height: 300px;
+            margin-bottom: 15px;
+        }
+
+        .scale-column {
+            flex: 1;
+            margin: 0 10px;
+            position: relative;
+        }
+
+        .scale-header {
+            text-align: center;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .scale-bar {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(to top, #3b82f6, #ef4444);
+            border-radius: 5px;
+            position: relative;
+            border: 1px solid #e9ecef;
+        }
+
+        .scale-marker {
+            position: absolute;
+            left: -10px;
+            right: -10px;
+            height: 3px;
+            background: #333;
+            border-radius: 2px;
+        }
+
+        .scale-label {
+            position: absolute;
+            left: 110%;
+            font-size: 0.8rem;
+            color: #666;
+            transform: translateY(-50%);
+            white-space: nowrap;
+        }
+
+        .current-temp {
+            position: absolute;
+            left: -5px;
+            right: -5px;
+            height: 4px;
+            background: #fbbf24;
+            border-radius: 2px;
+            border: 2px solid #f59e0b;
+        }
+
+        .conversion-table {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .table-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .table-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .table-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .table-value {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1rem;
+            margin-bottom: 3px;
+        }
+
+        .table-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .quick-convert {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .quick-title {
+            font-weight: 600;
+            color: #155724;
+            margin-bottom: 10px;
+        }
+
+        .quick-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 8px;
+        }
+
+        .quick-btn {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 8px 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .quick-btn:hover {
+            background: #d4edda;
+            border-color: #155724;
+        }
+
+        .formulas {
+            background: #fff8e1;
+            border: 1px solid #ffcc02;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .formula-title {
+            font-weight: 600;
+            color: #ff8f00;
+            margin-bottom: 10px;
+        }
+
+        .formula-item {
+            font-size: 0.9rem;
+            color: #ff8f00;
+            margin-bottom: 5px;
+            font-family: monospace;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .conversion-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .swap-btn {
+                justify-self: center;
+            }
+            
+            .scale-visual {
+                height: 200px;
+            }
+            
+            .scale-bar {
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="converter">
+        <div class="header">
+            <h1>温度変換ツール</h1>
+            <p>摂氏・華氏・ケルビン温度を変換</p>
+        </div>
+
+        <div class="info">
+            温度の単位を変換できます。摂氏（℃）、華氏（℉）、ケルビン（K）の相互変換に対応。
+        </div>
+
+        <div class="conversion-row">
+            <div class="input-group">
+                <label>変換元</label>
+                <div class="temp-input">
+                    <input type="number" id="fromValue" placeholder="数値を入力" value="25" oninput="convert()" step="any">
+                    <select class="temp-select" id="fromUnit" onchange="convert()">
+                        <option value="celsius" selected>摂氏 (℃)</option>
+                        <option value="fahrenheit">華氏 (℉)</option>
+                        <option value="kelvin">ケルビン (K)</option>
+                        <option value="rankine">ランキン (°R)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="swap-btn" onclick="swapUnits()" title="単位を入れ替え">⇄</button>
+
+            <div class="input-group">
+                <label>変換先</label>
+                <div class="temp-input">
+                    <input type="number" id="toValue" placeholder="結果" readonly>
+                    <select class="temp-select" id="toUnit" onchange="convert()">
+                        <option value="celsius">摂氏 (℃)</option>
+                        <option value="fahrenheit" selected>華氏 (℉)</option>
+                        <option value="kelvin">ケルビン (K)</option>
+                        <option value="rankine">ランキン (°R)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="result">
+            <div class="result-amount" id="resultAmount">77</div>
+            <div class="result-unit" id="resultUnit">華氏</div>
+            <div class="result-details" id="resultDetails">
+                25℃ = 77℉ = 298.15K
+            </div>
+        </div>
+
+        <div class="temperature-scale">
+            <div class="scale-title">温度スケール比較</div>
+            <div class="scale-visual">
+                <div class="scale-column">
+                    <div class="scale-header">摂氏 (℃)</div>
+                    <div class="scale-bar" id="celsiusScale">
+                        <div class="scale-marker" style="top: 0%;">
+                            <div class="scale-label">100°C (沸点)</div>
+                        </div>
+                        <div class="scale-marker" style="top: 50%;">
+                            <div class="scale-label">50°C</div>
+                        </div>
+                        <div class="scale-marker" style="top: 80%;">
+                            <div class="scale-label">20°C (室温)</div>
+                        </div>
+                        <div class="scale-marker" style="top: 100%;">
+                            <div class="scale-label">0°C (氷点)</div>
+                        </div>
+                        <div class="current-temp" id="celsiusMarker" style="top: 75%;"></div>
+                    </div>
+                </div>
+                <div class="scale-column">
+                    <div class="scale-header">華氏 (℉)</div>
+                    <div class="scale-bar" id="fahrenheitScale">
+                        <div class="scale-marker" style="top: 0%;">
+                            <div class="scale-label">212°F (沸点)</div>
+                        </div>
+                        <div class="scale-marker" style="top: 44%;">
+                            <div class="scale-label">122°F</div>
+                        </div>
+                        <div class="scale-marker" style="top: 68%;">
+                            <div class="scale-label">68°F (室温)</div>
+                        </div>
+                        <div class="scale-marker" style="top: 84%;">
+                            <div class="scale-label">32°F (氷点)</div>
+                        </div>
+                        <div class="current-temp" id="fahrenheitMarker" style="top: 61%;"></div>
+                    </div>
+                </div>
+                <div class="scale-column">
+                    <div class="scale-header">ケルビン (K)</div>
+                    <div class="scale-bar" id="kelvinScale">
+                        <div class="scale-marker" style="top: 27%;">
+                            <div class="scale-label">373K (沸点)</div>
+                        </div>
+                        <div class="scale-marker" style="top: 41%;">
+                            <div class="scale-label">323K</div>
+                        </div>
+                        <div class="scale-marker" style="top: 46%;">
+                            <div class="scale-label">293K (室温)</div>
+                        </div>
+                        <div class="scale-marker" style="top: 51%;">
+                            <div class="scale-label">273K (氷点)</div>
+                        </div>
+                        <div class="scale-marker" style="top: 100%;">
+                            <div class="scale-label">0K (絶対零度)</div>
+                        </div>
+                        <div class="current-temp" id="kelvinMarker" style="top: 45%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="conversion-table">
+            <div class="table-title">変換表（入力値の場合）</div>
+            <div class="table-grid" id="conversionTable">
+                <!-- 変換表がここに動的に生成されます -->
+            </div>
+        </div>
+
+        <div class="quick-convert">
+            <div class="quick-title">よく使われる温度で変換</div>
+            <div class="quick-buttons">
+                <button class="quick-btn" onclick="quickConvert(0, 'celsius')">氷点 (0℃)</button>
+                <button class="quick-btn" onclick="quickConvert(20, 'celsius')">室温 (20℃)</button>
+                <button class="quick-btn" onclick="quickConvert(37, 'celsius')">体温 (37℃)</button>
+                <button class="quick-btn" onclick="quickConvert(100, 'celsius')">沸点 (100℃)</button>
+                <button class="quick-btn" onclick="quickConvert(32, 'fahrenheit')">32°F</button>
+                <button class="quick-btn" onclick="quickConvert(212, 'fahrenheit')">212°F</button>
+                <button class="quick-btn" onclick="quickConvert(273.15, 'kelvin')">273K</button>
+                <button class="quick-btn" onclick="quickConvert(0, 'kelvin')">絶対零度</button>
+            </div>
+        </div>
+
+        <div class="formulas">
+            <div class="formula-title">変換式</div>
+            <div class="formula-item">℃ → ℉: (℃ × 9/5) + 32</div>
+            <div class="formula-item">℉ → ℃: (℉ - 32) × 5/9</div>
+            <div class="formula-item">℃ → K: ℃ + 273.15</div>
+            <div class="formula-item">K → ℃: K - 273.15</div>
+            <div class="formula-item">℉ → K: (℉ - 32) × 5/9 + 273.15</div>
+            <div class="formula-item">K → ℉: (K - 273.15) × 9/5 + 32</div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        // 温度単位の定義
+        const tempUnits = {
+            'celsius': { name: '摂氏', symbol: '℃' },
+            'fahrenheit': { name: '華氏', symbol: '℉' },
+            'kelvin': { name: 'ケルビン', symbol: 'K' },
+            'rankine': { name: 'ランキン', symbol: '°R' }
+        };
+
+        function convert() {
+            const fromValue = parseFloat(document.getElementById('fromValue').value);
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            const toValueInput = document.getElementById('toValue');
+            const resultAmount = document.getElementById('resultAmount');
+            const resultUnit = document.getElementById('resultUnit');
+            const resultDetails = document.getElementById('resultDetails');
+
+            if (isNaN(fromValue) || fromValue === '') {
+                toValueInput.value = '';
+                resultAmount.textContent = '0';
+                resultUnit.textContent = tempUnits[toUnit].name;
+                resultDetails.textContent = '数値を入力してください';
+                return;
+            }
+
+            // 摂氏に変換
+            let celsius;
+            switch (fromUnit) {
+                case 'celsius':
+                    celsius = fromValue;
+                    break;
+                case 'fahrenheit':
+                    celsius = (fromValue - 32) * 5/9;
+                    break;
+                case 'kelvin':
+                    celsius = fromValue - 273.15;
+                    break;
+                case 'rankine':
+                    celsius = (fromValue - 491.67) * 5/9;
+                    break;
+            }
+
+            // 目標単位に変換
+            let result;
+            switch (toUnit) {
+                case 'celsius':
+                    result = celsius;
+                    break;
+                case 'fahrenheit':
+                    result = celsius * 9/5 + 32;
+                    break;
+                case 'kelvin':
+                    result = celsius + 273.15;
+                    break;
+                case 'rankine':
+                    result = (celsius + 273.15) * 9/5;
+                    break;
+            }
+
+            toValueInput.value = formatTemperature(result);
+            resultAmount.textContent = formatTemperature(result);
+            resultUnit.textContent = tempUnits[toUnit].name;
+            
+            // 詳細情報を表示
+            const details = getTemperatureDetails(fromValue, fromUnit, celsius);
+            resultDetails.textContent = details;
+
+            // 変換表を更新
+            updateConversionTable(fromValue, fromUnit);
+            
+            // 温度スケールを更新
+            updateTemperatureScale(celsius);
+        }
+
+        function formatTemperature(value) {
+            if (Math.abs(value) < 0.01) return '0';
+            if (Math.abs(value - Math.round(value)) < 0.01) {
+                return Math.round(value).toString();
+            }
+            return value.toFixed(2).replace(/\.?0+$/, '');
+        }
+
+        function getTemperatureDetails(value, unit, celsius) {
+            const fahrenheit = celsius * 9/5 + 32;
+            const kelvin = celsius + 273.15;
+            
+            return `${formatTemperature(value)}${tempUnits[unit].symbol} = ${formatTemperature(celsius)}℃ = ${formatTemperature(fahrenheit)}℉ = ${formatTemperature(kelvin)}K`;
+        }
+
+        function updateConversionTable(value, unit) {
+            const tableContainer = document.getElementById('conversionTable');
+            
+            // 摂氏に変換
+            let celsius;
+            switch (unit) {
+                case 'celsius': celsius = value; break;
+                case 'fahrenheit': celsius = (value - 32) * 5/9; break;
+                case 'kelvin': celsius = value - 273.15; break;
+                case 'rankine': celsius = (value - 491.67) * 5/9; break;
+            }
+            
+            const fahrenheit = celsius * 9/5 + 32;
+            const kelvin = celsius + 273.15;
+            const rankine = (celsius + 273.15) * 9/5;
+            
+            const conversions = [
+                { unit: 'celsius', value: celsius, label: '摂氏' },
+                { unit: 'fahrenheit', value: fahrenheit, label: '華氏' },
+                { unit: 'kelvin', value: kelvin, label: 'ケルビン' },
+                { unit: 'rankine', value: rankine, label: 'ランキン' }
+            ];
+            
+            tableContainer.innerHTML = '';
+            
+            conversions.forEach(conv => {
+                const item = document.createElement('div');
+                item.className = 'table-item';
+                item.innerHTML = `
+                    <div class="table-value">${formatTemperature(conv.value)}</div>
+                    <div class="table-label">${conv.label}</div>
+                `;
+                tableContainer.appendChild(item);
+            });
+        }
+
+        function updateTemperatureScale(celsius) {
+            const celsiusMarker = document.getElementById('celsiusMarker');
+            const fahrenheitMarker = document.getElementById('fahrenheitMarker');
+            const kelvinMarker = document.getElementById('kelvinMarker');
+            
+            // 摂氏スケール（-50℃から150℃の範囲）
+            const celsiusPercent = Math.max(0, Math.min(100, (150 - celsius) / 200 * 100));
+            celsiusMarker.style.top = `${celsiusPercent}%`;
+            
+            // 華氏スケール（-58°Fから302°Fの範囲）
+            const fahrenheit = celsius * 9/5 + 32;
+            const fahrenheitPercent = Math.max(0, Math.min(100, (302 - fahrenheit) / 360 * 100));
+            fahrenheitMarker.style.top = `${fahrenheitPercent}%`;
+            
+            // ケルビンスケール（0Kから500Kの範囲）
+            const kelvin = celsius + 273.15;
+            const kelvinPercent = Math.max(0, Math.min(100, (500 - kelvin) / 500 * 100));
+            kelvinMarker.style.top = `${kelvinPercent}%`;
+        }
+
+        function swapUnits() {
+            const fromUnit = document.getElementById('fromUnit');
+            const toUnit = document.getElementById('toUnit');
+            const fromValue = document.getElementById('fromValue');
+            const toValue = document.getElementById('toValue');
+
+            // 単位を交換
+            const tempUnit = fromUnit.value;
+            fromUnit.value = toUnit.value;
+            toUnit.value = tempUnit;
+
+            // 値を交換
+            const tempValue = fromValue.value;
+            fromValue.value = toValue.value;
+            toValue.value = tempValue;
+
+            convert();
+        }
+
+        function quickConvert(value, unit) {
+            document.getElementById('fromValue').value = value;
+            document.getElementById('fromUnit').value = unit;
+            convert();
+        }
+
+        // 初期化
+        convert();
+    </script>
+</body>
+</html>

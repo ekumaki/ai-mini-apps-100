@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カレンダー - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .calendar-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .month-year {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            text-align: center;
+            flex: 1;
+        }
+
+        .today-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .today-btn:hover {
+            background: #218838;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .calendar-header-cell {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .calendar-cell {
+            background: white;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .calendar-cell:hover {
+            background: #f8f9fa;
+        }
+
+        .calendar-cell.other-month {
+            background: #f8f9fa;
+            color: #ccc;
+        }
+
+        .calendar-cell.today {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        .calendar-cell.selected {
+            background: #28a745;
+            color: white;
+            font-weight: 600;
+        }
+
+        .calendar-cell.holiday {
+            background: #ffe6e6;
+            color: #dc3545;
+        }
+
+        .calendar-cell.holiday.today {
+            background: #dc3545;
+            color: white;
+        }
+
+        .date-number {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .date-info {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .date-info h3 {
+            color: #155724;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .date-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #155724;
+            margin-bottom: 5px;
+        }
+
+        .detail-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .holidays-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .holidays-title {
+            color: #856404;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .holidays-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .holiday-item {
+            background: white;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 0.9rem;
+        }
+
+        .holiday-date {
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .holiday-name {
+            color: #333;
+            margin-top: 3px;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .calendar-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .calendar-cell {
+                min-height: 50px;
+            }
+            
+            .date-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calendar-container">
+        <div class="header">
+            <h1>カレンダー</h1>
+            <p>日付の表示と管理</p>
+        </div>
+
+        <div class="calendar-header">
+            <button class="nav-btn" id="prevMonth">&lt;</button>
+            <div class="month-year" id="monthYear"></div>
+            <button class="nav-btn" id="nextMonth">&gt;</button>
+            <button class="today-btn" id="todayBtn">今日</button>
+        </div>
+
+        <div class="calendar-grid" id="calendarGrid">
+            <!-- カレンダーがここに動的に生成されます -->
+        </div>
+
+        <div class="date-info" id="dateInfo">
+            <h3>選択された日付</h3>
+            <div class="date-details">
+                <div class="detail-item">
+                    <div class="detail-value" id="selectedDate">--</div>
+                    <div class="detail-label">日付</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-value" id="selectedDayOfWeek">--</div>
+                    <div class="detail-label">曜日</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-value" id="selectedDayOfYear">--</div>
+                    <div class="detail-label">年間通算日</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-value" id="selectedWeekOfYear">--</div>
+                    <div class="detail-label">週番号</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <button class="action-btn" onclick="goToToday()">今日に移動</button>
+            <button class="action-btn" onclick="goToDate()">特定の日付に移動</button>
+            <button class="action-btn secondary" onclick="showYearView()">年表示</button>
+            <button class="action-btn secondary" onclick="exportCalendar()">カレンダー出力</button>
+        </div>
+
+        <div class="holidays-section">
+            <div class="holidays-title">今月の祝日・記念日</div>
+            <div class="holidays-list" id="holidaysList">
+                <!-- 祝日リストがここに表示されます -->
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        let currentDate = new Date();
+        let selectedDate = null;
+        let viewingDate = new Date();
+
+        // 日本語曜日名
+        const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+        const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+
+        // 祝日データ（簡易版）
+        const holidays = {
+            '2024-01-01': '元日',
+            '2024-01-08': '成人の日',
+            '2024-02-11': '建国記念の日',
+            '2024-02-23': '天皇誕生日',
+            '2024-03-20': '春分の日',
+            '2024-04-29': '昭和の日',
+            '2024-05-03': '憲法記念日',
+            '2024-05-04': 'みどりの日',
+            '2024-05-05': 'こどもの日',
+            '2024-07-15': '海の日',
+            '2024-08-11': '山の日',
+            '2024-09-16': '敬老の日',
+            '2024-09-23': '秋分の日',
+            '2024-10-14': 'スポーツの日',
+            '2024-11-03': '文化の日',
+            '2024-11-23': '勤労感謝の日',
+            '2025-01-01': '元日',
+            '2025-01-13': '成人の日',
+            '2025-02-11': '建国記念の日',
+            '2025-02-23': '天皇誕生日',
+            '2025-03-20': '春分の日',
+            '2025-04-29': '昭和の日',
+            '2025-05-03': '憲法記念日',
+            '2025-05-04': 'みどりの日',
+            '2025-05-05': 'こどもの日',
+            '2025-07-21': '海の日',
+            '2025-08-11': '山の日',
+            '2025-09-15': '敬老の日',
+            '2025-09-23': '秋分の日',
+            '2025-10-13': 'スポーツの日',
+            '2025-11-03': '文化の日',
+            '2025-11-23': '勤労感謝の日'
+        };
+
+        function init() {
+            setupEventListeners();
+            renderCalendar();
+            updateDateInfo();
+        }
+
+        function setupEventListeners() {
+            document.getElementById('prevMonth').addEventListener('click', () => {
+                viewingDate.setMonth(viewingDate.getMonth() - 1);
+                renderCalendar();
+            });
+
+            document.getElementById('nextMonth').addEventListener('click', () => {
+                viewingDate.setMonth(viewingDate.getMonth() + 1);
+                renderCalendar();
+            });
+
+            document.getElementById('todayBtn').addEventListener('click', goToToday);
+        }
+
+        function renderCalendar() {
+            const year = viewingDate.getFullYear();
+            const month = viewingDate.getMonth();
+            
+            // ヘッダー更新
+            document.getElementById('monthYear').textContent = `${year}年 ${monthNames[month]}`;
+            
+            // カレンダーグリッド生成
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+            
+            // 曜日ヘッダー
+            dayNames.forEach(day => {
+                const headerCell = document.createElement('div');
+                headerCell.className = 'calendar-header-cell';
+                headerCell.textContent = day;
+                calendarGrid.appendChild(headerCell);
+            });
+            
+            // 月の最初の日と最後の日
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            
+            // カレンダーセル生成
+            const today = new Date();
+            for (let i = 0; i < 42; i++) {
+                const cellDate = new Date(startDate);
+                cellDate.setDate(startDate.getDate() + i);
+                
+                const cell = document.createElement('div');
+                cell.className = 'calendar-cell';
+                
+                const dateNumber = document.createElement('div');
+                dateNumber.className = 'date-number';
+                dateNumber.textContent = cellDate.getDate();
+                
+                // 月が違う場合
+                if (cellDate.getMonth() !== month) {
+                    cell.classList.add('other-month');
+                }
+                
+                // 今日の場合
+                if (isSameDate(cellDate, today)) {
+                    cell.classList.add('today');
+                }
+                
+                // 選択された日付の場合
+                if (selectedDate && isSameDate(cellDate, selectedDate)) {
+                    cell.classList.add('selected');
+                }
+                
+                // 祝日の場合
+                const dateString = formatDate(cellDate);
+                if (holidays[dateString]) {
+                    cell.classList.add('holiday');
+                }
+                
+                cell.appendChild(dateNumber);
+                cell.addEventListener('click', () => selectDate(cellDate));
+                calendarGrid.appendChild(cell);
+            }
+            
+            updateHolidays();
+        }
+
+        function selectDate(date) {
+            selectedDate = new Date(date);
+            renderCalendar();
+            updateDateInfo();
+        }
+
+        function updateDateInfo() {
+            if (!selectedDate) {
+                document.getElementById('selectedDate').textContent = '--';
+                document.getElementById('selectedDayOfWeek').textContent = '--';
+                document.getElementById('selectedDayOfYear').textContent = '--';
+                document.getElementById('selectedWeekOfYear').textContent = '--';
+                return;
+            }
+            
+            const year = selectedDate.getFullYear();
+            const month = selectedDate.getMonth() + 1;
+            const date = selectedDate.getDate();
+            const dayOfWeek = dayNames[selectedDate.getDay()];
+            
+            document.getElementById('selectedDate').textContent = `${year}年${month}月${date}日`;
+            document.getElementById('selectedDayOfWeek').textContent = `${dayOfWeek}曜日`;
+            document.getElementById('selectedDayOfYear').textContent = getDayOfYear(selectedDate);
+            document.getElementById('selectedWeekOfYear').textContent = getWeekOfYear(selectedDate);
+        }
+
+        function updateHolidays() {
+            const year = viewingDate.getFullYear();
+            const month = viewingDate.getMonth();
+            const holidaysList = document.getElementById('holidaysList');
+            
+            holidaysList.innerHTML = '';
+            
+            const monthHolidays = [];
+            for (const [dateString, name] of Object.entries(holidays)) {
+                const holidayDate = new Date(dateString);
+                if (holidayDate.getFullYear() === year && holidayDate.getMonth() === month) {
+                    monthHolidays.push({
+                        date: holidayDate,
+                        name: name
+                    });
+                }
+            }
+            
+            monthHolidays.sort((a, b) => a.date - b.date);
+            
+            if (monthHolidays.length === 0) {
+                holidaysList.innerHTML = '<div class="holiday-item">今月は祝日がありません</div>';
+                return;
+            }
+            
+            monthHolidays.forEach(holiday => {
+                const holidayItem = document.createElement('div');
+                holidayItem.className = 'holiday-item';
+                holidayItem.innerHTML = `
+                    <div class="holiday-date">${holiday.date.getDate()}日</div>
+                    <div class="holiday-name">${holiday.name}</div>
+                `;
+                holidaysList.appendChild(holidayItem);
+            });
+        }
+
+        function goToToday() {
+            viewingDate = new Date();
+            selectedDate = new Date();
+            renderCalendar();
+            updateDateInfo();
+        }
+
+        function goToDate() {
+            const input = prompt('移動したい日付を入力してください (例: 2024-12-25)');
+            if (!input) return;
+            
+            const date = new Date(input);
+            if (isNaN(date.getTime())) {
+                alert('正しい日付形式で入力してください');
+                return;
+            }
+            
+            viewingDate = new Date(date);
+            selectedDate = new Date(date);
+            renderCalendar();
+            updateDateInfo();
+        }
+
+        function showYearView() {
+            const year = viewingDate.getFullYear();
+            let yearInfo = `${year}年の情報\n\n`;
+            
+            const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+            yearInfo += `うるう年: ${isLeapYear ? 'はい' : 'いいえ'}\n`;
+            yearInfo += `総日数: ${isLeapYear ? '366日' : '365日'}\n\n`;
+            
+            // 各月の日数
+            yearInfo += '各月の日数:\n';
+            for (let month = 0; month < 12; month++) {
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                yearInfo += `${monthNames[month]}: ${daysInMonth}日\n`;
+            }
+            
+            alert(yearInfo);
+        }
+
+        function exportCalendar() {
+            const year = viewingDate.getFullYear();
+            const month = viewingDate.getMonth();
+            const monthName = monthNames[month];
+            
+            let calendarText = `${year}年 ${monthName}のカレンダー\n\n`;
+            calendarText += dayNames.join('\t') + '\n';
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            
+            for (let week = 0; week < 6; week++) {
+                const weekDays = [];
+                for (let day = 0; day < 7; day++) {
+                    const cellDate = new Date(startDate);
+                    cellDate.setDate(startDate.getDate() + week * 7 + day);
+                    
+                    if (cellDate.getMonth() === month) {
+                        weekDays.push(cellDate.getDate().toString());
+                    } else {
+                        weekDays.push('');
+                    }
+                }
+                calendarText += weekDays.join('\t') + '\n';
+            }
+            
+            // 祝日情報追加
+            calendarText += '\n今月の祝日:\n';
+            for (const [dateString, name] of Object.entries(holidays)) {
+                const holidayDate = new Date(dateString);
+                if (holidayDate.getFullYear() === year && holidayDate.getMonth() === month) {
+                    calendarText += `${holidayDate.getDate()}日: ${name}\n`;
+                }
+            }
+            
+            const blob = new Blob([calendarText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `calendar_${year}_${month + 1}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // ヘルパー関数
+        function isSameDate(date1, date2) {
+            return date1.getFullYear() === date2.getFullYear() &&
+                   date1.getMonth() === date2.getMonth() &&
+                   date1.getDate() === date2.getDate();
+        }
+
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function getDayOfYear(date) {
+            const start = new Date(date.getFullYear(), 0, 1);
+            const diff = date - start;
+            return Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
+        }
+
+        function getWeekOfYear(date) {
+            const start = new Date(date.getFullYear(), 0, 1);
+            const days = Math.floor((date - start) / (1000 * 60 * 60 * 24));
+            return Math.ceil((days + start.getDay() + 1) / 7);
+        }
+
+        // 初期化
+        init();
+    </script>
+</body>
+</html>

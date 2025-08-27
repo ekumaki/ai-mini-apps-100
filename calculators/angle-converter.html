@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>角度変換ツール - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .converter {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .info {
+            background: #e7f3ff;
+            border: 1px solid #b3d7ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #0066cc;
+        }
+
+        .conversion-row {
+            display: grid;
+            grid-template-columns: 1fr 60px 1fr;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .angle-input {
+            display: flex;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .angle-input:focus-within {
+            border-color: #667eea;
+        }
+
+        .angle-input input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .angle-select {
+            background: #f8f9fa;
+            border: none;
+            padding: 12px;
+            cursor: pointer;
+            min-width: 80px;
+            font-weight: 600;
+            border-left: 2px solid #e9ecef;
+        }
+
+        .swap-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .swap-btn:hover {
+            background: #5a6fd8;
+            transform: rotate(180deg);
+        }
+
+        .result {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .result-amount {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .result-unit {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .result-details {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .conversion-table {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .table-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .table-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .table-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .table-value {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1rem;
+            margin-bottom: 3px;
+        }
+
+        .table-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .visual-display {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .visual-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .angle-visual {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            position: relative;
+            border: 2px solid #e9ecef;
+            border-radius: 50%;
+        }
+
+        .angle-arc {
+            stroke: #667eea;
+            stroke-width: 3;
+            fill: none;
+        }
+
+        .angle-line {
+            stroke: #333;
+            stroke-width: 2;
+        }
+
+        .angle-text {
+            font-size: 14px;
+            font-weight: bold;
+            fill: #333;
+        }
+
+        .angle-degree-mark {
+            stroke: #999;
+            stroke-width: 1;
+        }
+
+        .quick-convert {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .quick-title {
+            font-weight: 600;
+            color: #155724;
+            margin-bottom: 10px;
+        }
+
+        .quick-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 8px;
+        }
+
+        .quick-btn {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 8px 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .quick-btn:hover {
+            background: #d4edda;
+            border-color: #155724;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .conversion-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .swap-btn {
+                justify-self: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="converter">
+        <div class="header">
+            <h1>角度変換ツール</h1>
+            <p>度、ラジアン、グラードを変換</p>
+        </div>
+
+        <div class="info">
+            角度の単位を変換できます。度（°）、ラジアン（rad）、グラード（grad）の相互変換に対応。
+        </div>
+
+        <div class="conversion-row">
+            <div class="input-group">
+                <label>変換元</label>
+                <div class="angle-input">
+                    <input type="number" id="fromValue" placeholder="数値を入力" value="90" oninput="convert()" step="any">
+                    <select class="angle-select" id="fromUnit" onchange="convert()">
+                        <option value="degree" selected>度 (°)</option>
+                        <option value="radian">ラジアン (rad)</option>
+                        <option value="grad">グラード (grad)</option>
+                        <option value="turn">回転 (turn)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="swap-btn" onclick="swapUnits()" title="単位を入れ替え">⇄</button>
+
+            <div class="input-group">
+                <label>変換先</label>
+                <div class="angle-input">
+                    <input type="number" id="toValue" placeholder="結果" readonly>
+                    <select class="angle-select" id="toUnit" onchange="convert()">
+                        <option value="degree">度 (°)</option>
+                        <option value="radian" selected>ラジアン (rad)</option>
+                        <option value="grad">グラード (grad)</option>
+                        <option value="turn">回転 (turn)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="result">
+            <div class="result-amount" id="resultAmount">π/2</div>
+            <div class="result-unit" id="resultUnit">ラジアン</div>
+            <div class="result-details" id="resultDetails">
+                90° = π/2 ラジアン = 100 グラード
+            </div>
+        </div>
+
+        <div class="visual-display">
+            <div class="visual-title">角度の視覚化</div>
+            <svg class="angle-visual" viewBox="0 0 200 200" id="angleVisual">
+                <!-- 基準線 -->
+                <line x1="100" y1="100" x2="180" y2="100" class="angle-line" />
+                <!-- 角度線 -->
+                <line x1="100" y1="100" x2="100" y2="20" class="angle-line" id="angleLine" />
+                <!-- 角度弧 -->
+                <path d="M 140 100 A 40 40 0 0 0 100 60" class="angle-arc" id="angleArc" />
+                <!-- 角度表示 -->
+                <text x="130" y="80" class="angle-text" id="angleText">90°</text>
+                <!-- 角度目盛り -->
+                <g id="degreeMarks"></g>
+            </svg>
+        </div>
+
+        <div class="conversion-table">
+            <div class="table-title">変換表（入力値の場合）</div>
+            <div class="table-grid" id="conversionTable">
+                <!-- 変換表がここに動的に生成されます -->
+            </div>
+        </div>
+
+        <div class="quick-convert">
+            <div class="quick-title">よく使われる角度で変換</div>
+            <div class="quick-buttons">
+                <button class="quick-btn" onclick="quickConvert(0, 'degree')">0°</button>
+                <button class="quick-btn" onclick="quickConvert(30, 'degree')">30°</button>
+                <button class="quick-btn" onclick="quickConvert(45, 'degree')">45°</button>
+                <button class="quick-btn" onclick="quickConvert(60, 'degree')">60°</button>
+                <button class="quick-btn" onclick="quickConvert(90, 'degree')">90°</button>
+                <button class="quick-btn" onclick="quickConvert(180, 'degree')">180°</button>
+                <button class="quick-btn" onclick="quickConvert(270, 'degree')">270°</button>
+                <button class="quick-btn" onclick="quickConvert(360, 'degree')">360°</button>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        // 角度単位の定義
+        const angleUnits = {
+            'degree': { name: '度', symbol: '°', toDegree: 1, fromDegree: 1 },
+            'radian': { name: 'ラジアン', symbol: 'rad', toDegree: 180 / Math.PI, fromDegree: Math.PI / 180 },
+            'grad': { name: 'グラード', symbol: 'grad', toDegree: 0.9, fromDegree: 1 / 0.9 },
+            'turn': { name: '回転', symbol: 'turn', toDegree: 360, fromDegree: 1 / 360 }
+        };
+
+        function convert() {
+            const fromValue = parseFloat(document.getElementById('fromValue').value);
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            const toValueInput = document.getElementById('toValue');
+            const resultAmount = document.getElementById('resultAmount');
+            const resultUnit = document.getElementById('resultUnit');
+            const resultDetails = document.getElementById('resultDetails');
+
+            if (isNaN(fromValue) || fromValue === '') {
+                toValueInput.value = '';
+                resultAmount.textContent = '0';
+                resultUnit.textContent = angleUnits[toUnit].name;
+                resultDetails.textContent = '数値を入力してください';
+                return;
+            }
+
+            // 度に変換
+            const degrees = fromValue * angleUnits[fromUnit].toDegree;
+            // 目標単位に変換
+            const result = degrees * angleUnits[toUnit].fromDegree;
+
+            toValueInput.value = formatAngle(result, toUnit);
+            resultAmount.textContent = formatAngle(result, toUnit);
+            resultUnit.textContent = angleUnits[toUnit].name;
+            
+            // 詳細情報を表示
+            const details = getAngleDetails(fromValue, fromUnit, degrees);
+            resultDetails.textContent = details;
+
+            // 変換表を更新
+            updateConversionTable(fromValue, fromUnit);
+            
+            // 視覚化を更新
+            updateAngleVisualization(degrees);
+        }
+
+        function formatAngle(value, unit) {
+            if (unit === 'radian') {
+                // ラジアンの場合、π の倍数で表示
+                const piMultiple = value / Math.PI;
+                if (Math.abs(piMultiple) < 0.001) return '0';
+                if (Math.abs(piMultiple - Math.round(piMultiple)) < 0.001) {
+                    const rounded = Math.round(piMultiple);
+                    if (rounded === 1) return 'π';
+                    if (rounded === -1) return '-π';
+                    return `${rounded}π`;
+                }
+                if (Math.abs(piMultiple * 2 - Math.round(piMultiple * 2)) < 0.001) {
+                    const numerator = Math.round(piMultiple * 2);
+                    if (numerator === 1) return 'π/2';
+                    if (numerator === -1) return '-π/2';
+                    return `${numerator}π/2`;
+                }
+                if (Math.abs(piMultiple * 3 - Math.round(piMultiple * 3)) < 0.001) {
+                    const numerator = Math.round(piMultiple * 3);
+                    if (numerator === 1) return 'π/3';
+                    if (numerator === -1) return '-π/3';
+                    return `${numerator}π/3`;
+                }
+                if (Math.abs(piMultiple * 4 - Math.round(piMultiple * 4)) < 0.001) {
+                    const numerator = Math.round(piMultiple * 4);
+                    if (numerator === 1) return 'π/4';
+                    if (numerator === -1) return '-π/4';
+                    return `${numerator}π/4`;
+                }
+                if (Math.abs(piMultiple * 6 - Math.round(piMultiple * 6)) < 0.001) {
+                    const numerator = Math.round(piMultiple * 6);
+                    if (numerator === 1) return 'π/6';
+                    if (numerator === -1) return '-π/6';
+                    return `${numerator}π/6`;
+                }
+                return value.toFixed(6).replace(/\.?0+$/, '');
+            }
+            
+            if (Math.abs(value) < 0.001) return '0';
+            if (Math.abs(value - Math.round(value)) < 0.001) {
+                return Math.round(value).toString();
+            }
+            return value.toFixed(6).replace(/\.?0+$/, '');
+        }
+
+        function getAngleDetails(value, unit, degrees) {
+            const deg = degrees;
+            const rad = deg * Math.PI / 180;
+            const grad = deg / 0.9;
+            const turn = deg / 360;
+            
+            return `${formatAngle(value, unit)} ${angleUnits[unit].symbol} = ${formatAngle(deg, 'degree')}° = ${formatAngle(rad, 'radian')} rad = ${formatAngle(grad, 'grad')} grad`;
+        }
+
+        function updateConversionTable(value, unit) {
+            const tableContainer = document.getElementById('conversionTable');
+            const degrees = value * angleUnits[unit].toDegree;
+            
+            const units = ['degree', 'radian', 'grad', 'turn'];
+            
+            tableContainer.innerHTML = '';
+            
+            units.forEach(unitKey => {
+                const convertedValue = degrees * angleUnits[unitKey].fromDegree;
+                
+                const item = document.createElement('div');
+                item.className = 'table-item';
+                item.innerHTML = `
+                    <div class="table-value">${formatAngle(convertedValue, unitKey)}</div>
+                    <div class="table-label">${angleUnits[unitKey].name}</div>
+                `;
+                tableContainer.appendChild(item);
+            });
+        }
+
+        function updateAngleVisualization(degrees) {
+            const angleLine = document.getElementById('angleLine');
+            const angleArc = document.getElementById('angleArc');
+            const angleText = document.getElementById('angleText');
+            
+            // 角度を0-360度の範囲に正規化
+            const normalizedAngle = ((degrees % 360) + 360) % 360;
+            const radians = normalizedAngle * Math.PI / 180;
+            
+            // 角度線の位置を計算
+            const endX = 100 + 80 * Math.cos(radians - Math.PI / 2);
+            const endY = 100 + 80 * Math.sin(radians - Math.PI / 2);
+            
+            angleLine.setAttribute('x2', endX);
+            angleLine.setAttribute('y2', endY);
+            
+            // 角度弧の描画
+            const largeArcFlag = normalizedAngle > 180 ? 1 : 0;
+            const arcEndX = 100 + 40 * Math.cos(radians - Math.PI / 2);
+            const arcEndY = 100 + 40 * Math.sin(radians - Math.PI / 2);
+            
+            angleArc.setAttribute('d', `M 140 100 A 40 40 0 ${largeArcFlag} 0 ${arcEndX} ${arcEndY}`);
+            
+            // 角度テキストの位置
+            const textX = 100 + 50 * Math.cos(radians / 2 - Math.PI / 2);
+            const textY = 100 + 50 * Math.sin(radians / 2 - Math.PI / 2) + 5;
+            
+            angleText.setAttribute('x', textX);
+            angleText.setAttribute('y', textY);
+            angleText.textContent = `${normalizedAngle.toFixed(0)}°`;
+        }
+
+        function swapUnits() {
+            const fromUnit = document.getElementById('fromUnit');
+            const toUnit = document.getElementById('toUnit');
+            const fromValue = document.getElementById('fromValue');
+            const toValue = document.getElementById('toValue');
+
+            // 単位を交換
+            const tempUnit = fromUnit.value;
+            fromUnit.value = toUnit.value;
+            toUnit.value = tempUnit;
+
+            // 値を交換
+            const tempValue = fromValue.value;
+            fromValue.value = toValue.value;
+            toValue.value = tempValue;
+
+            convert();
+        }
+
+        function quickConvert(value, unit) {
+            document.getElementById('fromValue').value = value;
+            document.getElementById('fromUnit').value = unit;
+            convert();
+        }
+
+        // 初期化
+        convert();
+    </script>
+</body>
+</html>

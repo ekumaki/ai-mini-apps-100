@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Mini Apps 100 - 100個のWebアプリ集</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+
+        .controls {
+            padding: 30px 40px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            padding: 12px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box:focus {
+            border-color: #667eea;
+        }
+
+
+        .content {
+            padding: 40px;
+        }
+
+        .category {
+            margin-bottom: 40px;
+        }
+
+        .category-title {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            font-weight: 600;
+        }
+
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .app-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+
+        .app-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .app-description {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+
+        .footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .search-filter {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI Mini Apps 100</h1>
+            <p>100個のWebアプリケーション集</p>
+        </div>
+
+        <div class="controls">
+            <div class="search-filter">
+                <input type="text" id="searchBox" class="search-box" placeholder="アプリを検索...">
+            </div>
+        </div>
+
+        <div class="content" id="content">
+            <!-- アプリリストがここに動的に生成されます -->
+        </div>
+
+    </div>
+
+    <script>
+        // アプリデータ
+        const apps = [
+            // まとめサイト自身
+            {
+                id: 1,
+                title: "AI Mini Apps 100 (まとめサイト)",
+                description: "100個のWebアプリケーションをカテゴリ別に整理して表示するまとめサイト",
+                category: "utility-tools",
+                categoryName: "便利ツール系",
+                file: "index.html",
+                created: true
+            },
+            
+            // 計算ツール系 (20個)
+            {
+                id: 2,
+                title: "基本計算機",
+                description: "四則演算ができるシンプルな計算機",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/calculator.html",
+                created: true
+            },
+            {
+                id: 3,
+                title: "単位変換ツール",
+                description: "長さ、重さ、温度などの単位を変換",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/unit-converter.html",
+                created: true
+            },
+            {
+                id: 4,
+                title: "BMI計算機",
+                description: "身長と体重からBMI値を計算",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/bmi-calculator.html",
+                created: true
+            },
+            {
+                id: 5,
+                title: "税金計算機",
+                description: "消費税込み・税抜き価格を計算",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/tax-calculator.html",
+                created: true
+            },
+            {
+                id: 6,
+                title: "ローン計算機",
+                description: "月々の返済額や総返済額を計算",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/loan-calculator.html",
+                created: true
+            },
+            {
+                id: 7,
+                title: "為替換算ツール",
+                description: "通貨間の為替レート計算",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/currency-converter.html",
+                created: true
+            },
+            {
+                id: 8,
+                title: "時間計算機",
+                description: "時間の加算・減算計算",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/time-calculator.html",
+                created: true
+            },
+            {
+                id: 9,
+                title: "割引計算機",
+                description: "割引率から割引後価格を計算",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/discount-calculator.html",
+                created: true
+            },
+            {
+                id: 10,
+                title: "面積計算機",
+                description: "円、三角形、四角形の面積を計算",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/area-calculator.html",
+                created: true
+            },
+            {
+                id: 11,
+                title: "体積計算機",
+                description: "球、円柱、立方体の体積を計算",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/volume-calculator.html",
+                created: true
+            },
+            {
+                id: 12,
+                title: "パーセント計算機",
+                description: "パーセンテージの計算",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/percentage-calculator.html",
+                created: true
+            },
+            {
+                id: 13,
+                title: "平均値計算機",
+                description: "数値の平均値を計算",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/average-calculator.html",
+                created: true
+            },
+            {
+                id: 14,
+                title: "標準偏差計算機",
+                description: "データの標準偏差を計算",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/standard-deviation.html",
+                created: true
+            },
+            {
+                id: 15,
+                title: "複利計算機",
+                description: "複利での投資収益を計算",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/compound-interest.html",
+                created: true
+            },
+            {
+                id: 16,
+                title: "燃費計算機",
+                description: "車の燃費を計算",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/fuel-efficiency.html",
+                created: true
+            },
+            {
+                id: 17,
+                title: "電力計算機",
+                description: "電力消費量と電気代を計算",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/power-calculator.html",
+                created: true
+            },
+            {
+                id: 18,
+                title: "データ容量変換",
+                description: "バイト、キロバイト、メガバイトなどを変換",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/data-converter.html",
+                created: true
+            },
+            {
+                id: 19,
+                title: "角度変換ツール",
+                description: "度、ラジアン、グラジアンを変換",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/angle-converter.html",
+                created: true
+            },
+            {
+                id: 20,
+                title: "温度変換ツール",
+                description: "摂氏、華氏、ケルビンを変換",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/temperature-converter.html",
+                created: true
+            },
+            {
+                id: 21,
+                title: "距離計算機",
+                description: "2点間の距離を計算",
+                category: "calculators",
+                categoryName: "計算ツール系",
+                file: "calculators/distance-calculator.html",
+                created: true
+            },
+
+            // 文書・テキスト処理系 (20個)
+            {
+                id: 22,
+                title: "文字数カウント",
+                description: "テキストの文字数、単語数をカウント",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/character-counter.html",
+                created: true
+            },
+            {
+                id: 23,
+                title: "テキスト置換ツール",
+                description: "テキスト内の文字列を一括置換",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/text-replacer.html",
+                created: true
+            },
+            {
+                id: 24,
+                title: "大文字小文字変換",
+                description: "テキストの大文字小文字を変換",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/case-converter.html",
+                created: true
+            },
+            {
+                id: 25,
+                title: "重複行削除ツール",
+                description: "テキストから重複行を削除",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/duplicate-remover.html",
+                created: true
+            },
+            {
+                id: 26,
+                title: "テキスト分割ツール",
+                description: "テキストを指定した区切り文字で分割",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/text-splitter.html",
+                created: true
+            },
+            {
+                id: 27,
+                title: "テキスト結合ツール",
+                description: "複数のテキストを指定した区切り文字で結合",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/text-joiner.html",
+                created: true
+            },
+            {
+                id: 28,
+                title: "文字エンコード変換",
+                description: "テキストを様々な形式でエンコード・デコード",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/text-encoder.html",
+                created: true
+            },
+            {
+                id: 29,
+                title: "テキスト暗号化ツール",
+                description: "テキストを簡単な暗号化アルゴリズムで暗号化・復号化",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/text-cipher.html",
+                created: true
+            },
+            {
+                id: 30,
+                title: "文字列検索ツール",
+                description: "テキスト内の文字列を検索・ハイライト表示",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/text-search.html",
+                created: true
+            },
+            {
+                id: 31,
+                title: "正規表現テスター",
+                description: "正規表現パターンをテストし、マッチ結果を確認",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/regex-tester.html",
+                created: true
+            },
+            {
+                id: 32,
+                title: "パスワード生成",
+                description: "ランダムなパスワードを生成",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/password-generator.html",
+                created: true
+            },
+            {
+                id: 33,
+                title: "QRコード生成",
+                description: "テキストからQRコードを生成",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/qr-generator.html",
+                created: true
+            },
+            {
+                id: 34,
+                title: "ハッシュ値生成",
+                description: "テキストやファイルからハッシュ値を生成",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/hash-generator.html",
+                created: true
+            },
+            {
+                id: 35,
+                title: "文字列比較ツール",
+                description: "2つの文字列の差分を表示",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/text-compare.html",
+                created: true
+            },
+            {
+                id: 36,
+                title: "JSONフォーマッター",
+                description: "JSONデータの整形・圧縮・検証",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/json-formatter.html",
+                created: true
+            },
+            {
+                id: 37,
+                title: "HTMLエスケープツール",
+                description: "HTMLの特殊文字をエスケープ・アンエスケープ",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/html-escape.html",
+                created: true
+            },
+            {
+                id: 38,
+                title: "マークダウンプレビュー",
+                description: "リアルタイムでマークダウンをプレビュー",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/markdown-preview.html",
+                created: true
+            },
+            {
+                id: 39,
+                title: "CSVエディタ",
+                description: "CSVデータの編集・変換・管理",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/csv-editor.html",
+                created: true
+            },
+            {
+                id: 40,
+                title: "テキスト統計ツール",
+                description: "テキストの詳細な統計情報と読みやすさを分析",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/text-statistics.html",
+                created: true
+            },
+            {
+                id: 41,
+                title: "Lorem Ipsum生成",
+                description: "様々な言語のダミーテキストを生成",
+                category: "text-tools",
+                categoryName: "文書・テキスト処理系",
+                file: "text-tools/lorem-ipsum.html",
+                created: true
+            },
+
+            // 日時・スケジュール系 (15個)
+            {
+                id: 42,
+                title: "カレンダー",
+                description: "シンプルなカレンダー表示",
+                category: "datetime-tools",
+                categoryName: "日時・スケジュール系",
+                file: "datetime-tools/calendar.html",
+                created: true
+            },
+            {
+                id: 43,
+                title: "日付計算",
+                description: "2つの日付間の日数を計算",
+                category: "datetime-tools",
+                categoryName: "日時・スケジュール系",
+                file: "datetime-tools/date-calculator.html",
+                created: true
+            },
+            {
+                id: 44,
+                title: "年齢計算",
+                description: "生年月日から年齢を計算",
+                category: "datetime-tools",
+                categoryName: "日時・スケジュール系",
+                file: "datetime-tools/age-calculator.html",
+                created: true
+            },
+            {
+                id: 45,
+                title: "カウントダウン",
+                description: "イベントまでのカウントダウン",
+                category: "datetime-tools",
+                categoryName: "日時・スケジュール系",
+                file: "datetime-tools/countdown.html",
+                created: true
+            },
+            {
+                id: 46,
+                title: "タイマー",
+                description: "カウントダウンタイマー",
+                category: "datetime-tools",
+                categoryName: "日時・スケジュール系",
+                file: "datetime-tools/timer.html",
+                created: true
+            },
+            {
+                id: 47,
+                title: "ストップウォッチ",
+                description: "時間を計測するストップウォッチ",
+                category: "datetime-tools",
+                categoryName: "日時・スケジュール系",
+                file: "datetime-tools/stopwatch.html",
+                created: true
+            },
+            {
+                id: 48,
+                title: "アラーム",
+                description: "指定時刻にアラームを鳴らす",
+                category: "datetime-tools",
+                categoryName: "日時・スケジュール系",
+                file: "datetime-tools/alarm.html",
+                created: true
+            },
+            {
+                id: 49,
+                title: "世界時計",
+                description: "世界各地の現在時刻を表示",
+                category: "datetime-tools",
+                categoryName: "日時・スケジュール系",
+                file: "datetime-tools/world-clock.html",
+                created: true
+            },
+            {
+                id: 50,
+                title: "タイムゾーン変換",
+                description: "世界各地の時差を計算",
+                category: "datetime-tools",
+                categoryName: "日時・スケジュール系",
+                file: "datetime-tools/timezone-converter.html",
+                created: true
+            },
+            {
+                id: 51,
+                title: "時間換算",
+                description: "秒、分、時間、日の換算",
+                category: "datetime-tools",
+                categoryName: "日時・スケジュール系",
+                file: "datetime-tools/time-converter.html",
+                created: true
+            },
+            {
+                id: 52,
+                title: "営業日計算",
+                description: "営業日ベースで日数を計算",
+                category: "datetime-tools",
+                categoryName: "日時・スケジュール系",
+                file: "datetime-tools/business-days-calculator.html",
+                created: true
+            },
+            {
+                id: 53,
+                title: "労働時間計算",
+                description: "勤務時間を計算",
+                category: "datetime-tools",
+                categoryName: "日時・スケジュール系",
+                file: "datetime-tools/work-time-calculator.html",
+                created: true
+            },
+            {
+                id: 54,
+                title: "祝日チェック",
+                description: "日本の祝日をチェック",
+                category: "datetime-tools",
+                categoryName: "日時・スケジュール系",
+                file: "datetime-tools/holiday-checker.html",
+                created: true
+            },
+            {
+                id: 55,
+                title: "締切管理",
+                description: "締切日を管理するツール",
+                category: "datetime-tools",
+                categoryName: "日時・スケジュール系",
+                file: "datetime-tools/deadline-manager.html",
+                created: true
+            },
+            {
+                id: 56,
+                title: "スケジュール管理",
+                description: "シンプルなスケジュール管理",
+                category: "datetime-tools",
+                categoryName: "日時・スケジュール系",
+                file: "datetime-tools/schedule-manager.html",
+                created: true
+            },
+
+            // ユーティリティ系 (7個)
+            {
+                id: 57,
+                title: "単位変換",
+                description: "様々な単位を相互に変換",
+                category: "utility-tools",
+                categoryName: "ユーティリティ系",
+                file: "utility-tools/unit-converter.html",
+                created: true
+            },
+            {
+                id: 58,
+                title: "色コード変換",
+                description: "HEX、RGB、HSL形式を相互変換",
+                category: "utility-tools",
+                categoryName: "ユーティリティ系",
+                file: "utility-tools/color-converter.html",
+                created: true
+            },
+            {
+                id: 59,
+                title: "画像圧縮",
+                description: "画像ファイルを圧縮してサイズを縮小",
+                category: "utility-tools",
+                categoryName: "ユーティリティ系",
+                file: "utility-tools/image-compressor.html",
+                created: true
+            },
+            {
+                id: 60,
+                title: "Base64エンコード",
+                description: "テキストとBase64形式を相互変換",
+                category: "utility-tools",
+                categoryName: "ユーティリティ系",
+                file: "utility-tools/base64-encoder.html",
+                created: true
+            },
+            {
+                id: 61,
+                title: "URL短縮",
+                description: "長いURLを短縮してシェアしやすく",
+                category: "utility-tools",
+                categoryName: "ユーティリティ系",
+                file: "utility-tools/url-shortener.html",
+                created: true
+            },
+            {
+                id: 62,
+                title: "ファイルハッシュ",
+                description: "ファイルの整合性とセキュリティを検証",
+                category: "utility-tools",
+                categoryName: "ユーティリティ系",
+                file: "utility-tools/file-hash.html",
+                created: true
+            },
+            {
+                id: 63,
+                title: "IPアドレス検索",
+                description: "IPアドレスの詳細情報と位置情報を取得",
+                category: "utility-tools",
+                categoryName: "ユーティリティ系",
+                file: "utility-tools/ip-lookup.html",
+                created: true
+            },
+            {
+                id: 64,
+                title: "Wi-Fiパスワード生成",
+                description: "セキュアなWi-Fiパスワードを生成",
+                category: "utility-tools",
+                categoryName: "ユーティリティ系",
+                file: "utility-tools/wifi-password.html",
+                created: true
+            },
+            {
+                id: 65,
+                title: "システム情報",
+                description: "ブラウザとシステムの詳細情報を表示",
+                category: "utility-tools",
+                categoryName: "ユーティリティ系",
+                file: "utility-tools/system-info.html",
+                created: true
+            },
+            {
+                id: 66,
+                title: "ランダム選択",
+                description: "選択肢からランダムに選ぶツール",
+                category: "utility-tools",
+                categoryName: "ユーティリティ系",
+                file: "utility-tools/random-selector.html",
+                created: true
+            },
+            {
+                id: 67,
+                title: "決断ルーレット",
+                description: "迷った時の決断支援ルーレット",
+                category: "utility-tools",
+                categoryName: "ユーティリティ系",
+                file: "utility-tools/decision-roulette.html",
+                created: true
+            },
+            {
+                id: 68,
+                title: "タイピングテスト",
+                description: "タイピング速度と正確性をテスト",
+                category: "utility-tools",
+                categoryName: "ユーティリティ系",
+                file: "utility-tools/typing-test.html",
+                created: true
+            },
+            {
+                id: 69,
+                title: "メモリテスト",
+                description: "記憶力をテストするゲーム",
+                category: "utility-tools",
+                categoryName: "ユーティリティ系",
+                file: "utility-tools/memory-test.html",
+                created: true
+            },
+            {
+                id: 70,
+                title: "反応速度テスト",
+                description: "反射神経と反応速度を測定",
+                category: "utility-tools",
+                categoryName: "ユーティリティ系",
+                file: "utility-tools/reaction-test.html",
+                created: true
+            },
+            {
+                id: 71,
+                title: "音楽プレイヤー",
+                description: "シンプルな音楽プレイヤー",
+                category: "utility-tools",
+                categoryName: "ユーティリティ系",
+                file: "utility-tools/music-player.html",
+                created: true
+            },
+
+            // ゲーム・エンタメ系 (15個)
+            {
+                id: 72,
+                title: "ジャンケンゲーム",
+                description: "コンピューターと対戦するジャンケンゲーム",
+                category: "games",
+                categoryName: "ゲーム・エンタメ系",
+                file: "games/rock-paper-scissors.html",
+                created: true
+            },
+            {
+                id: 73,
+                title: "オセロ",
+                description: "CPUと対戦するオセロゲーム",
+                category: "games",
+                categoryName: "ゲーム・エンタメ系",
+                file: "games/othello.html",
+                created: true
+            },
+            {
+                id: 74,
+                title: "テトリス",
+                description: "落下するブロックを積み上げるパズルゲーム",
+                category: "games",
+                categoryName: "ゲーム・エンタメ系",
+                file: "games/tetris.html",
+                created: true
+            },
+            {
+                id: 75,
+                title: "マインスイーパー",
+                description: "地雷を避けて全セルを開けるゲーム",
+                category: "games",
+                categoryName: "ゲーム・エンタメ系",
+                file: "games/minesweeper.html",
+                created: true
+            },
+            {
+                id: 76,
+                title: "スネークゲーム",
+                description: "エサを食べて長くなるスネークゲーム",
+                category: "games",
+                categoryName: "ゲーム・エンタメ系",
+                file: "games/snake-game.html",
+                created: true
+            },
+            {
+                id: 77,
+                title: "ブロック崩し",
+                description: "パドルでボールを操ってブロックを壊すゲーム",
+                category: "games",
+                categoryName: "ゲーム・エンタメ系",
+                file: "games/breakout.html",
+                created: true,
+                hidden: true
+            },
+            {
+                id: 78,
+                title: "スライドパズル",
+                description: "タイルをスライドさせて完成させるパズル",
+                category: "games",
+                categoryName: "ゲーム・エンタメ系",
+                file: "games/puzzle-game.html",
+                created: true
+            },
+            {
+                id: 79,
+                title: "メモリーカード",
+                description: "同じペアを見つけて揃える記憶ゲーム",
+                category: "games",
+                categoryName: "ゲーム・エンタメ系",
+                file: "games/memory-card.html",
+                created: true,
+                hidden: true
+            },
+            {
+                id: 80,
+                title: "パチンコシミュレーター",
+                description: "玉を打ち出して大当たりを狙うゲーム",
+                category: "games",
+                categoryName: "ゲーム・エンタメ系",
+                file: "games/pachinko.html",
+                created: true,
+                hidden: true
+            },
+            {
+                id: 81,
+                title: "スロットマシン",
+                description: "3つのリールを揃えて大当たりを狙うゲーム",
+                category: "games",
+                categoryName: "ゲーム・エンタメ系",
+                file: "games/slot-machine.html",
+                created: true
+            },
+            {
+                id: 82,
+                title: "ビンゴゲーム",
+                description: "数字が呼ばれたらカードにマークするゲーム",
+                category: "games",
+                categoryName: "ゲーム・エンタメ系",
+                file: "games/bingo.html",
+                created: true
+            },
+            {
+                id: 83,
+                title: "ブラックジャック",
+                description: "21を超えずにディーラーより高い数字を目指すカードゲーム",
+                category: "games",
+                categoryName: "ゲーム・エンタメ系",
+                file: "games/card-game.html",
+                created: true,
+                hidden: true
+            },
+            {
+                id: 84,
+                title: "タイピングゲーム",
+                description: "表示された文章を正確に素早くタイピング",
+                category: "games",
+                categoryName: "ゲーム・エンタメ系",
+                file: "games/typing-game.html",
+                created: true
+            },
+            {
+                id: 85,
+                title: "シューティングゲーム",
+                description: "宇宙船を操縦して敵を撃破するシューティング",
+                category: "games",
+                categoryName: "ゲーム・エンタメ系",
+                file: "games/shooting-game.html",
+                created: true,
+                hidden: true
+            },
+            {
+                id: 86,
+                title: "クイズゲーム",
+                description: "様々なジャンルの問題に挑戦するクイズ",
+                category: "games",
+                categoryName: "ゲーム・エンタメ系",
+                file: "games/quiz-game.html",
+                created: true
+            },
+
+            // 書類テンプレート系 (19個)
+            {
+                id: 87,
+                title: "履歴書テンプレート",
+                description: "履歴書作成フォーム",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/resume.html",
+                created: true
+            },
+            {
+                id: 88,
+                title: "職務経歴書",
+                description: "職務経歴書作成フォーム",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/cv.html",
+                created: true
+            },
+            {
+                id: 89,
+                title: "企画書テンプレート",
+                description: "企画書作成フォーム",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/proposal.html",
+                created: true
+            },
+            {
+                id: 90,
+                title: "議事録テンプレート",
+                description: "会議議事録作成フォーム",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/meeting-minutes.html",
+                created: true
+            },
+            {
+                id: 91,
+                title: "契約書テンプレート",
+                description: "契約書作成フォーム",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/contract.html",
+                created: true
+            },
+            {
+                id: 92,
+                title: "請求書テンプレート",
+                description: "請求書作成フォーム",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/invoice.html",
+                created: true
+            },
+            {
+                id: 93,
+                title: "見積書テンプレート",
+                description: "見積書作成フォーム",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/quotation.html",
+                created: true
+            },
+            {
+                id: 94,
+                title: "報告書テンプレート",
+                description: "業務報告書作成フォーム",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/report.html",
+                created: true
+            },
+            {
+                id: 95,
+                title: "プレゼン資料",
+                description: "プレゼンテーション資料テンプレート",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/presentation.html",
+                created: true
+            },
+            {
+                id: 96,
+                title: "チェックリスト",
+                description: "チェックリスト作成ツール",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/checklist.html",
+                created: true
+            },
+            {
+                id: 97,
+                title: "アンケート",
+                description: "アンケートフォーム作成",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/survey.html",
+                created: true
+            },
+            {
+                id: 98,
+                title: "申請書テンプレート",
+                description: "各種申請書作成フォーム",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/application.html",
+                created: true
+            },
+            {
+                id: 99,
+                title: "証明書テンプレート",
+                description: "証明書作成フォーム",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/certificate.html",
+                created: true
+            },
+            {
+                id: 100,
+                title: "案内状テンプレート",
+                description: "案内状作成フォーム",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/invitation.html",
+                created: true
+            },
+            {
+                id: 101,
+                title: "お礼状テンプレート",
+                description: "お礼状作成フォーム",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/thank-you.html",
+                created: true
+            },
+            {
+                id: 102,
+                title: "挨拶状テンプレート",
+                description: "挨拶状作成フォーム",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/greeting-card.html",
+                created: true
+            },
+            {
+                id: 103,
+                title: "ラベルデザイナー",
+                description: "ラベル作成ツール",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/label-designer.html",
+                created: true
+            },
+            {
+                id: 104,
+                title: "封筒テンプレート",
+                description: "封筒印刷テンプレート",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/envelope.html",
+                created: true
+            },
+            {
+                id: 105,
+                title: "カード作成",
+                description: "グリーティングカード作成",
+                category: "templates",
+                categoryName: "書類テンプレート系",
+                file: "templates/card-creator.html",
+                created: true
+            }
+        ];
+
+        // カテゴリ情報
+        const categories = {
+            "calculators": "計算ツール系",
+            "text-tools": "文書・テキスト処理系",
+            "datetime-tools": "日時・スケジュール系",
+            "utility-tools": "ユーティリティ系",
+            "games": "ゲーム・エンタメ系",
+            "templates": "書類テンプレート系"
+        };
+
+        // グローバル変数
+        let currentSearch = '';
+
+        // 初期化
+        function init() {
+            renderApps();
+            setupEventListeners();
+        }
+
+        // アプリリスト表示
+        function renderApps() {
+            const content = document.getElementById('content');
+            const filteredApps = filterApps();
+            
+            // カテゴリごとにグループ化
+            const groupedApps = {};
+            filteredApps.forEach(app => {
+                if (!groupedApps[app.category]) {
+                    groupedApps[app.category] = [];
+                }
+                groupedApps[app.category].push(app);
+            });
+
+            let html = '';
+            Object.keys(categories).forEach(categoryKey => {
+                const categoryApps = groupedApps[categoryKey];
+                if (!categoryApps || categoryApps.length === 0) return;
+
+                html += `
+                    <div class="category">
+                        <h2 class="category-title">${categories[categoryKey]} (${categoryApps.length}個)</h2>
+                        <div class="apps-grid">
+                            ${categoryApps.map(app => createAppCard(app)).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (html === '') {
+                html = '<div style="text-align: center; padding: 50px; color: #666;">該当するアプリが見つかりません</div>';
+            }
+
+            content.innerHTML = html;
+        }
+
+        // アプリカード作成
+        function createAppCard(app) {
+            return `
+                <div class="app-card" onclick="openApp('${app.file}')">
+                    <div class="app-title">${app.title}</div>
+                    <div class="app-description">${app.description}</div>
+                </div>
+            `;
+        }
+
+        // アプリフィルタリング
+        function filterApps() {
+            return apps.filter(app => {
+                // 非表示アプリを除外
+                if (app.hidden) return false;
+                
+                // 検索条件
+                const matchesSearch = currentSearch === '' || 
+                    app.title.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                    app.description.toLowerCase().includes(currentSearch.toLowerCase());
+
+                return matchesSearch;
+            });
+        }
+
+        // アプリを開く
+        function openApp(file) {
+            window.open(file, '_blank');
+        }
+
+        // イベントリスナー設定
+        function setupEventListeners() {
+            // 検索ボックス
+            document.getElementById('searchBox').addEventListener('input', (e) => {
+                currentSearch = e.target.value;
+                renderApps();
+            });
+        }
+
+        // 初期化実行
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

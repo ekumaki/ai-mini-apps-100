@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メモリテスト - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .memory-test {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .game-modes {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .mode-btn {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .game-content {
+            display: none;
+        }
+
+        .game-content.active {
+            display: block;
+        }
+
+        .settings-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .settings-title {
+            color: #333;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .setting-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .setting-control {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        .setting-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .sequence-display {
+            background: #e1ecf4;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sequence-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .sequence-item {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .sequence-item.active {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .sequence-item.correct {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .sequence-item.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .number-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .color-item {
+            border: 2px solid #333;
+        }
+
+        .word-display {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #0c5460;
+            margin: 20px 0;
+        }
+
+        .input-section {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .input-title {
+            color: #856404;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .sequence-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px;
+            border: 3px solid #ffeaa7;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .sequence-input:focus {
+            outline: none;
+            border-color: #856404;
+        }
+
+        .stats-section {
+            background: #d4edda;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stats-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #155724;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .result-section {
+            background: #f3e5f5;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+            text-align: center;
+        }
+
+        .result-section.show {
+            display: block;
+            animation: resultFadeIn 0.5s ease;
+        }
+
+        @keyframes resultFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-title {
+            color: #6a1b9a;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .result-message {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .score-display {
+            background: white;
+            border: 2px solid #ce93d8;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #6a1b9a;
+            margin-bottom: 5px;
+        }
+
+        .score-label {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .action-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .action-btn.success {
+            background: #28a745;
+        }
+
+        .action-btn.success:hover {
+            background: #218838;
+        }
+
+        .history-section {
+            background: #e8f5e8;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .history-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-score {
+            font-weight: 600;
+            color: #155724;
+        }
+
+        .history-details {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .history-time {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .timer-display {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .memory-test {
+                padding: 20px;
+            }
+            
+            .game-modes {
+                flex-wrap: wrap;
+            }
+            
+            .sequence-item {
+                width: 60px;
+                height: 60px;
+                font-size: 1.2rem;
+            }
+            
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="memory-test">
+        <div class="header">
+            <h1>メモリテスト</h1>
+            <p>記憶力と集中力を鍛えるゲーム</p>
+        </div>
+
+        <div class="game-modes">
+            <button class="mode-btn active" onclick="switchMode('sequence')">数字記憶</button>
+            <button class="mode-btn" onclick="switchMode('color')">色記憶</button>
+            <button class="mode-btn" onclick="switchMode('word')">単語記憶</button>
+            <button class="mode-btn" onclick="switchMode('pattern')">パターン記憶</button>
+        </div>
+
+        <!-- 数字記憶ゲーム -->
+        <div class="game-content active" id="sequenceGame">
+            <div class="settings-section">
+                <div class="settings-title">⚙️ 数字記憶設定</div>
+                <div class="settings-grid">
+                    <div class="setting-group">
+                        <label for="numberLength">桁数</label>
+                        <select id="numberLength" class="setting-control">
+                            <option value="3">3桁</option>
+                            <option value="4" selected>4桁</option>
+                            <option value="5">5桁</option>
+                            <option value="6">6桁</option>
+                            <option value="7">7桁</option>
+                            <option value="8">8桁</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label for="showTime">表示時間</label>
+                        <select id="showTime" class="setting-control">
+                            <option value="1">1秒</option>
+                            <option value="2" selected>2秒</option>
+                            <option value="3">3秒</option>
+                            <option value="4">4秒</option>
+                            <option value="5">5秒</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sequence-display" id="numberDisplay">
+                <div class="word-display" id="numberSequence">準備完了</div>
+            </div>
+
+            <div class="input-section">
+                <div class="input-title">表示された数字を入力してください</div>
+                <input type="text" id="numberInput" class="sequence-input" placeholder="数字を入力..." disabled>
+            </div>
+        </div>
+
+        <!-- 色記憶ゲーム -->
+        <div class="game-content" id="colorGame">
+            <div class="settings-section">
+                <div class="settings-title">⚙️ 色記憶設定</div>
+                <div class="settings-grid">
+                    <div class="setting-group">
+                        <label for="colorCount">色の数</label>
+                        <select id="colorCount" class="setting-control">
+                            <option value="4" selected>4色</option>
+                            <option value="6">6色</option>
+                            <option value="8">8色</option>
+                            <option value="9">9色</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label for="colorShowTime">表示時間</label>
+                        <select id="colorShowTime" class="setting-control">
+                            <option value="2">2秒</option>
+                            <option value="3" selected>3秒</option>
+                            <option value="4">4秒</option>
+                            <option value="5">5秒</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sequence-display" id="colorDisplay">
+                <div class="sequence-grid" id="colorGrid">
+                    <!-- 色のグリッドがここに表示されます -->
+                </div>
+            </div>
+
+            <div class="input-section">
+                <div class="input-title">順番通りに色をクリックしてください</div>
+                <div id="colorProgress">準備完了</div>
+            </div>
+        </div>
+
+        <!-- 単語記憶ゲーム -->
+        <div class="game-content" id="wordGame">
+            <div class="settings-section">
+                <div class="settings-title">⚙️ 単語記憶設定</div>
+                <div class="settings-grid">
+                    <div class="setting-group">
+                        <label for="wordCount">単語数</label>
+                        <select id="wordCount" class="setting-control">
+                            <option value="3">3個</option>
+                            <option value="4" selected>4個</option>
+                            <option value="5">5個</option>
+                            <option value="6">6個</option>
+                            <option value="7">7個</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label for="wordShowTime">表示時間</label>
+                        <select id="wordShowTime" class="setting-control">
+                            <option value="3">3秒</option>
+                            <option value="4" selected>4秒</option>
+                            <option value="5">5秒</option>
+                            <option value="6">6秒</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sequence-display" id="wordDisplay">
+                <div class="word-display" id="wordSequence">準備完了</div>
+            </div>
+
+            <div class="input-section">
+                <div class="input-title">表示された単語をスペースで区切って入力してください</div>
+                <input type="text" id="wordInput" class="sequence-input" placeholder="単語をスペースで区切って入力..." disabled>
+            </div>
+        </div>
+
+        <!-- パターン記憶ゲーム -->
+        <div class="game-content" id="patternGame">
+            <div class="settings-section">
+                <div class="settings-title">⚙️ パターン記憶設定</div>
+                <div class="settings-grid">
+                    <div class="setting-group">
+                        <label for="patternSize">グリッドサイズ</label>
+                        <select id="patternSize" class="setting-control">
+                            <option value="3">3×3</option>
+                            <option value="4" selected>4×4</option>
+                            <option value="5">5×5</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label for="patternCount">パターン数</label>
+                        <select id="patternCount" class="setting-control">
+                            <option value="3">3個</option>
+                            <option value="4" selected>4個</option>
+                            <option value="5">5個</option>
+                            <option value="6">6個</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sequence-display" id="patternDisplay">
+                <div class="sequence-grid" id="patternGrid">
+                    <!-- パターンのグリッドがここに表示されます -->
+                </div>
+            </div>
+
+            <div class="input-section">
+                <div class="input-title">光った順番通りにマスをクリックしてください</div>
+                <div id="patternProgress">準備完了</div>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-title">📊 現在の成績</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="currentLevel">1</div>
+                    <div class="stat-label">レベル</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="currentScore">0</div>
+                    <div class="stat-label">スコア</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="currentStreak">0</div>
+                    <div class="stat-label">連続成功</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="currentAccuracy">0</div>
+                    <div class="stat-label">正答率(%)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" onclick="startGame()" id="startBtn">ゲーム開始</button>
+            <button class="action-btn secondary" onclick="resetGame()">リセット</button>
+            <button class="action-btn secondary" onclick="saveScore()">スコア保存</button>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-title">🎯 結果</div>
+            <div class="result-message" id="resultMessage">正解です！</div>
+            <div class="score-display">
+                <div class="score-value" id="resultScore">0</div>
+                <div class="score-label">獲得スコア</div>
+            </div>
+            <div style="margin-top: 15px;">
+                <button class="action-btn" onclick="nextRound()">次のレベル</button>
+                <button class="action-btn secondary" onclick="hideResult()">続行</button>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <div class="history-title">📚 プレイ履歴</div>
+            <div class="history-list" id="historyList">
+                <!-- 履歴がここに表示されます -->
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <button class="action-btn secondary" onclick="clearHistory()">履歴クリア</button>
+                <button class="action-btn secondary" onclick="exportHistory()">履歴出力</button>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let currentMode = 'sequence';
+        let gameActive = false;
+        let currentLevel = 1;
+        let currentScore = 0;
+        let currentStreak = 0;
+        let totalAttempts = 0;
+        let correctAttempts = 0;
+        let gameHistory = JSON.parse(localStorage.getItem('memoryTestHistory') || '[]');
+        
+        // ゲームデータ
+        let currentSequence = [];
+        let userInput = [];
+        let showTimer = null;
+
+        const colors = [
+            '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', 
+            '#ffeaa7', '#fd79a8', '#6c5ce7', '#a29bfe', '#55a3ff'
+        ];
+
+        const words = [
+            'りんご', 'みかん', 'バナナ', 'ぶどう', 'いちご', 'メロン', 'スイカ', 'もも',
+            'ねこ', 'いぬ', 'うさぎ', 'とり', 'さかな', 'きりん', 'ぞう', 'ライオン',
+            'あか', 'あお', 'きいろ', 'みどり', 'むらさき', 'ピンク', 'しろ', 'くろ',
+            'はな', 'き', 'かわ', 'やま', 'うみ', 'そら', 'つき', 'ほし'
+        ];
+
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            // タブの状態更新
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // ゲームコンテンツの表示切り替え
+            document.querySelectorAll('.game-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(mode + 'Game').classList.add('active');
+            
+            resetGame();
+        }
+
+        function startGame() {
+            if (gameActive) return;
+            
+            gameActive = true;
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('resultSection').classList.remove('show');
+            
+            switch(currentMode) {
+                case 'sequence':
+                    startNumberGame();
+                    break;
+                case 'color':
+                    startColorGame();
+                    break;
+                case 'word':
+                    startWordGame();
+                    break;
+                case 'pattern':
+                    startPatternGame();
+                    break;
+            }
+        }
+
+        function startNumberGame() {
+            const length = parseInt(document.getElementById('numberLength').value);
+            const showTime = parseInt(document.getElementById('showTime').value) * 1000;
+            
+            // ランダムな数字列を生成
+            currentSequence = [];
+            for (let i = 0; i < length; i++) {
+                currentSequence.push(Math.floor(Math.random() * 10));
+            }
+            
+            // 数字を表示
+            const numberDisplay = document.getElementById('numberSequence');
+            numberDisplay.textContent = currentSequence.join('');
+            numberDisplay.style.fontSize = '3rem';
+            
+            // 入力フィールドを無効化
+            const input = document.getElementById('numberInput');
+            input.disabled = true;
+            input.value = '';
+            
+            // 指定時間後に隠す
+            showTimer = setTimeout(() => {
+                numberDisplay.textContent = '?'.repeat(length);
+                input.disabled = false;
+                input.focus();
+            }, showTime);
+        }
+
+        function startColorGame() {
+            const count = parseInt(document.getElementById('colorCount').value);
+            const showTime = parseInt(document.getElementById('colorShowTime').value) * 1000;
+            
+            // カラーグリッドを生成
+            const colorGrid = document.getElementById('colorGrid');
+            const gridSize = Math.ceil(Math.sqrt(count));
+            colorGrid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+            
+            // 色を配置
+            const selectedColors = colors.slice(0, count);
+            currentSequence = [];
+            
+            colorGrid.innerHTML = '';
+            selectedColors.forEach((color, index) => {
+                const colorItem = document.createElement('div');
+                colorItem.className = 'sequence-item color-item';
+                colorItem.style.backgroundColor = color;
+                colorItem.dataset.index = index;
+                colorItem.onclick = () => selectColor(index);
+                colorGrid.appendChild(colorItem);
+            });
+            
+            // ランダムな順序を生成
+            const sequenceLength = Math.min(currentLevel + 2, count);
+            for (let i = 0; i < sequenceLength; i++) {
+                currentSequence.push(Math.floor(Math.random() * count));
+            }
+            
+            // 順序を表示
+            showColorSequence(showTime);
+        }
+
+        function showColorSequence(showTime) {
+            let index = 0;
+            const items = document.querySelectorAll('.color-item');
+            
+            // すべての色を無効化
+            items.forEach(item => {
+                item.style.pointerEvents = 'none';
+                item.classList.remove('active');
+            });
+            
+            const showNext = () => {
+                if (index < currentSequence.length) {
+                    const currentIndex = currentSequence[index];
+                    const item = items[currentIndex];
+                    
+                    item.classList.add('active');
+                    setTimeout(() => {
+                        item.classList.remove('active');
+                        index++;
+                        setTimeout(showNext, 500);
+                    }, 800);
+                } else {
+                    // 表示完了、入力可能にする
+                    items.forEach(item => {
+                        item.style.pointerEvents = 'auto';
+                    });
+                    userInput = [];
+                    document.getElementById('colorProgress').textContent = `${userInput.length} / ${currentSequence.length}`;
+                }
+            };
+            
+            setTimeout(showNext, 1000);
+        }
+
+        function selectColor(index) {
+            if (!gameActive) return;
+            
+            userInput.push(index);
+            document.getElementById('colorProgress').textContent = `${userInput.length} / ${currentSequence.length}`;
+            
+            const items = document.querySelectorAll('.color-item');
+            const item = items[index];
+            
+            // 正解かチェック
+            const currentStep = userInput.length - 1;
+            if (currentSequence[currentStep] === index) {
+                item.classList.add('correct');
+                setTimeout(() => item.classList.remove('correct'), 500);
+                
+                if (userInput.length === currentSequence.length) {
+                    // 完了
+                    setTimeout(() => checkAnswer(), 500);
+                }
+            } else {
+                item.classList.add('incorrect');
+                setTimeout(() => item.classList.remove('incorrect'), 500);
+                setTimeout(() => checkAnswer(), 1000);
+            }
+        }
+
+        function startWordGame() {
+            const count = parseInt(document.getElementById('wordCount').value);
+            const showTime = parseInt(document.getElementById('wordShowTime').value) * 1000;
+            
+            // ランダムな単語を選択
+            currentSequence = [];
+            const availableWords = [...words];
+            
+            for (let i = 0; i < count; i++) {
+                const randomIndex = Math.floor(Math.random() * availableWords.length);
+                currentSequence.push(availableWords[randomIndex]);
+                availableWords.splice(randomIndex, 1);
+            }
+            
+            // 単語を表示
+            const wordDisplay = document.getElementById('wordSequence');
+            wordDisplay.textContent = currentSequence.join(' ');
+            wordDisplay.style.fontSize = '2rem';
+            
+            // 入力フィールドを無効化
+            const input = document.getElementById('wordInput');
+            input.disabled = true;
+            input.value = '';
+            
+            // 指定時間後に隠す
+            showTimer = setTimeout(() => {
+                wordDisplay.textContent = '単語を思い出してください';
+                input.disabled = false;
+                input.focus();
+            }, showTime);
+        }
+
+        function startPatternGame() {
+            const size = parseInt(document.getElementById('patternSize').value);
+            const count = parseInt(document.getElementById('patternCount').value);
+            
+            // パターングリッドを生成
+            const patternGrid = document.getElementById('patternGrid');
+            patternGrid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+            
+            // グリッドアイテムを配置
+            patternGrid.innerHTML = '';
+            for (let i = 0; i < size * size; i++) {
+                const patternItem = document.createElement('div');
+                patternItem.className = 'sequence-item';
+                patternItem.style.backgroundColor = '#e9ecef';
+                patternItem.dataset.index = i;
+                patternItem.onclick = () => selectPattern(i);
+                patternGrid.appendChild(patternItem);
+            }
+            
+            // ランダムなパターンを生成
+            currentSequence = [];
+            const totalCells = size * size;
+            for (let i = 0; i < count; i++) {
+                let randomIndex;
+                do {
+                    randomIndex = Math.floor(Math.random() * totalCells);
+                } while (currentSequence.includes(randomIndex));
+                currentSequence.push(randomIndex);
+            }
+            
+            // パターンを表示
+            showPatternSequence();
+        }
+
+        function showPatternSequence() {
+            let index = 0;
+            const items = document.querySelectorAll('#patternGrid .sequence-item');
+            
+            // すべてのアイテムを無効化
+            items.forEach(item => {
+                item.style.pointerEvents = 'none';
+                item.style.backgroundColor = '#e9ecef';
+            });
+            
+            const showNext = () => {
+                if (index < currentSequence.length) {
+                    const currentIndex = currentSequence[index];
+                    const item = items[currentIndex];
+                    
+                    item.style.backgroundColor = '#667eea';
+                    setTimeout(() => {
+                        item.style.backgroundColor = '#e9ecef';
+                        index++;
+                        setTimeout(showNext, 600);
+                    }, 1000);
+                } else {
+                    // 表示完了、入力可能にする
+                    items.forEach(item => {
+                        item.style.pointerEvents = 'auto';
+                    });
+                    userInput = [];
+                    document.getElementById('patternProgress').textContent = `${userInput.length} / ${currentSequence.length}`;
+                }
+            };
+            
+            setTimeout(showNext, 1000);
+        }
+
+        function selectPattern(index) {
+            if (!gameActive) return;
+            
+            userInput.push(index);
+            document.getElementById('patternProgress').textContent = `${userInput.length} / ${currentSequence.length}`;
+            
+            const items = document.querySelectorAll('#patternGrid .sequence-item');
+            const item = items[index];
+            
+            // 正解かチェック
+            const currentStep = userInput.length - 1;
+            if (currentSequence[currentStep] === index) {
+                item.style.backgroundColor = '#28a745';
+                
+                if (userInput.length === currentSequence.length) {
+                    // 完了
+                    setTimeout(() => checkAnswer(), 500);
+                }
+            } else {
+                item.style.backgroundColor = '#dc3545';
+                setTimeout(() => checkAnswer(), 1000);
+            }
+        }
+
+        function checkAnswer() {
+            gameActive = false;
+            document.getElementById('startBtn').disabled = false;
+            totalAttempts++;
+            
+            let isCorrect = false;
+            
+            switch(currentMode) {
+                case 'sequence':
+                    const numberInput = document.getElementById('numberInput');
+                    const userNumber = numberInput.value;
+                    const correctNumber = currentSequence.join('');
+                    isCorrect = userNumber === correctNumber;
+                    break;
+                    
+                case 'color':
+                case 'pattern':
+                    isCorrect = userInput.length === currentSequence.length && 
+                               userInput.every((val, index) => val === currentSequence[index]);
+                    break;
+                    
+                case 'word':
+                    const wordInput = document.getElementById('wordInput');
+                    const userWords = wordInput.value.trim().split(/\s+/);
+                    isCorrect = userWords.length === currentSequence.length && 
+                               userWords.every((word, index) => word === currentSequence[index]);
+                    break;
+            }
+            
+            if (isCorrect) {
+                correctAttempts++;
+                currentStreak++;
+                const points = calculateScore();
+                currentScore += points;
+                showResult(true, points);
+            } else {
+                currentStreak = 0;
+                showResult(false, 0);
+            }
+            
+            updateStats();
+        }
+
+        function calculateScore() {
+            let baseScore = 100;
+            let levelBonus = currentLevel * 10;
+            let streakBonus = currentStreak * 5;
+            
+            switch(currentMode) {
+                case 'sequence':
+                    baseScore *= parseInt(document.getElementById('numberLength').value);
+                    break;
+                case 'color':
+                    baseScore *= parseInt(document.getElementById('colorCount').value) / 4;
+                    break;
+                case 'word':
+                    baseScore *= parseInt(document.getElementById('wordCount').value);
+                    break;
+                case 'pattern':
+                    baseScore *= parseInt(document.getElementById('patternCount').value);
+                    break;
+            }
+            
+            return Math.round(baseScore + levelBonus + streakBonus);
+        }
+
+        function showResult(isCorrect, points) {
+            const resultSection = document.getElementById('resultSection');
+            const resultMessage = document.getElementById('resultMessage');
+            const resultScore = document.getElementById('resultScore');
+            
+            if (isCorrect) {
+                resultMessage.textContent = '正解です！素晴らしい記憶力です！';
+                resultMessage.style.color = '#28a745';
+                resultScore.textContent = points;
+            } else {
+                resultMessage.textContent = '不正解です。もう一度チャレンジしてみましょう！';
+                resultMessage.style.color = '#dc3545';
+                resultScore.textContent = '0';
+            }
+            
+            resultSection.classList.add('show');
+        }
+
+        function hideResult() {
+            document.getElementById('resultSection').classList.remove('show');
+        }
+
+        function nextRound() {
+            currentLevel++;
+            hideResult();
+            setTimeout(() => startGame(), 500);
+        }
+
+        function updateStats() {
+            document.getElementById('currentLevel').textContent = currentLevel;
+            document.getElementById('currentScore').textContent = currentScore;
+            document.getElementById('currentStreak').textContent = currentStreak;
+            
+            const accuracy = totalAttempts > 0 ? Math.round((correctAttempts / totalAttempts) * 100) : 0;
+            document.getElementById('currentAccuracy').textContent = accuracy;
+        }
+
+        function resetGame() {
+            gameActive = false;
+            clearTimeout(showTimer);
+            
+            currentLevel = 1;
+            currentScore = 0;
+            currentStreak = 0;
+            totalAttempts = 0;
+            correctAttempts = 0;
+            currentSequence = [];
+            userInput = [];
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('resultSection').classList.remove('show');
+            
+            // 入力フィールドをリセット
+            const inputs = document.querySelectorAll('.sequence-input');
+            inputs.forEach(input => {
+                input.disabled = true;
+                input.value = '';
+            });
+            
+            // 表示をリセット
+            document.getElementById('numberSequence').textContent = '準備完了';
+            document.getElementById('wordSequence').textContent = '準備完了';
+            document.getElementById('colorProgress').textContent = '準備完了';
+            document.getElementById('patternProgress').textContent = '準備完了';
+            
+            updateStats();
+            showNotification('ゲームをリセットしました');
+        }
+
+        function saveScore() {
+            if (currentScore === 0) {
+                showNotification('保存するスコアがありません', 'error');
+                return;
+            }
+            
+            const scoreData = {
+                id: Date.now(),
+                mode: currentMode,
+                level: currentLevel,
+                score: currentScore,
+                streak: currentStreak,
+                accuracy: totalAttempts > 0 ? Math.round((correctAttempts / totalAttempts) * 100) : 0,
+                attempts: totalAttempts,
+                timestamp: new Date().toLocaleString('ja-JP')
+            };
+            
+            gameHistory.unshift(scoreData);
+            
+            // 履歴を50件に制限
+            if (gameHistory.length > 50) {
+                gameHistory = gameHistory.slice(0, 50);
+            }
+            
+            localStorage.setItem('memoryTestHistory', JSON.stringify(gameHistory));
+            updateHistoryDisplay();
+            showNotification('スコアを保存しました');
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            
+            if (gameHistory.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">履歴がありません</p>';
+                return;
+            }
+            
+            const modeNames = {
+                sequence: '数字記憶',
+                color: '色記憶',
+                word: '単語記憶',
+                pattern: 'パターン記憶'
+            };
+            
+            historyList.innerHTML = gameHistory.slice(0, 10).map(item => `
+                <div class="history-item">
+                    <div>
+                        <div class="history-score">スコア: ${item.score}</div>
+                        <div class="history-details">
+                            ${modeNames[item.mode]} | レベル${item.level} | 正答率${item.accuracy}%
+                        </div>
+                    </div>
+                    <div class="history-time">${item.timestamp}</div>
+                </div>
+            `).join('');
+        }
+
+        function clearHistory() {
+            if (confirm('全ての履歴を削除しますか？')) {
+                gameHistory = [];
+                localStorage.setItem('memoryTestHistory', JSON.stringify(gameHistory));
+                updateHistoryDisplay();
+                showNotification('履歴をクリアしました');
+            }
+        }
+
+        function exportHistory() {
+            if (gameHistory.length === 0) {
+                showNotification('エクスポートする履歴がありません', 'error');
+                return;
+            }
+            
+            const modeNames = {
+                sequence: '数字記憶',
+                color: '色記憶',
+                word: '単語記憶',
+                pattern: 'パターン記憶'
+            };
+            
+            const exportData = gameHistory.map(item => ({
+                'ゲームモード': modeNames[item.mode],
+                'レベル': item.level,
+                'スコア': item.score,
+                '最大連続成功': item.streak,
+                '正答率(%)': item.accuracy,
+                '総試行数': item.attempts,
+                '日時': item.timestamp
+            }));
+            
+            const csvContent = [
+                Object.keys(exportData[0]).join(','),
+                ...exportData.map(row => Object.values(row).map(v => `"${v}"`).join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `memory_test_history_${Date.now()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('履歴を出力しました');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        function init() {
+            updateHistoryDisplay();
+            
+            // Enterキーでの回答送信
+            document.getElementById('numberInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && gameActive) {
+                    checkAnswer();
+                }
+            });
+            
+            document.getElementById('wordInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && gameActive) {
+                    checkAnswer();
+                }
+            });
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // キーボードショートカット
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'Enter':
+                        e.preventDefault();
+                        if (!gameActive) startGame();
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        resetGame();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

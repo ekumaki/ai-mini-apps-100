@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>履歴書テンプレート - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .resume-app {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            height: fit-content;
+        }
+
+        .preview-section {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            min-height: 700px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .add-item-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .add-item-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .item-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        .resume-preview {
+            padding: 40px;
+            font-family: 'Times New Roman', serif;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .resume-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #333;
+        }
+
+        .resume-name {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .resume-contact {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .resume-section {
+            margin-bottom: 25px;
+        }
+
+        .resume-section h3 {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            border-bottom: 1px solid #333;
+            padding-bottom: 3px;
+        }
+
+        .resume-item {
+            margin-bottom: 15px;
+        }
+
+        .resume-item-header {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .resume-item-subheader {
+            font-style: italic;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+        }
+
+        .control-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .resume-preview {
+                padding: 20px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .resume-app {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header, .form-section, .controls {
+                display: none;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+                padding: 0;
+                gap: 0;
+            }
+            
+            .preview-section {
+                border: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="resume-app">
+        <div class="header">
+            <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+            <h1>📋 履歴書テンプレート</h1>
+            <p>プロフェッショナルな履歴書を簡単に作成</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="section-title">基本情報</div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="lastName">姓</label>
+                            <input type="text" id="lastName" placeholder="山田">
+                        </div>
+                        <div>
+                            <label for="firstName">名</label>
+                            <input type="text" id="firstName" placeholder="太郎">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="lastNameKana">セイ（フリガナ）</label>
+                            <input type="text" id="lastNameKana" placeholder="ヤマダ">
+                        </div>
+                        <div>
+                            <label for="firstNameKana">メイ（フリガナ）</label>
+                            <input type="text" id="firstNameKana" placeholder="タロウ">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="birthDate">生年月日</label>
+                            <input type="date" id="birthDate">
+                        </div>
+                        <div>
+                            <label for="gender">性別</label>
+                            <select id="gender">
+                                <option value="">選択してください</option>
+                                <option value="男性">男性</option>
+                                <option value="女性">女性</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="address">住所</label>
+                    <input type="text" id="address" placeholder="〒000-0000 東京都○○区○○ 1-2-3">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="phone">電話番号</label>
+                            <input type="tel" id="phone" placeholder="090-0000-0000">
+                        </div>
+                        <div>
+                            <label for="email">メールアドレス</label>
+                            <input type="email" id="email" placeholder="sample@example.com">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">学歴</div>
+                <div id="educationList"></div>
+                <button class="add-item-btn" onclick="addEducation()">+ 学歴を追加</button>
+
+                <div class="section-title">職歴</div>
+                <div id="workList"></div>
+                <button class="add-item-btn" onclick="addWork()">+ 職歴を追加</button>
+
+                <div class="section-title">資格・免許</div>
+                <div id="qualificationList"></div>
+                <button class="add-item-btn" onclick="addQualification()">+ 資格を追加</button>
+
+                <div class="form-group">
+                    <label for="skills">特技・スキル</label>
+                    <textarea id="skills" placeholder="プログラミング（JavaScript、Python）、英語（TOEIC 800点）など"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="motivation">志望動機</label>
+                    <textarea id="motivation" placeholder="志望動機を記載してください"></textarea>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="resume-preview" id="resumePreview">
+                    <div class="resume-header">
+                        <div class="resume-name" id="previewName">履歴書</div>
+                        <div class="resume-contact" id="previewContact"></div>
+                    </div>
+
+                    <div class="resume-section">
+                        <h3>基本情報</h3>
+                        <div id="previewBasicInfo"></div>
+                    </div>
+
+                    <div class="resume-section" id="previewEducationSection" style="display: none;">
+                        <h3>学歴</h3>
+                        <div id="previewEducation"></div>
+                    </div>
+
+                    <div class="resume-section" id="previewWorkSection" style="display: none;">
+                        <h3>職歴</h3>
+                        <div id="previewWork"></div>
+                    </div>
+
+                    <div class="resume-section" id="previewQualificationSection" style="display: none;">
+                        <h3>資格・免許</h3>
+                        <div id="previewQualification"></div>
+                    </div>
+
+                    <div class="resume-section" id="previewSkillsSection" style="display: none;">
+                        <h3>特技・スキル</h3>
+                        <div id="previewSkills"></div>
+                    </div>
+
+                    <div class="resume-section" id="previewMotivationSection" style="display: none;">
+                        <h3>志望動機</h3>
+                        <div id="previewMotivation"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="printResume()">🖨️ 印刷</button>
+            <button class="control-btn secondary" onclick="saveResume()">💾 保存</button>
+            <button class="control-btn secondary" onclick="loadResume()">📂 読み込み</button>
+            <button class="control-btn secondary" onclick="clearForm()">🗑️ クリア</button>
+        </div>
+    </div>
+
+    <script>
+        let educationCount = 0;
+        let workCount = 0;
+        let qualificationCount = 0;
+
+        function addEducation() {
+            educationCount++;
+            const educationList = document.getElementById('educationList');
+            const div = document.createElement('div');
+            div.className = 'item-row';
+            div.innerHTML = `
+                <div>
+                    <div class="form-row">
+                        <div>
+                            <input type="text" placeholder="年月" id="educationDate${educationCount}">
+                        </div>
+                        <div>
+                            <input type="text" placeholder="学校名・学部・学科" id="educationName${educationCount}">
+                        </div>
+                    </div>
+                </div>
+                <button class="remove-btn" onclick="removeEducation(this)">削除</button>
+            `;
+            educationList.appendChild(div);
+            
+            // イベントリスナーを追加
+            document.getElementById(`educationDate${educationCount}`).addEventListener('input', updatePreview);
+            document.getElementById(`educationName${educationCount}`).addEventListener('input', updatePreview);
+            
+            updatePreview();
+        }
+
+        function addWork() {
+            workCount++;
+            const workList = document.getElementById('workList');
+            const div = document.createElement('div');
+            div.className = 'item-row';
+            div.innerHTML = `
+                <div>
+                    <div class="form-row">
+                        <div>
+                            <input type="text" placeholder="年月" id="workDate${workCount}">
+                        </div>
+                        <div>
+                            <input type="text" placeholder="会社名・職種・業務内容" id="workName${workCount}">
+                        </div>
+                    </div>
+                </div>
+                <button class="remove-btn" onclick="removeWork(this)">削除</button>
+            `;
+            workList.appendChild(div);
+            
+            // イベントリスナーを追加
+            document.getElementById(`workDate${workCount}`).addEventListener('input', updatePreview);
+            document.getElementById(`workName${workCount}`).addEventListener('input', updatePreview);
+            
+            updatePreview();
+        }
+
+        function addQualification() {
+            qualificationCount++;
+            const qualificationList = document.getElementById('qualificationList');
+            const div = document.createElement('div');
+            div.className = 'item-row';
+            div.innerHTML = `
+                <div>
+                    <div class="form-row">
+                        <div>
+                            <input type="text" placeholder="取得年月" id="qualificationDate${qualificationCount}">
+                        </div>
+                        <div>
+                            <input type="text" placeholder="資格・免許名" id="qualificationName${qualificationCount}">
+                        </div>
+                    </div>
+                </div>
+                <button class="remove-btn" onclick="removeQualification(this)">削除</button>
+            `;
+            qualificationList.appendChild(div);
+            
+            // イベントリスナーを追加
+            document.getElementById(`qualificationDate${qualificationCount}`).addEventListener('input', updatePreview);
+            document.getElementById(`qualificationName${qualificationCount}`).addEventListener('input', updatePreview);
+            
+            updatePreview();
+        }
+
+        function removeEducation(button) {
+            button.parentElement.remove();
+            updatePreview();
+        }
+
+        function removeWork(button) {
+            button.parentElement.remove();
+            updatePreview();
+        }
+
+        function removeQualification(button) {
+            button.parentElement.remove();
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const lastName = document.getElementById('lastName').value;
+            const firstName = document.getElementById('firstName').value;
+            const lastNameKana = document.getElementById('lastNameKana').value;
+            const firstNameKana = document.getElementById('firstNameKana').value;
+            const birthDate = document.getElementById('birthDate').value;
+            const gender = document.getElementById('gender').value;
+            const address = document.getElementById('address').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const skills = document.getElementById('skills').value;
+            const motivation = document.getElementById('motivation').value;
+
+            // 名前の更新
+            if (lastName || firstName) {
+                document.getElementById('previewName').textContent = `${lastName} ${firstName}`;
+            } else {
+                document.getElementById('previewName').textContent = '履歴書';
+            }
+
+            // 連絡先の更新
+            let contactInfo = [];
+            if (lastNameKana || firstNameKana) contactInfo.push(`フリガナ: ${lastNameKana} ${firstNameKana}`);
+            if (phone) contactInfo.push(`電話: ${phone}`);
+            if (email) contactInfo.push(`Email: ${email}`);
+            document.getElementById('previewContact').textContent = contactInfo.join(' | ');
+
+            // 基本情報の更新
+            let basicInfo = [];
+            if (birthDate) basicInfo.push(`生年月日: ${formatDate(birthDate)}`);
+            if (gender) basicInfo.push(`性別: ${gender}`);
+            if (address) basicInfo.push(`住所: ${address}`);
+            document.getElementById('previewBasicInfo').innerHTML = basicInfo.join('<br>');
+
+            // 学歴の更新
+            updateEducationPreview();
+            updateWorkPreview();
+            updateQualificationPreview();
+
+            // スキルの更新
+            if (skills) {
+                document.getElementById('previewSkills').textContent = skills;
+                document.getElementById('previewSkillsSection').style.display = 'block';
+            } else {
+                document.getElementById('previewSkillsSection').style.display = 'none';
+            }
+
+            // 志望動機の更新
+            if (motivation) {
+                document.getElementById('previewMotivation').textContent = motivation;
+                document.getElementById('previewMotivationSection').style.display = 'block';
+            } else {
+                document.getElementById('previewMotivationSection').style.display = 'none';
+            }
+        }
+
+        function updateEducationPreview() {
+            const educationList = document.getElementById('educationList');
+            const items = educationList.querySelectorAll('.item-row');
+            let html = '';
+            
+            items.forEach(item => {
+                const inputs = item.querySelectorAll('input');
+                const date = inputs[0].value;
+                const name = inputs[1].value;
+                if (date || name) {
+                    html += `<div class="resume-item">
+                        <div class="resume-item-header">${date}</div>
+                        <div>${name}</div>
+                    </div>`;
+                }
+            });
+
+            if (html) {
+                document.getElementById('previewEducation').innerHTML = html;
+                document.getElementById('previewEducationSection').style.display = 'block';
+            } else {
+                document.getElementById('previewEducationSection').style.display = 'none';
+            }
+        }
+
+        function updateWorkPreview() {
+            const workList = document.getElementById('workList');
+            const items = workList.querySelectorAll('.item-row');
+            let html = '';
+            
+            items.forEach(item => {
+                const inputs = item.querySelectorAll('input');
+                const date = inputs[0].value;
+                const name = inputs[1].value;
+                if (date || name) {
+                    html += `<div class="resume-item">
+                        <div class="resume-item-header">${date}</div>
+                        <div>${name}</div>
+                    </div>`;
+                }
+            });
+
+            if (html) {
+                document.getElementById('previewWork').innerHTML = html;
+                document.getElementById('previewWorkSection').style.display = 'block';
+            } else {
+                document.getElementById('previewWorkSection').style.display = 'none';
+            }
+        }
+
+        function updateQualificationPreview() {
+            const qualificationList = document.getElementById('qualificationList');
+            const items = qualificationList.querySelectorAll('.item-row');
+            let html = '';
+            
+            items.forEach(item => {
+                const inputs = item.querySelectorAll('input');
+                const date = inputs[0].value;
+                const name = inputs[1].value;
+                if (date || name) {
+                    html += `<div class="resume-item">
+                        <div class="resume-item-header">${date}</div>
+                        <div>${name}</div>
+                    </div>`;
+                }
+            });
+
+            if (html) {
+                document.getElementById('previewQualification').innerHTML = html;
+                document.getElementById('previewQualificationSection').style.display = 'block';
+            } else {
+                document.getElementById('previewQualificationSection').style.display = 'none';
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${year}年${month}月${day}日`;
+        }
+
+        function printResume() {
+            window.print();
+        }
+
+        function saveResume() {
+            const data = {
+                lastName: document.getElementById('lastName').value,
+                firstName: document.getElementById('firstName').value,
+                lastNameKana: document.getElementById('lastNameKana').value,
+                firstNameKana: document.getElementById('firstNameKana').value,
+                birthDate: document.getElementById('birthDate').value,
+                gender: document.getElementById('gender').value,
+                address: document.getElementById('address').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                skills: document.getElementById('skills').value,
+                motivation: document.getElementById('motivation').value,
+                education: [],
+                work: [],
+                qualification: []
+            };
+
+            // 学歴データの収集
+            const educationItems = document.getElementById('educationList').querySelectorAll('.item-row');
+            educationItems.forEach(item => {
+                const inputs = item.querySelectorAll('input');
+                data.education.push({
+                    date: inputs[0].value,
+                    name: inputs[1].value
+                });
+            });
+
+            // 職歴データの収集
+            const workItems = document.getElementById('workList').querySelectorAll('.item-row');
+            workItems.forEach(item => {
+                const inputs = item.querySelectorAll('input');
+                data.work.push({
+                    date: inputs[0].value,
+                    name: inputs[1].value
+                });
+            });
+
+            // 資格データの収集
+            const qualificationItems = document.getElementById('qualificationList').querySelectorAll('.item-row');
+            qualificationItems.forEach(item => {
+                const inputs = item.querySelectorAll('input');
+                data.qualification.push({
+                    date: inputs[0].value,
+                    name: inputs[1].value
+                });
+            });
+
+            localStorage.setItem('resumeData', JSON.stringify(data));
+            alert('履歴書を保存しました！');
+        }
+
+        function loadResume() {
+            const savedData = localStorage.getItem('resumeData');
+            if (!savedData) {
+                alert('保存されたデータがありません。');
+                return;
+            }
+
+            const data = JSON.parse(savedData);
+            
+            // 基本情報の読み込み
+            document.getElementById('lastName').value = data.lastName || '';
+            document.getElementById('firstName').value = data.firstName || '';
+            document.getElementById('lastNameKana').value = data.lastNameKana || '';
+            document.getElementById('firstNameKana').value = data.firstNameKana || '';
+            document.getElementById('birthDate').value = data.birthDate || '';
+            document.getElementById('gender').value = data.gender || '';
+            document.getElementById('address').value = data.address || '';
+            document.getElementById('phone').value = data.phone || '';
+            document.getElementById('email').value = data.email || '';
+            document.getElementById('skills').value = data.skills || '';
+            document.getElementById('motivation').value = data.motivation || '';
+
+            // リストをクリア
+            document.getElementById('educationList').innerHTML = '';
+            document.getElementById('workList').innerHTML = '';
+            document.getElementById('qualificationList').innerHTML = '';
+
+            // 学歴の読み込み
+            if (data.education) {
+                data.education.forEach(item => {
+                    addEducation();
+                    const inputs = document.getElementById('educationList').lastElementChild.querySelectorAll('input');
+                    inputs[0].value = item.date || '';
+                    inputs[1].value = item.name || '';
+                });
+            }
+
+            // 職歴の読み込み
+            if (data.work) {
+                data.work.forEach(item => {
+                    addWork();
+                    const inputs = document.getElementById('workList').lastElementChild.querySelectorAll('input');
+                    inputs[0].value = item.date || '';
+                    inputs[1].value = item.name || '';
+                });
+            }
+
+            // 資格の読み込み
+            if (data.qualification) {
+                data.qualification.forEach(item => {
+                    addQualification();
+                    const inputs = document.getElementById('qualificationList').lastElementChild.querySelectorAll('input');
+                    inputs[0].value = item.date || '';
+                    inputs[1].value = item.name || '';
+                });
+            }
+
+            updatePreview();
+            alert('履歴書を読み込みました！');
+        }
+
+        function clearForm() {
+            if (confirm('すべての入力内容をクリアしますか？')) {
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    element.value = '';
+                });
+                document.getElementById('educationList').innerHTML = '';
+                document.getElementById('workList').innerHTML = '';
+                document.getElementById('qualificationList').innerHTML = '';
+                educationCount = 0;
+                workCount = 0;
+                qualificationCount = 0;
+                updatePreview();
+            }
+        }
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

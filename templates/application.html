@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>申請書テンプレート - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .application-app {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .application-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .type-button {
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .type-button:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .type-button.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .application-preview {
+            padding: 40px;
+            font-family: 'Times New Roman', serif;
+            color: #333;
+            line-height: 1.8;
+        }
+
+        .application-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #333;
+        }
+
+        .application-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .application-number {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .application-date {
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .application-section {
+            margin-bottom: 25px;
+        }
+
+        .application-section h3 {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95rem;
+        }
+
+        .info-table th,
+        .info-table td {
+            border: 1px solid #333;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .info-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            width: 30%;
+        }
+
+        .signature-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #333;
+        }
+
+        .signature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            margin-top: 30px;
+        }
+
+        .signature-block {
+            text-align: center;
+        }
+
+        .signature-line {
+            border-bottom: 1px solid #333;
+            height: 60px;
+            margin-bottom: 10px;
+        }
+
+        .signature-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+        }
+
+        .control-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .application-preview {
+                padding: 20px;
+                font-size: 0.9rem;
+            }
+            
+            .signature-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .application-type-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .application-app {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header, .form-section, .controls {
+                display: none;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+                padding: 0;
+                gap: 0;
+            }
+            
+            .preview-section {
+                border: none;
+                max-height: none;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="application-app">
+        <div class="header">
+            <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+            <h1>📋 申請書テンプレート</h1>
+            <p>各種申請書を効率的に作成</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="section-title">申請書の種類</div>
+                <div class="application-type-grid">
+                    <div class="type-button active" onclick="selectApplicationType('leave')">
+                        <div>🏖️</div>
+                        <div>休暇申請書</div>
+                    </div>
+                    <div class="type-button" onclick="selectApplicationType('expense')">
+                        <div>💰</div>
+                        <div>経費申請書</div>
+                    </div>
+                    <div class="type-button" onclick="selectApplicationType('business_trip')">
+                        <div>✈️</div>
+                        <div>出張申請書</div>
+                    </div>
+                    <div class="type-button" onclick="selectApplicationType('overtime')">
+                        <div>⏰</div>
+                        <div>残業申請書</div>
+                    </div>
+                    <div class="type-button" onclick="selectApplicationType('purchase')">
+                        <div>🛒</div>
+                        <div>購入申請書</div>
+                    </div>
+                    <div class="type-button" onclick="selectApplicationType('general')">
+                        <div>📄</div>
+                        <div>一般申請書</div>
+                    </div>
+                </div>
+
+                <div class="section-title">基本情報</div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="applicationNumber">申請番号</label>
+                            <input type="text" id="applicationNumber" placeholder="APP-2024-001">
+                        </div>
+                        <div>
+                            <label for="applicationDate">申請日</label>
+                            <input type="date" id="applicationDate">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="applicantName">申請者氏名</label>
+                            <input type="text" id="applicantName" placeholder="山田 太郎">
+                        </div>
+                        <div>
+                            <label for="department">所属部署</label>
+                            <input type="text" id="department" placeholder="営業部">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="employeeNumber">社員番号</label>
+                            <input type="text" id="employeeNumber" placeholder="EMP001">
+                        </div>
+                        <div>
+                            <label for="approver">承認者</label>
+                            <input type="text" id="approver" placeholder="佐藤部長">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title" id="dynamicSectionTitle">申請内容</div>
+                <div id="dynamicFields">
+                    <!-- 動的に変更される申請タイプ別のフィールド -->
+                </div>
+
+                <div class="form-group">
+                    <label for="reason">申請理由・詳細</label>
+                    <textarea id="reason" placeholder="申請の理由や詳細を記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="remarks">備考・特記事項</label>
+                    <textarea id="remarks" placeholder="その他の備考事項があれば記載してください"></textarea>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="application-preview" id="applicationPreview">
+                    <div class="application-header">
+                        <div class="application-title" id="previewTitle">休暇申請書</div>
+                        <div class="application-number" id="previewNumber"></div>
+                        <div class="application-date" id="previewDate"></div>
+                    </div>
+
+                    <table class="info-table">
+                        <tr>
+                            <th>申請者氏名</th>
+                            <td id="previewApplicantName">--</td>
+                        </tr>
+                        <tr>
+                            <th>所属部署</th>
+                            <td id="previewDepartment">--</td>
+                        </tr>
+                        <tr>
+                            <th>社員番号</th>
+                            <td id="previewEmployeeNumber">--</td>
+                        </tr>
+                        <tr>
+                            <th>承認者</th>
+                            <td id="previewApprover">--</td>
+                        </tr>
+                    </table>
+
+                    <div class="application-section">
+                        <h3 id="previewSectionTitle">申請内容</h3>
+                        <div id="previewDynamicContent">
+                            <!-- 動的に変更される申請タイプ別の内容 -->
+                        </div>
+                    </div>
+
+                    <div class="application-section" id="previewReasonSection" style="display: none;">
+                        <h3>申請理由・詳細</h3>
+                        <div id="previewReason"></div>
+                    </div>
+
+                    <div class="application-section" id="previewRemarksSection" style="display: none;">
+                        <h3>備考・特記事項</h3>
+                        <div id="previewRemarks"></div>
+                    </div>
+
+                    <div class="signature-section">
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <strong>上記の通り申請いたします。</strong>
+                        </div>
+                        
+                        <div class="signature-grid">
+                            <div class="signature-block">
+                                <div class="signature-line"></div>
+                                <div class="signature-label">申請者署名</div>
+                                <div style="margin-top: 10px;" id="previewApplicantSignature"></div>
+                            </div>
+                            <div class="signature-block">
+                                <div class="signature-line"></div>
+                                <div class="signature-label">承認者署名</div>
+                                <div style="margin-top: 10px;" id="previewApproverSignature"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="printApplication()">🖨️ 印刷</button>
+            <button class="control-btn secondary" onclick="saveApplication()">💾 保存</button>
+            <button class="control-btn secondary" onclick="loadApplication()">📂 読み込み</button>
+            <button class="control-btn secondary" onclick="clearForm()">🗑️ クリア</button>
+        </div>
+    </div>
+
+    <script>
+        let currentApplicationType = 'leave';
+
+        const applicationTypes = {
+            leave: {
+                title: '休暇申請書',
+                sectionTitle: '休暇申請内容',
+                fields: [
+                    { type: 'select', id: 'leaveType', label: '休暇種別', options: ['有給休暇', '特別休暇', '病気休暇', '慶弔休暇', 'その他'] },
+                    { type: 'date', id: 'startDate', label: '開始日' },
+                    { type: 'date', id: 'endDate', label: '終了日' },
+                    { type: 'number', id: 'leaveDays', label: '日数', placeholder: '1' },
+                    { type: 'select', id: 'halfDay', label: '半日休暇', options: ['なし', '午前半休', '午後半休'] }
+                ]
+            },
+            expense: {
+                title: '経費申請書',
+                sectionTitle: '経費申請内容',
+                fields: [
+                    { type: 'text', id: 'expenseCategory', label: '経費区分', placeholder: '交通費' },
+                    { type: 'date', id: 'expenseDate', label: '利用日' },
+                    { type: 'number', id: 'expenseAmount', label: '金額（円）', placeholder: '1000' },
+                    { type: 'text', id: 'expenseDetails', label: '詳細', placeholder: '東京駅-新宿駅 往復' }
+                ]
+            },
+            business_trip: {
+                title: '出張申請書',
+                sectionTitle: '出張申請内容',
+                fields: [
+                    { type: 'text', id: 'destination', label: '出張先', placeholder: '大阪支社' },
+                    { type: 'date', id: 'departureDate', label: '出発日' },
+                    { type: 'date', id: 'returnDate', label: '帰社日' },
+                    { type: 'text', id: 'purpose', label: '出張目的', placeholder: '顧客訪問' },
+                    { type: 'text', id: 'transportation', label: '交通手段', placeholder: '新幹線' }
+                ]
+            },
+            overtime: {
+                title: '残業申請書',
+                sectionTitle: '残業申請内容',
+                fields: [
+                    { type: 'date', id: 'overtimeDate', label: '残業日' },
+                    { type: 'time', id: 'startTime', label: '開始時刻' },
+                    { type: 'time', id: 'endTime', label: '終了予定時刻' },
+                    { type: 'number', id: 'overtimeHours', label: '時間数', placeholder: '2' },
+                    { type: 'text', id: 'overtimeWork', label: '業務内容', placeholder: '月次報告書作成' }
+                ]
+            },
+            purchase: {
+                title: '購入申請書',
+                sectionTitle: '購入申請内容',
+                fields: [
+                    { type: 'text', id: 'itemName', label: '購入品名', placeholder: 'ノートパソコン' },
+                    { type: 'number', id: 'quantity', label: '数量', placeholder: '1' },
+                    { type: 'number', id: 'unitPrice', label: '単価（円）', placeholder: '100000' },
+                    { type: 'text', id: 'supplier', label: '購入先', placeholder: '株式会社○○' },
+                    { type: 'date', id: 'deliveryDate', label: '希望納期' }
+                ]
+            },
+            general: {
+                title: '申請書',
+                sectionTitle: '申請内容',
+                fields: [
+                    { type: 'text', id: 'subject', label: '件名', placeholder: '申請件名' },
+                    { type: 'textarea', id: 'details', label: '詳細内容', placeholder: '申請内容の詳細を記載してください' }
+                ]
+            }
+        };
+
+        function selectApplicationType(type) {
+            currentApplicationType = type;
+            
+            // ボタンの状態更新
+            document.querySelectorAll('.type-button').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.type-button').classList.add('active');
+            
+            updateDynamicFields();
+            updatePreview();
+        }
+
+        function updateDynamicFields() {
+            const typeConfig = applicationTypes[currentApplicationType];
+            const dynamicFields = document.getElementById('dynamicFields');
+            const sectionTitle = document.getElementById('dynamicSectionTitle');
+            
+            sectionTitle.textContent = typeConfig.sectionTitle;
+            
+            let html = '';
+            typeConfig.fields.forEach(field => {
+                if (field.type === 'select') {
+                    html += `
+                        <div class="form-group">
+                            <label for="${field.id}">${field.label}</label>
+                            <select id="${field.id}">
+                                <option value="">選択してください</option>
+                                ${field.options.map(option => `<option value="${option}">${option}</option>`).join('')}
+                            </select>
+                        </div>
+                    `;
+                } else if (field.type === 'textarea') {
+                    html += `
+                        <div class="form-group">
+                            <label for="${field.id}">${field.label}</label>
+                            <textarea id="${field.id}" placeholder="${field.placeholder || ''}"></textarea>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="form-group">
+                            <label for="${field.id}">${field.label}</label>
+                            <input type="${field.type}" id="${field.id}" placeholder="${field.placeholder || ''}">
+                        </div>
+                    `;
+                }
+            });
+            
+            dynamicFields.innerHTML = html;
+            
+            // 新しいフィールドにイベントリスナーを追加
+            dynamicFields.querySelectorAll('input, select, textarea').forEach(input => {
+                input.addEventListener('input', updatePreview);
+                input.addEventListener('change', updatePreview);
+            });
+        }
+
+        function updatePreview() {
+            const typeConfig = applicationTypes[currentApplicationType];
+            
+            // 基本情報の更新
+            document.getElementById('previewTitle').textContent = typeConfig.title;
+            document.getElementById('previewSectionTitle').textContent = typeConfig.sectionTitle;
+            
+            const applicationNumber = document.getElementById('applicationNumber').value;
+            const applicationDate = document.getElementById('applicationDate').value;
+            
+            document.getElementById('previewNumber').textContent = 
+                applicationNumber ? `申請番号: ${applicationNumber}` : '';
+            document.getElementById('previewDate').textContent = 
+                applicationDate ? formatDate(applicationDate) : '';
+            
+            // 申請者情報の更新
+            document.getElementById('previewApplicantName').textContent = 
+                document.getElementById('applicantName').value || '--';
+            document.getElementById('previewDepartment').textContent = 
+                document.getElementById('department').value || '--';
+            document.getElementById('previewEmployeeNumber').textContent = 
+                document.getElementById('employeeNumber').value || '--';
+            document.getElementById('previewApprover').textContent = 
+                document.getElementById('approver').value || '--';
+            
+            // 動的コンテンツの更新
+            updateDynamicContent();
+            
+            // 申請理由の更新
+            const reason = document.getElementById('reason').value;
+            if (reason) {
+                document.getElementById('previewReason').textContent = reason;
+                document.getElementById('previewReasonSection').style.display = 'block';
+            } else {
+                document.getElementById('previewReasonSection').style.display = 'none';
+            }
+            
+            // 備考の更新
+            const remarks = document.getElementById('remarks').value;
+            if (remarks) {
+                document.getElementById('previewRemarks').textContent = remarks;
+                document.getElementById('previewRemarksSection').style.display = 'block';
+            } else {
+                document.getElementById('previewRemarksSection').style.display = 'none';
+            }
+            
+            // 署名欄の更新
+            const applicantName = document.getElementById('applicantName').value;
+            const approver = document.getElementById('approver').value;
+            document.getElementById('previewApplicantSignature').textContent = applicantName || '';
+            document.getElementById('previewApproverSignature').textContent = approver || '';
+        }
+
+        function updateDynamicContent() {
+            const typeConfig = applicationTypes[currentApplicationType];
+            const previewContent = document.getElementById('previewDynamicContent');
+            
+            let html = '<table class="info-table">';
+            
+            typeConfig.fields.forEach(field => {
+                const element = document.getElementById(field.id);
+                let value = element ? element.value : '';
+                
+                if (field.type === 'date' && value) {
+                    value = formatDate(value);
+                } else if (field.type === 'number' && value) {
+                    value = field.id.includes('Amount') || field.id.includes('Price') ? 
+                        `¥${parseInt(value).toLocaleString()}` : value;
+                }
+                
+                html += `
+                    <tr>
+                        <th>${field.label}</th>
+                        <td>${value || '--'}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</table>';
+            previewContent.innerHTML = html;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${year}年${month}月${day}日`;
+        }
+
+        function printApplication() {
+            window.print();
+        }
+
+        function saveApplication() {
+            const data = {
+                applicationType: currentApplicationType,
+                applicationNumber: document.getElementById('applicationNumber').value,
+                applicationDate: document.getElementById('applicationDate').value,
+                applicantName: document.getElementById('applicantName').value,
+                department: document.getElementById('department').value,
+                employeeNumber: document.getElementById('employeeNumber').value,
+                approver: document.getElementById('approver').value,
+                reason: document.getElementById('reason').value,
+                remarks: document.getElementById('remarks').value,
+                dynamicFields: {}
+            };
+
+            // 動的フィールドの保存
+            const typeConfig = applicationTypes[currentApplicationType];
+            typeConfig.fields.forEach(field => {
+                const element = document.getElementById(field.id);
+                if (element) {
+                    data.dynamicFields[field.id] = element.value;
+                }
+            });
+
+            localStorage.setItem('applicationData', JSON.stringify(data));
+            alert('申請書を保存しました！');
+        }
+
+        function loadApplication() {
+            const savedData = localStorage.getItem('applicationData');
+            if (!savedData) {
+                alert('保存されたデータがありません。');
+                return;
+            }
+
+            const data = JSON.parse(savedData);
+            
+            // 申請タイプの設定
+            if (data.applicationType) {
+                selectApplicationType(data.applicationType);
+            }
+            
+            // 基本情報の読み込み
+            ['applicationNumber', 'applicationDate', 'applicantName', 'department', 
+             'employeeNumber', 'approver', 'reason', 'remarks'].forEach(field => {
+                const element = document.getElementById(field);
+                if (element && data[field]) {
+                    element.value = data[field];
+                }
+            });
+
+            // 動的フィールドの読み込み
+            if (data.dynamicFields) {
+                Object.keys(data.dynamicFields).forEach(fieldId => {
+                    const element = document.getElementById(fieldId);
+                    if (element) {
+                        element.value = data.dynamicFields[fieldId];
+                    }
+                });
+            }
+
+            updatePreview();
+            alert('申請書を読み込みました！');
+        }
+
+        function clearForm() {
+            if (confirm('すべての入力内容をクリアしますか？')) {
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    element.value = '';
+                });
+                updatePreview();
+            }
+        }
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+                input.addEventListener('change', updatePreview);
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            updateDynamicFields();
+            // 現在の日付を設定
+            document.getElementById('applicationDate').value = new Date().toISOString().split('T')[0];
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

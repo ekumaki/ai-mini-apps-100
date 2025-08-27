@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>画像圧縮 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .image-compressor {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .upload-area:hover {
+            background: #f0f4ff;
+            border-color: #5a6fd8;
+        }
+
+        .upload-area.dragover {
+            background: #e8f2ff;
+            border-color: #4a5fc7;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .upload-subtext {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .compression-settings {
+            background: #e1ecf4;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .compression-settings.show {
+            display: block;
+        }
+
+        .settings-title {
+            color: #0c5460;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .setting-group label {
+            font-weight: 600;
+            color: #0c5460;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .setting-control {
+            padding: 10px;
+            border: 2px solid #b3d4fc;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .setting-control:focus {
+            outline: none;
+            border-color: #0c5460;
+        }
+
+        .quality-slider {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #b3d4fc;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0c5460;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0c5460;
+            cursor: pointer;
+            border: none;
+        }
+
+        .quality-value {
+            min-width: 50px;
+            text-align: center;
+            font-weight: 600;
+            color: #0c5460;
+        }
+
+        .preview-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .preview-section.show {
+            display: block;
+        }
+
+        .preview-title {
+            color: #333;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .preview-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .preview-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 0.9rem;
+        }
+
+        .info-label {
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .compression-ratio {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .ratio-title {
+            color: #155724;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .ratio-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #155724;
+            margin-bottom: 5px;
+        }
+
+        .ratio-desc {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .download-section {
+            background: #d4edda;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            display: none;
+        }
+
+        .download-section.show {
+            display: block;
+        }
+
+        .download-title {
+            color: #155724;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .download-btn {
+            background: #155724;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px 10px 0;
+        }
+
+        .download-btn:hover {
+            background: #0f4419;
+            transform: translateY(-2px);
+        }
+
+        .batch-section {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .batch-title {
+            color: #856404;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .batch-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .batch-btn {
+            background: #856404;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .batch-btn:hover {
+            background: #6d4e03;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .image-compressor {
+                padding: 20px;
+            }
+            
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .upload-area {
+                padding: 20px;
+            }
+            
+            .upload-icon {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="image-compressor">
+        <div class="header">
+            <h1>画像圧縮</h1>
+            <p>画像ファイルを圧縮してサイズを縮小</p>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📷</div>
+                <div class="upload-text">画像をドロップまたはクリックして選択</div>
+                <div class="upload-subtext">JPEG、PNG、WebP形式をサポート（最大10MB）</div>
+                <button class="upload-btn">ファイルを選択</button>
+                <input type="file" id="fileInput" class="file-input" accept="image/*" multiple>
+            </div>
+        </div>
+
+        <div class="compression-settings" id="compressionSettings">
+            <div class="settings-title">圧縮設定</div>
+            <div class="settings-grid">
+                <div class="setting-group">
+                    <label for="qualitySlider">品質 (%)</label>
+                    <div class="quality-slider">
+                        <input type="range" id="qualitySlider" class="slider" min="10" max="100" value="80">
+                        <div class="quality-value" id="qualityValue">80%</div>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <label for="outputFormat">出力形式</label>
+                    <select id="outputFormat" class="setting-control">
+                        <option value="jpeg">JPEG</option>
+                        <option value="png">PNG</option>
+                        <option value="webp">WebP</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label for="maxWidth">最大幅 (px)</label>
+                    <input type="number" id="maxWidth" class="setting-control" placeholder="自動" min="1" max="4000">
+                </div>
+                <div class="setting-group">
+                    <label for="maxHeight">最大高さ (px)</label>
+                    <input type="number" id="maxHeight" class="setting-control" placeholder="自動" min="1" max="4000">
+                </div>
+            </div>
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="action-btn" onclick="compressImages()">圧縮実行</button>
+            </div>
+        </div>
+
+        <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill">0%</div>
+        </div>
+
+        <div class="preview-section" id="previewSection">
+            <div class="preview-title">圧縮結果</div>
+            <div id="previewContainer">
+                <!-- プレビューがここに表示されます -->
+            </div>
+        </div>
+
+        <div class="download-section" id="downloadSection">
+            <div class="download-title">ダウンロード</div>
+            <div id="downloadButtons">
+                <!-- ダウンロードボタンがここに表示されます -->
+            </div>
+        </div>
+
+        <div class="batch-section">
+            <div class="batch-title">バッチ処理</div>
+            <div class="batch-controls">
+                <button class="batch-btn" onclick="selectMultipleFiles()">複数ファイル選択</button>
+                <button class="batch-btn" onclick="compressAll()">一括圧縮</button>
+                <button class="batch-btn" onclick="downloadAll()">一括ダウンロード</button>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" onclick="clearAll()">クリア</button>
+            <button class="action-btn secondary" onclick="resetSettings()">設定リセット</button>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let selectedFiles = [];
+        let compressedImages = [];
+
+        function setupDragAndDrop() {
+            const uploadArea = document.getElementById('uploadArea');
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+                if (files.length > 0) {
+                    handleFiles(files);
+                }
+            });
+        }
+
+        function setupFileInput() {
+            const fileInput = document.getElementById('fileInput');
+            fileInput.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                if (files.length > 0) {
+                    handleFiles(files);
+                }
+            });
+        }
+
+        function setupQualitySlider() {
+            const qualitySlider = document.getElementById('qualitySlider');
+            const qualityValue = document.getElementById('qualityValue');
+            
+            qualitySlider.addEventListener('input', () => {
+                qualityValue.textContent = qualitySlider.value + '%';
+            });
+        }
+
+        function handleFiles(files) {
+            selectedFiles = files.filter(file => {
+                if (!file.type.startsWith('image/')) {
+                    showNotification(`${file.name} は画像ファイルではありません`, 'error');
+                    return false;
+                }
+                if (file.size > 10 * 1024 * 1024) {
+                    showNotification(`${file.name} のサイズが大きすぎます（10MB以下）`, 'error');
+                    return false;
+                }
+                return true;
+            });
+            
+            if (selectedFiles.length > 0) {
+                document.getElementById('compressionSettings').classList.add('show');
+                showNotification(`${selectedFiles.length}個の画像ファイルを読み込みました`);
+            }
+        }
+
+        function selectMultipleFiles() {
+            const fileInput = document.getElementById('fileInput');
+            fileInput.multiple = true;
+            fileInput.click();
+        }
+
+        async function compressImages() {
+            if (selectedFiles.length === 0) {
+                showNotification('画像ファイルを選択してください', 'error');
+                return;
+            }
+            
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            
+            progressBar.style.display = 'block';
+            compressedImages = [];
+            
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                const progress = Math.round(((i + 1) / selectedFiles.length) * 100);
+                
+                progressFill.style.width = progress + '%';
+                progressFill.textContent = `${i + 1}/${selectedFiles.length} (${progress}%)`;
+                
+                try {
+                    const compressedImage = await compressImage(file);
+                    compressedImages.push(compressedImage);
+                } catch (error) {
+                    showNotification(`${file.name} の圧縮に失敗しました`, 'error');
+                }
+            }
+            
+            progressBar.style.display = 'none';
+            displayResults();
+            document.getElementById('downloadSection').classList.add('show');
+            showNotification('画像圧縮が完了しました');
+        }
+
+        function compressImage(file) {
+            return new Promise((resolve, reject) => {
+                const quality = parseInt(document.getElementById('qualitySlider').value) / 100;
+                const outputFormat = document.getElementById('outputFormat').value;
+                const maxWidth = parseInt(document.getElementById('maxWidth').value) || null;
+                const maxHeight = parseInt(document.getElementById('maxHeight').value) || null;
+                
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // リサイズ計算
+                    let { width, height } = calculateDimensions(img.width, img.height, maxWidth, maxHeight);
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // 画像を描画
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // 圧縮
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            const originalSize = file.size;
+                            const compressedSize = blob.size;
+                            const compressionRatio = Math.round((1 - compressedSize / originalSize) * 100);
+                            
+                            resolve({
+                                originalFile: file,
+                                compressedBlob: blob,
+                                originalSize: originalSize,
+                                compressedSize: compressedSize,
+                                compressionRatio: compressionRatio,
+                                originalDimensions: { width: img.width, height: img.height },
+                                compressedDimensions: { width: width, height: height },
+                                dataUrl: canvas.toDataURL(`image/${outputFormat}`, quality)
+                            });
+                        } else {
+                            reject(new Error('圧縮に失敗しました'));
+                        }
+                    }, `image/${outputFormat}`, quality);
+                };
+                
+                img.onerror = () => reject(new Error('画像の読み込みに失敗しました'));
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        function calculateDimensions(originalWidth, originalHeight, maxWidth, maxHeight) {
+            let width = originalWidth;
+            let height = originalHeight;
+            
+            if (maxWidth && width > maxWidth) {
+                height = (height * maxWidth) / width;
+                width = maxWidth;
+            }
+            
+            if (maxHeight && height > maxHeight) {
+                width = (width * maxHeight) / height;
+                height = maxHeight;
+            }
+            
+            return { width: Math.round(width), height: Math.round(height) };
+        }
+
+        function displayResults() {
+            const previewSection = document.getElementById('previewSection');
+            const previewContainer = document.getElementById('previewContainer');
+            
+            previewContainer.innerHTML = '';
+            
+            compressedImages.forEach((imageData, index) => {
+                const resultDiv = document.createElement('div');
+                resultDiv.innerHTML = `
+                    <div class="compression-ratio">
+                        <div class="ratio-title">${imageData.originalFile.name}</div>
+                        <div class="ratio-value">${imageData.compressionRatio}%</div>
+                        <div class="ratio-desc">サイズ削減</div>
+                    </div>
+                    <div class="preview-grid">
+                        <div class="preview-item">
+                            <div class="preview-label">元画像</div>
+                            <img src="${URL.createObjectURL(imageData.originalFile)}" class="preview-image" alt="Original">
+                            <div class="preview-info">
+                                <div class="info-item">
+                                    <div class="info-value">${formatFileSize(imageData.originalSize)}</div>
+                                    <div class="info-label">サイズ</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-value">${imageData.originalDimensions.width}×${imageData.originalDimensions.height}</div>
+                                    <div class="info-label">解像度</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="preview-item">
+                            <div class="preview-label">圧縮後</div>
+                            <img src="${imageData.dataUrl}" class="preview-image" alt="Compressed">
+                            <div class="preview-info">
+                                <div class="info-item">
+                                    <div class="info-value">${formatFileSize(imageData.compressedSize)}</div>
+                                    <div class="info-label">サイズ</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-value">${imageData.compressedDimensions.width}×${imageData.compressedDimensions.height}</div>
+                                    <div class="info-label">解像度</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                previewContainer.appendChild(resultDiv);
+            });
+            
+            previewSection.classList.add('show');
+            setupDownloadButtons();
+        }
+
+        function setupDownloadButtons() {
+            const downloadButtons = document.getElementById('downloadButtons');
+            downloadButtons.innerHTML = '';
+            
+            compressedImages.forEach((imageData, index) => {
+                const downloadBtn = document.createElement('button');
+                downloadBtn.className = 'download-btn';
+                downloadBtn.textContent = `${imageData.originalFile.name} をダウンロード`;
+                downloadBtn.onclick = () => downloadImage(imageData, index);
+                downloadButtons.appendChild(downloadBtn);
+            });
+            
+            if (compressedImages.length > 1) {
+                const downloadAllBtn = document.createElement('button');
+                downloadAllBtn.className = 'download-btn';
+                downloadAllBtn.textContent = '全てダウンロード';
+                downloadAllBtn.onclick = downloadAll;
+                downloadButtons.appendChild(downloadAllBtn);
+            }
+        }
+
+        function downloadImage(imageData, index) {
+            const outputFormat = document.getElementById('outputFormat').value;
+            const fileName = getCompressedFileName(imageData.originalFile.name, outputFormat);
+            
+            const link = document.createElement('a');
+            link.download = fileName;
+            link.href = imageData.dataUrl;
+            link.click();
+            
+            showNotification(`${fileName} をダウンロードしました`);
+        }
+
+        function downloadAll() {
+            compressedImages.forEach((imageData, index) => {
+                setTimeout(() => {
+                    downloadImage(imageData, index);
+                }, index * 100);
+            });
+        }
+
+        function getCompressedFileName(originalName, format) {
+            const nameWithoutExt = originalName.replace(/\.[^/.]+$/, "");
+            return `${nameWithoutExt}_compressed.${format}`;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function compressAll() {
+            if (selectedFiles.length === 0) {
+                showNotification('画像ファイルを選択してください', 'error');
+                return;
+            }
+            compressImages();
+        }
+
+        function clearAll() {
+            selectedFiles = [];
+            compressedImages = [];
+            document.getElementById('compressionSettings').classList.remove('show');
+            document.getElementById('previewSection').classList.remove('show');
+            document.getElementById('downloadSection').classList.remove('show');
+            document.getElementById('progressBar').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+            showNotification('クリアしました');
+        }
+
+        function resetSettings() {
+            document.getElementById('qualitySlider').value = 80;
+            document.getElementById('qualityValue').textContent = '80%';
+            document.getElementById('outputFormat').value = 'jpeg';
+            document.getElementById('maxWidth').value = '';
+            document.getElementById('maxHeight').value = '';
+            showNotification('設定をリセットしました');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        function init() {
+            setupDragAndDrop();
+            setupFileInput();
+            setupQualitySlider();
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>議事録テンプレート - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .minutes-app {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .add-item-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .add-item-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .item-container {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        .attendee-item {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .minutes-preview {
+            padding: 40px;
+            font-family: 'Times New Roman', serif;
+            color: #333;
+            line-height: 1.8;
+        }
+
+        .minutes-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #333;
+        }
+
+        .minutes-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .minutes-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .minutes-section {
+            margin-bottom: 25px;
+        }
+
+        .minutes-section h3 {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            border-bottom: 1px solid #333;
+            padding-bottom: 3px;
+        }
+
+        .agenda-item, .action-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 3px solid #667eea;
+            background: #f8f9fa;
+        }
+
+        .agenda-title, .action-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .agenda-content, .action-content {
+            margin-bottom: 5px;
+        }
+
+        .action-assignee {
+            font-style: italic;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .attendee-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .attendee-name {
+            padding: 5px 10px;
+            background: #e9ecef;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+        }
+
+        .control-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .minutes-preview {
+                padding: 20px;
+                font-size: 0.9rem;
+            }
+            
+            .minutes-info {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .minutes-app {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header, .form-section, .controls {
+                display: none;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+                padding: 0;
+                gap: 0;
+            }
+            
+            .preview-section {
+                border: none;
+                max-height: none;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="minutes-app">
+        <div class="header">
+            <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+            <h1>📋 議事録テンプレート</h1>
+            <p>効率的な会議議事録を作成</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="section-title">基本情報</div>
+                <div class="form-group">
+                    <label for="meetingTitle">会議名</label>
+                    <input type="text" id="meetingTitle" placeholder="月次定例会議">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="meetingDate">開催日</label>
+                            <input type="date" id="meetingDate">
+                        </div>
+                        <div>
+                            <label for="meetingTime">開催時間</label>
+                            <input type="text" id="meetingTime" placeholder="10:00〜11:30">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="location">場所</label>
+                            <input type="text" id="location" placeholder="会議室A / Zoom">
+                        </div>
+                        <div>
+                            <label for="recorder">記録者</label>
+                            <input type="text" id="recorder" placeholder="山田 太郎">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">参加者</div>
+                <div id="attendeeList"></div>
+                <button class="add-item-btn" onclick="addAttendee()">+ 参加者を追加</button>
+
+                <div class="section-title">議題・討議内容</div>
+                <div id="agendaList"></div>
+                <button class="add-item-btn" onclick="addAgenda()">+ 議題を追加</button>
+
+                <div class="section-title">決定事項</div>
+                <div class="form-group">
+                    <label for="decisions">決定事項</label>
+                    <textarea id="decisions" placeholder="会議で決定された事項を記載してください"></textarea>
+                </div>
+
+                <div class="section-title">アクションアイテム</div>
+                <div id="actionList"></div>
+                <button class="add-item-btn" onclick="addAction()">+ アクションアイテムを追加</button>
+
+                <div class="section-title">次回予定</div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="nextMeetingDate">次回開催日</label>
+                            <input type="date" id="nextMeetingDate">
+                        </div>
+                        <div>
+                            <label for="nextMeetingTime">次回開催時間</label>
+                            <input type="text" id="nextMeetingTime" placeholder="10:00〜11:30">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nextAgenda">次回予定議題</label>
+                    <textarea id="nextAgenda" placeholder="次回会議の予定議題を記載してください"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">備考</label>
+                    <textarea id="notes" placeholder="その他の備考事項があれば記載してください"></textarea>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="minutes-preview" id="minutesPreview">
+                    <div class="minutes-header">
+                        <div class="minutes-title" id="previewTitle">会議議事録</div>
+                        <div class="minutes-info">
+                            <div id="previewBasicInfo"></div>
+                            <div id="previewMeetingDetails"></div>
+                        </div>
+                    </div>
+
+                    <div class="minutes-section" id="previewAttendeesSection" style="display: none;">
+                        <h3>参加者</h3>
+                        <div class="attendee-list" id="previewAttendees"></div>
+                    </div>
+
+                    <div class="minutes-section" id="previewAgendasSection" style="display: none;">
+                        <h3>議題・討議内容</h3>
+                        <div id="previewAgendas"></div>
+                    </div>
+
+                    <div class="minutes-section" id="previewDecisionsSection" style="display: none;">
+                        <h3>決定事項</h3>
+                        <div id="previewDecisions"></div>
+                    </div>
+
+                    <div class="minutes-section" id="previewActionsSection" style="display: none;">
+                        <h3>アクションアイテム</h3>
+                        <div id="previewActions"></div>
+                    </div>
+
+                    <div class="minutes-section" id="previewNextMeetingSection" style="display: none;">
+                        <h3>次回予定</h3>
+                        <div id="previewNextMeeting"></div>
+                    </div>
+
+                    <div class="minutes-section" id="previewNotesSection" style="display: none;">
+                        <h3>備考</h3>
+                        <div id="previewNotes"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="printMinutes()">🖨️ 印刷</button>
+            <button class="control-btn secondary" onclick="saveMinutes()">💾 保存</button>
+            <button class="control-btn secondary" onclick="loadMinutes()">📂 読み込み</button>
+            <button class="control-btn secondary" onclick="clearForm()">🗑️ クリア</button>
+        </div>
+    </div>
+
+    <script>
+        let attendeeCount = 0;
+        let agendaCount = 0;
+        let actionCount = 0;
+
+        function addAttendee() {
+            attendeeCount++;
+            const attendeeList = document.getElementById('attendeeList');
+            const div = document.createElement('div');
+            div.className = 'attendee-item';
+            div.innerHTML = `
+                <input type="text" id="attendee${attendeeCount}" placeholder="参加者名">
+                <button class="remove-btn" onclick="removeAttendee(this)">削除</button>
+            `;
+            attendeeList.appendChild(div);
+            
+            document.getElementById(`attendee${attendeeCount}`).addEventListener('input', updatePreview);
+            updatePreview();
+        }
+
+        function addAgenda() {
+            agendaCount++;
+            const agendaList = document.getElementById('agendaList');
+            const div = document.createElement('div');
+            div.className = 'item-container';
+            div.innerHTML = `
+                <div class="item-header">
+                    <strong>議題 ${agendaCount}</strong>
+                    <button class="remove-btn" onclick="removeAgenda(this)">削除</button>
+                </div>
+                <div class="form-group">
+                    <label>議題タイトル</label>
+                    <input type="text" id="agendaTitle${agendaCount}" placeholder="議題のタイトル">
+                </div>
+                <div class="form-group">
+                    <label>討議内容・結果</label>
+                    <textarea id="agendaContent${agendaCount}" placeholder="討議された内容と結果を記載してください"></textarea>
+                </div>
+            `;
+            agendaList.appendChild(div);
+            
+            document.getElementById(`agendaTitle${agendaCount}`).addEventListener('input', updatePreview);
+            document.getElementById(`agendaContent${agendaCount}`).addEventListener('input', updatePreview);
+            updatePreview();
+        }
+
+        function addAction() {
+            actionCount++;
+            const actionList = document.getElementById('actionList');
+            const div = document.createElement('div');
+            div.className = 'item-container';
+            div.innerHTML = `
+                <div class="item-header">
+                    <strong>アクション ${actionCount}</strong>
+                    <button class="remove-btn" onclick="removeAction(this)">削除</button>
+                </div>
+                <div class="form-group">
+                    <label>アクション内容</label>
+                    <input type="text" id="actionTitle${actionCount}" placeholder="実施すべき作業内容">
+                </div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label>担当者</label>
+                            <input type="text" id="actionAssignee${actionCount}" placeholder="担当者名">
+                        </div>
+                        <div>
+                            <label>期限</label>
+                            <input type="date" id="actionDeadline${actionCount}">
+                        </div>
+                    </div>
+                </div>
+            `;
+            actionList.appendChild(div);
+            
+            document.getElementById(`actionTitle${actionCount}`).addEventListener('input', updatePreview);
+            document.getElementById(`actionAssignee${actionCount}`).addEventListener('input', updatePreview);
+            document.getElementById(`actionDeadline${actionCount}`).addEventListener('input', updatePreview);
+            updatePreview();
+        }
+
+        function removeAttendee(button) {
+            button.parentElement.remove();
+            updatePreview();
+        }
+
+        function removeAgenda(button) {
+            button.closest('.item-container').remove();
+            updatePreview();
+        }
+
+        function removeAction(button) {
+            button.closest('.item-container').remove();
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const meetingTitle = document.getElementById('meetingTitle').value;
+            const meetingDate = document.getElementById('meetingDate').value;
+            const meetingTime = document.getElementById('meetingTime').value;
+            const location = document.getElementById('location').value;
+            const recorder = document.getElementById('recorder').value;
+            const decisions = document.getElementById('decisions').value;
+            const nextMeetingDate = document.getElementById('nextMeetingDate').value;
+            const nextMeetingTime = document.getElementById('nextMeetingTime').value;
+            const nextAgenda = document.getElementById('nextAgenda').value;
+            const notes = document.getElementById('notes').value;
+
+            // タイトルの更新
+            if (meetingTitle) {
+                document.getElementById('previewTitle').textContent = `${meetingTitle} 議事録`;
+            } else {
+                document.getElementById('previewTitle').textContent = '会議議事録';
+            }
+
+            // 基本情報の更新
+            let basicInfo = [];
+            if (meetingDate) basicInfo.push(`開催日: ${formatDate(meetingDate)}`);
+            if (meetingTime) basicInfo.push(`時間: ${meetingTime}`);
+            document.getElementById('previewBasicInfo').innerHTML = basicInfo.join('<br>');
+
+            let meetingDetails = [];
+            if (location) meetingDetails.push(`場所: ${location}`);
+            if (recorder) meetingDetails.push(`記録者: ${recorder}`);
+            document.getElementById('previewMeetingDetails').innerHTML = meetingDetails.join('<br>');
+
+            // 参加者の更新
+            updateAttendeesPreview();
+
+            // 議題の更新
+            updateAgendasPreview();
+
+            // 決定事項の更新
+            if (decisions) {
+                document.getElementById('previewDecisions').textContent = decisions;
+                document.getElementById('previewDecisionsSection').style.display = 'block';
+            } else {
+                document.getElementById('previewDecisionsSection').style.display = 'none';
+            }
+
+            // アクションアイテムの更新
+            updateActionsPreview();
+
+            // 次回予定の更新
+            updateNextMeetingPreview(nextMeetingDate, nextMeetingTime, nextAgenda);
+
+            // 備考の更新
+            if (notes) {
+                document.getElementById('previewNotes').textContent = notes;
+                document.getElementById('previewNotesSection').style.display = 'block';
+            } else {
+                document.getElementById('previewNotesSection').style.display = 'none';
+            }
+        }
+
+        function updateAttendeesPreview() {
+            const attendeeList = document.getElementById('attendeeList');
+            const items = attendeeList.querySelectorAll('.attendee-item input');
+            let html = '';
+            
+            items.forEach(input => {
+                if (input.value) {
+                    html += `<div class="attendee-name">${input.value}</div>`;
+                }
+            });
+
+            if (html) {
+                document.getElementById('previewAttendees').innerHTML = html;
+                document.getElementById('previewAttendeesSection').style.display = 'block';
+            } else {
+                document.getElementById('previewAttendeesSection').style.display = 'none';
+            }
+        }
+
+        function updateAgendasPreview() {
+            const agendaList = document.getElementById('agendaList');
+            const items = agendaList.querySelectorAll('.item-container');
+            let html = '';
+            
+            items.forEach(item => {
+                const title = item.querySelector('input[id^="agendaTitle"]').value;
+                const content = item.querySelector('textarea[id^="agendaContent"]').value;
+                
+                if (title || content) {
+                    html += `<div class="agenda-item">
+                        ${title ? `<div class="agenda-title">${title}</div>` : ''}
+                        ${content ? `<div class="agenda-content">${content}</div>` : ''}
+                    </div>`;
+                }
+            });
+
+            if (html) {
+                document.getElementById('previewAgendas').innerHTML = html;
+                document.getElementById('previewAgendasSection').style.display = 'block';
+            } else {
+                document.getElementById('previewAgendasSection').style.display = 'none';
+            }
+        }
+
+        function updateActionsPreview() {
+            const actionList = document.getElementById('actionList');
+            const items = actionList.querySelectorAll('.item-container');
+            let html = '';
+            
+            items.forEach(item => {
+                const title = item.querySelector('input[id^="actionTitle"]').value;
+                const assignee = item.querySelector('input[id^="actionAssignee"]').value;
+                const deadline = item.querySelector('input[id^="actionDeadline"]').value;
+                
+                if (title || assignee || deadline) {
+                    html += `<div class="action-item">
+                        ${title ? `<div class="action-title">${title}</div>` : ''}
+                        <div class="action-assignee">
+                            ${assignee ? `担当者: ${assignee}` : ''}
+                            ${deadline ? ` | 期限: ${formatDate(deadline)}` : ''}
+                        </div>
+                    </div>`;
+                }
+            });
+
+            if (html) {
+                document.getElementById('previewActions').innerHTML = html;
+                document.getElementById('previewActionsSection').style.display = 'block';
+            } else {
+                document.getElementById('previewActionsSection').style.display = 'none';
+            }
+        }
+
+        function updateNextMeetingPreview(nextDate, nextTime, nextAgenda) {
+            let html = '';
+            if (nextDate) html += `<div><strong>次回開催日:</strong> ${formatDate(nextDate)}</div>`;
+            if (nextTime) html += `<div><strong>次回開催時間:</strong> ${nextTime}</div>`;
+            if (nextAgenda) html += `<div><strong>予定議題:</strong><br>${nextAgenda}</div>`;
+
+            if (html) {
+                document.getElementById('previewNextMeeting').innerHTML = html;
+                document.getElementById('previewNextMeetingSection').style.display = 'block';
+            } else {
+                document.getElementById('previewNextMeetingSection').style.display = 'none';
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${year}年${month}月${day}日`;
+        }
+
+        function printMinutes() {
+            window.print();
+        }
+
+        function saveMinutes() {
+            const data = {
+                meetingTitle: document.getElementById('meetingTitle').value,
+                meetingDate: document.getElementById('meetingDate').value,
+                meetingTime: document.getElementById('meetingTime').value,
+                location: document.getElementById('location').value,
+                recorder: document.getElementById('recorder').value,
+                decisions: document.getElementById('decisions').value,
+                nextMeetingDate: document.getElementById('nextMeetingDate').value,
+                nextMeetingTime: document.getElementById('nextMeetingTime').value,
+                nextAgenda: document.getElementById('nextAgenda').value,
+                notes: document.getElementById('notes').value,
+                attendees: [],
+                agendas: [],
+                actions: []
+            };
+
+            // 参加者データの収集
+            const attendeeItems = document.getElementById('attendeeList').querySelectorAll('.attendee-item input');
+            attendeeItems.forEach(input => {
+                if (input.value) {
+                    data.attendees.push(input.value);
+                }
+            });
+
+            // 議題データの収集
+            const agendaItems = document.getElementById('agendaList').querySelectorAll('.item-container');
+            agendaItems.forEach(item => {
+                data.agendas.push({
+                    title: item.querySelector('input[id^="agendaTitle"]').value,
+                    content: item.querySelector('textarea[id^="agendaContent"]').value
+                });
+            });
+
+            // アクションデータの収集
+            const actionItems = document.getElementById('actionList').querySelectorAll('.item-container');
+            actionItems.forEach(item => {
+                data.actions.push({
+                    title: item.querySelector('input[id^="actionTitle"]').value,
+                    assignee: item.querySelector('input[id^="actionAssignee"]').value,
+                    deadline: item.querySelector('input[id^="actionDeadline"]').value
+                });
+            });
+
+            localStorage.setItem('minutesData', JSON.stringify(data));
+            alert('議事録を保存しました！');
+        }
+
+        function loadMinutes() {
+            const savedData = localStorage.getItem('minutesData');
+            if (!savedData) {
+                alert('保存されたデータがありません。');
+                return;
+            }
+
+            const data = JSON.parse(savedData);
+            
+            // 基本情報の読み込み
+            document.getElementById('meetingTitle').value = data.meetingTitle || '';
+            document.getElementById('meetingDate').value = data.meetingDate || '';
+            document.getElementById('meetingTime').value = data.meetingTime || '';
+            document.getElementById('location').value = data.location || '';
+            document.getElementById('recorder').value = data.recorder || '';
+            document.getElementById('decisions').value = data.decisions || '';
+            document.getElementById('nextMeetingDate').value = data.nextMeetingDate || '';
+            document.getElementById('nextMeetingTime').value = data.nextMeetingTime || '';
+            document.getElementById('nextAgenda').value = data.nextAgenda || '';
+            document.getElementById('notes').value = data.notes || '';
+
+            // リストをクリア
+            document.getElementById('attendeeList').innerHTML = '';
+            document.getElementById('agendaList').innerHTML = '';
+            document.getElementById('actionList').innerHTML = '';
+            attendeeCount = 0;
+            agendaCount = 0;
+            actionCount = 0;
+
+            // 参加者の読み込み
+            if (data.attendees) {
+                data.attendees.forEach(attendee => {
+                    addAttendee();
+                    const input = document.getElementById('attendeeList').lastElementChild.querySelector('input');
+                    input.value = attendee;
+                });
+            }
+
+            // 議題の読み込み
+            if (data.agendas) {
+                data.agendas.forEach(agenda => {
+                    addAgenda();
+                    const container = document.getElementById('agendaList').lastElementChild;
+                    container.querySelector('input[id^="agendaTitle"]').value = agenda.title || '';
+                    container.querySelector('textarea[id^="agendaContent"]').value = agenda.content || '';
+                });
+            }
+
+            // アクションの読み込み
+            if (data.actions) {
+                data.actions.forEach(action => {
+                    addAction();
+                    const container = document.getElementById('actionList').lastElementChild;
+                    container.querySelector('input[id^="actionTitle"]').value = action.title || '';
+                    container.querySelector('input[id^="actionAssignee"]').value = action.assignee || '';
+                    container.querySelector('input[id^="actionDeadline"]').value = action.deadline || '';
+                });
+            }
+
+            updatePreview();
+            alert('議事録を読み込みました！');
+        }
+
+        function clearForm() {
+            if (confirm('すべての入力内容をクリアしますか？')) {
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    element.value = '';
+                });
+                document.getElementById('attendeeList').innerHTML = '';
+                document.getElementById('agendaList').innerHTML = '';
+                document.getElementById('actionList').innerHTML = '';
+                attendeeCount = 0;
+                agendaCount = 0;
+                actionCount = 0;
+                updatePreview();
+            }
+        }
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            // 現在の日付を設定
+            document.getElementById('meetingDate').value = new Date().toISOString().split('T')[0];
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

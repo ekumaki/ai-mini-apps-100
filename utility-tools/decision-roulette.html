@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>決断ルーレット - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .decision-roulette {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .roulette-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .wheel-wrapper {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .wheel {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 8px solid #333;
+            position: relative;
+            transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+            background: conic-gradient(
+                #ff6b6b 0deg,
+                #4ecdc4 0deg,
+                #45b7d1 0deg,
+                #96ceb4 0deg,
+                #ffeaa7 0deg,
+                #fd79a8 0deg,
+                #6c5ce7 0deg,
+                #a29bfe 0deg
+            );
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid #333;
+            z-index: 10;
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+        }
+
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 4px solid white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        .wheel-center:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .wheel-center.spinning {
+            animation: centerPulse 0.5s ease infinite alternate;
+        }
+
+        @keyframes centerPulse {
+            from { box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); }
+            to { box-shadow: 0 5px 25px rgba(102, 126, 234, 0.6); }
+        }
+
+        .wheel-segment {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 50%;
+            height: 50%;
+            transform-origin: left center;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 20px;
+            font-weight: 600;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-size: 0.9rem;
+        }
+
+        .settings-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 1.3rem;
+        }
+
+        .options-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .options-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .setting-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .setting-control {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        .setting-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .presets-section {
+            background: #e1ecf4;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .presets-title {
+            color: #0c5460;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .presets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .preset-btn {
+            background: white;
+            border: 2px solid #b3d4fc;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #0c5460;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .preset-btn:hover {
+            background: #b3d4fc;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .result-section {
+            background: #d4edda;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+            text-align: center;
+        }
+
+        .result-section.show {
+            display: block;
+            animation: resultFadeIn 0.5s ease;
+        }
+
+        @keyframes resultFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-title {
+            color: #155724;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .result-display {
+            background: white;
+            border: 2px solid #c3e6cb;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .result-winner {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #155724;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-subtitle {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .history-section {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .history-title {
+            color: #856404;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: white;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-result {
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .history-time {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .action-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .action-btn.success {
+            background: #28a745;
+        }
+
+        .action-btn.success:hover {
+            background: #218838;
+        }
+
+        .action-btn.danger {
+            background: #dc3545;
+        }
+
+        .action-btn.danger:hover {
+            background: #c82333;
+        }
+
+        .stats-section {
+            background: #f3e5f5;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stats-title {
+            color: #6a1b9a;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .stat-item {
+            background: white;
+            border: 1px solid #ce93d8;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: #6a1b9a;
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ff6b6b;
+            animation: confettifall linear infinite;
+            z-index: 1000;
+        }
+
+        @keyframes confettifall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .decision-roulette {
+                padding: 20px;
+            }
+            
+            .wheel {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .wheel-segment {
+                font-size: 0.8rem;
+                padding-right: 15px;
+            }
+            
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .presets-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="decision-roulette">
+        <div class="header">
+            <h1>決断ルーレット</h1>
+            <p>迷った時の最終決断ツール</p>
+        </div>
+
+        <div class="roulette-container">
+            <div class="wheel-wrapper">
+                <div class="wheel" id="wheel">
+                    <div class="wheel-center" onclick="spinWheel()" id="wheelCenter">
+                        SPIN
+                    </div>
+                </div>
+                <div class="wheel-pointer"></div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <div class="section-title">
+                <span class="section-icon">⚙️</span>
+                <span>ルーレット設定</span>
+            </div>
+            <textarea id="optionsInput" class="options-textarea" placeholder="選択肢を1行に1つずつ入力してください&#10;&#10;例:&#10;映画を見る&#10;本を読む&#10;散歩する&#10;料理をする&#10;友達に連絡する"></textarea>
+            <div class="settings-grid">
+                <div class="setting-group">
+                    <label for="spinSpeed">回転速度</label>
+                    <select id="spinSpeed" class="setting-control">
+                        <option value="slow">ゆっくり</option>
+                        <option value="normal" selected>普通</option>
+                        <option value="fast">速い</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label for="spinDuration">回転時間</label>
+                    <select id="spinDuration" class="setting-control">
+                        <option value="2">2秒</option>
+                        <option value="3">3秒</option>
+                        <option value="4" selected>4秒</option>
+                        <option value="5">5秒</option>
+                        <option value="6">6秒</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label for="colorScheme">色テーマ</label>
+                    <select id="colorScheme" class="setting-control">
+                        <option value="rainbow">レインボー</option>
+                        <option value="pastel">パステル</option>
+                        <option value="neon">ネオン</option>
+                        <option value="monochrome">モノクロ</option>
+                    </select>
+                </div>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="soundEffect" checked>
+                <label for="soundEffect">効果音を再生</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="confettiEffect" checked>
+                <label for="confettiEffect">紙吹雪エフェクト</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="autoResize">
+                <label for="autoResize">項目数に応じて自動調整</label>
+            </div>
+        </div>
+
+        <div class="presets-section">
+            <div class="presets-title">🎯 プリセット</div>
+            <div class="presets-grid">
+                <button class="preset-btn" onclick="loadPreset('decision')">決断系</button>
+                <button class="preset-btn" onclick="loadPreset('food')">食事系</button>
+                <button class="preset-btn" onclick="loadPreset('activity')">活動系</button>
+                <button class="preset-btn" onclick="loadPreset('yesno')">Yes/No</button>
+                <button class="preset-btn" onclick="loadPreset('number')">数字</button>
+                <button class="preset-btn" onclick="loadPreset('color')">色</button>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" onclick="spinWheel()" id="spinBtn">ルーレットを回す</button>
+            <button class="action-btn secondary" onclick="updateWheel()">ルーレット更新</button>
+            <button class="action-btn secondary" onclick="resetWheel()">リセット</button>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-title">🎉 結果発表</div>
+            <div class="result-display">
+                <div class="result-winner" id="resultWinner">---</div>
+                <div class="result-subtitle" id="resultSubtitle">ルーレットを回してください</div>
+            </div>
+            <div class="result-actions">
+                <button class="action-btn success" onclick="copyResult()">結果をコピー</button>
+                <button class="action-btn" onclick="spinWheel()">もう一度回す</button>
+                <button class="action-btn secondary" onclick="shareResult()">結果をシェア</button>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-title">📊 統計情報</div>
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalSpins">0</div>
+                    <div class="stat-label">総回転数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="todaySpins">0</div>
+                    <div class="stat-label">今日の回転数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="mostFrequent">---</div>
+                    <div class="stat-label">最多選択</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="lastResult">---</div>
+                    <div class="stat-label">前回の結果</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <div class="history-title">📚 決断履歴</div>
+            <div class="history-list" id="historyList">
+                <!-- 履歴がここに表示されます -->
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <button class="action-btn secondary" onclick="clearHistory()">履歴クリア</button>
+                <button class="action-btn secondary" onclick="exportHistory()">履歴出力</button>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let currentOptions = [];
+        let isSpinning = false;
+        let spinHistory = JSON.parse(localStorage.getItem('decisionRouletteHistory') || '[]');
+        let statistics = JSON.parse(localStorage.getItem('decisionRouletteStats') || '{}');
+
+        const presets = {
+            decision: ['やる', 'やらない', '後で考える', '誰かに相談する'],
+            food: ['ラーメン', '寿司', 'ピザ', 'カレー', 'ハンバーガー', 'パスタ', '和食', '中華'],
+            activity: ['映画を見る', '本を読む', '散歩する', '運動する', '音楽を聴く', '友達に連絡する', '掃除する', '料理をする'],
+            yesno: ['はい', 'いいえ'],
+            number: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+            color: ['赤', '青', '緑', '黄', '紫', 'オレンジ', 'ピンク', '黒', '白', '茶色']
+        };
+
+        const colorSchemes = {
+            rainbow: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#fd79a8', '#6c5ce7', '#a29bfe'],
+            pastel: ['#fab1a0', '#74b9ff', '#55a3ff', '#a29bfe', '#fd79a8', '#fdcb6e', '#6c5ce7', '#55efc4'],
+            neon: ['#ff3838', '#ff9500', '#ffdd00', '#48ff00', '#00ffdd', '#0090ff', '#7000ff', '#ff006e'],
+            monochrome: ['#2d3436', '#636e72', '#b2bec3', '#ddd', '#74b9ff', '#0984e3', '#6c5ce7', '#a29bfe']
+        };
+
+        function updateWheel() {
+            const optionsText = document.getElementById('optionsInput').value.trim();
+            if (!optionsText) {
+                showNotification('選択肢を入力してください', 'error');
+                return;
+            }
+
+            currentOptions = optionsText.split('\n').map(option => option.trim()).filter(option => option);
+            if (currentOptions.length < 2) {
+                showNotification('2つ以上の選択肢を入力してください', 'error');
+                return;
+            }
+
+            if (currentOptions.length > 12) {
+                showNotification('選択肢は12個以下にしてください', 'error');
+                return;
+            }
+
+            renderWheel();
+            showNotification('ルーレットを更新しました');
+        }
+
+        function renderWheel() {
+            const wheel = document.getElementById('wheel');
+            const colorScheme = document.getElementById('colorScheme').value;
+            const colors = colorSchemes[colorScheme];
+            
+            // 既存のセグメントを削除
+            const existingSegments = wheel.querySelectorAll('.wheel-segment');
+            existingSegments.forEach(segment => segment.remove());
+            
+            if (currentOptions.length === 0) return;
+
+            const segmentAngle = 360 / currentOptions.length;
+            
+            // CSS conic-gradient を生成
+            let gradientStops = [];
+            currentOptions.forEach((option, index) => {
+                const startAngle = index * segmentAngle;
+                const endAngle = (index + 1) * segmentAngle;
+                const color = colors[index % colors.length];
+                
+                if (index === 0) {
+                    gradientStops.push(`${color} ${startAngle}deg`);
+                }
+                gradientStops.push(`${color} ${endAngle}deg`);
+                
+                if (index < currentOptions.length - 1) {
+                    const nextColor = colors[(index + 1) % colors.length];
+                    gradientStops.push(`${nextColor} ${endAngle}deg`);
+                }
+            });
+            
+            wheel.style.background = `conic-gradient(${gradientStops.join(', ')})`;
+            
+            // セグメントのテキストを追加
+            currentOptions.forEach((option, index) => {
+                const segment = document.createElement('div');
+                segment.className = 'wheel-segment';
+                segment.textContent = option;
+                
+                const angle = index * segmentAngle + segmentAngle / 2;
+                segment.style.transform = `rotate(${angle}deg)`;
+                
+                // テキストの角度を調整
+                const textRotation = angle > 90 && angle < 270 ? 180 : 0;
+                segment.style.writingMode = textRotation === 180 ? 'vertical-rl' : 'unset';
+                
+                wheel.appendChild(segment);
+            });
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+            
+            if (currentOptions.length === 0) {
+                showNotification('まずルーレットを更新してください', 'error');
+                return;
+            }
+
+            isSpinning = true;
+            const wheel = document.getElementById('wheel');
+            const wheelCenter = document.getElementById('wheelCenter');
+            const spinBtn = document.getElementById('spinBtn');
+            
+            // UI状態の更新
+            wheelCenter.classList.add('spinning');
+            wheelCenter.textContent = '回転中';
+            spinBtn.disabled = true;
+            spinBtn.textContent = '回転中...';
+            
+            // 効果音の再生
+            if (document.getElementById('soundEffect').checked) {
+                playSpinSound();
+            }
+            
+            // 回転の計算
+            const spinSpeed = document.getElementById('spinSpeed').value;
+            const spinDuration = parseInt(document.getElementById('spinDuration').value);
+            
+            let rotations;
+            switch(spinSpeed) {
+                case 'slow':
+                    rotations = 3 + Math.random() * 2;
+                    break;
+                case 'fast':
+                    rotations = 8 + Math.random() * 4;
+                    break;
+                default:
+                    rotations = 5 + Math.random() * 3;
+            }
+            
+            const segmentAngle = 360 / currentOptions.length;
+            const randomAngle = Math.random() * 360;
+            const totalRotation = rotations * 360 + randomAngle;
+            
+            // 回転アニメーション
+            wheel.style.transition = `transform ${spinDuration}s cubic-bezier(0.23, 1, 0.32, 1)`;
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
+            
+            setTimeout(() => {
+                // 結果の計算
+                const normalizedAngle = (360 - (randomAngle % 360)) % 360;
+                const selectedIndex = Math.floor(normalizedAngle / segmentAngle);
+                const selectedOption = currentOptions[selectedIndex];
+                
+                // 結果の表示
+                displayResult(selectedOption);
+                
+                // 履歴と統計の更新
+                addToHistory(selectedOption);
+                updateStatistics(selectedOption);
+                
+                // エフェクトの実行
+                if (document.getElementById('confettiEffect').checked) {
+                    createConfetti();
+                }
+                
+                // UI状態をリセット
+                isSpinning = false;
+                wheelCenter.classList.remove('spinning');
+                wheelCenter.textContent = 'SPIN';
+                spinBtn.disabled = false;
+                spinBtn.textContent = 'ルーレットを回す';
+                
+                showNotification(`結果: ${selectedOption}`);
+            }, spinDuration * 1000);
+        }
+
+        function displayResult(result) {
+            const resultSection = document.getElementById('resultSection');
+            const resultWinner = document.getElementById('resultWinner');
+            const resultSubtitle = document.getElementById('resultSubtitle');
+            
+            resultWinner.textContent = result;
+            resultSubtitle.textContent = `決定時刻: ${new Date().toLocaleString('ja-JP')}`;
+            resultSection.classList.add('show');
+        }
+
+        function addToHistory(result) {
+            const historyItem = {
+                id: Date.now(),
+                result: result,
+                timestamp: new Date().toLocaleString('ja-JP'),
+                options: [...currentOptions]
+            };
+            
+            spinHistory.unshift(historyItem);
+            
+            // 履歴を50件に制限
+            if (spinHistory.length > 50) {
+                spinHistory = spinHistory.slice(0, 50);
+            }
+            
+            localStorage.setItem('decisionRouletteHistory', JSON.stringify(spinHistory));
+            updateHistoryDisplay();
+        }
+
+        function updateStatistics(result) {
+            const today = new Date().toDateString();
+            
+            // 統計情報の初期化
+            if (!statistics.totalSpins) statistics.totalSpins = 0;
+            if (!statistics.todaySpins) statistics.todaySpins = {};
+            if (!statistics.frequency) statistics.frequency = {};
+            if (!statistics.lastUpdate) statistics.lastUpdate = today;
+            
+            // 日付が変わったら今日の回転数をリセット
+            if (statistics.lastUpdate !== today) {
+                statistics.todaySpins = {};
+                statistics.lastUpdate = today;
+            }
+            
+            // 統計更新
+            statistics.totalSpins++;
+            statistics.todaySpins[today] = (statistics.todaySpins[today] || 0) + 1;
+            statistics.frequency[result] = (statistics.frequency[result] || 0) + 1;
+            statistics.lastResult = result;
+            
+            localStorage.setItem('decisionRouletteStats', JSON.stringify(statistics));
+            updateStatsDisplay();
+        }
+
+        function updateStatsDisplay() {
+            const today = new Date().toDateString();
+            const totalSpins = statistics.totalSpins || 0;
+            const todaySpins = statistics.todaySpins?.[today] || 0;
+            const lastResult = statistics.lastResult || '---';
+            
+            // 最多選択の計算
+            let mostFrequent = '---';
+            if (statistics.frequency && Object.keys(statistics.frequency).length > 0) {
+                mostFrequent = Object.entries(statistics.frequency)
+                    .sort(([,a], [,b]) => b - a)[0][0];
+            }
+            
+            document.getElementById('totalSpins').textContent = totalSpins;
+            document.getElementById('todaySpins').textContent = todaySpins;
+            document.getElementById('mostFrequent').textContent = mostFrequent;
+            document.getElementById('lastResult').textContent = lastResult;
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            
+            if (spinHistory.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">履歴がありません</p>';
+                return;
+            }
+            
+            historyList.innerHTML = spinHistory.slice(0, 10).map(item => `
+                <div class="history-item">
+                    <div>
+                        <div class="history-result">${item.result}</div>
+                        <div style="font-size: 0.8rem; color: #666; margin-top: 3px;">
+                            選択肢: ${item.options.join(', ')}
+                        </div>
+                    </div>
+                    <div class="history-time">${item.timestamp}</div>
+                </div>
+            `).join('');
+        }
+
+        function loadPreset(type) {
+            const preset = presets[type];
+            if (preset) {
+                document.getElementById('optionsInput').value = preset.join('\n');
+                updateWheel();
+                showNotification(`${type}プリセットを読み込みました`);
+            }
+        }
+
+        function copyResult() {
+            const resultWinner = document.getElementById('resultWinner').textContent;
+            if (resultWinner === '---') {
+                showNotification('コピーする結果がありません', 'error');
+                return;
+            }
+            
+            const copyText = `決断ルーレット結果: ${resultWinner}\n生成時刻: ${new Date().toLocaleString('ja-JP')}`;
+            
+            navigator.clipboard.writeText(copyText).then(() => {
+                showNotification('結果をコピーしました');
+            }).catch(() => {
+                showNotification('コピーに失敗しました', 'error');
+            });
+        }
+
+        function shareResult() {
+            const resultWinner = document.getElementById('resultWinner').textContent;
+            if (resultWinner === '---') {
+                showNotification('シェアする結果がありません', 'error');
+                return;
+            }
+            
+            const shareText = `決断ルーレットの結果は「${resultWinner}」でした！`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: '決断ルーレット',
+                    text: shareText
+                });
+            } else {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    showNotification('結果をコピーしました（シェア機能は未対応）');
+                });
+            }
+        }
+
+        function resetWheel() {
+            if (confirm('ルーレットをリセットしますか？')) {
+                currentOptions = [];
+                document.getElementById('optionsInput').value = '';
+                document.getElementById('resultSection').classList.remove('show');
+                
+                const wheel = document.getElementById('wheel');
+                wheel.style.transform = 'rotate(0deg)';
+                wheel.style.background = '';
+                
+                const existingSegments = wheel.querySelectorAll('.wheel-segment');
+                existingSegments.forEach(segment => segment.remove());
+                
+                showNotification('ルーレットをリセットしました');
+            }
+        }
+
+        function clearHistory() {
+            if (confirm('全ての履歴を削除しますか？')) {
+                spinHistory = [];
+                localStorage.setItem('decisionRouletteHistory', JSON.stringify(spinHistory));
+                updateHistoryDisplay();
+                showNotification('履歴をクリアしました');
+            }
+        }
+
+        function exportHistory() {
+            if (spinHistory.length === 0) {
+                showNotification('エクスポートする履歴がありません', 'error');
+                return;
+            }
+            
+            const exportData = spinHistory.map(item => ({
+                '結果': item.result,
+                '選択肢': item.options.join(', '),
+                '日時': item.timestamp
+            }));
+            
+            const csvContent = [
+                Object.keys(exportData[0]).join(','),
+                ...exportData.map(row => Object.values(row).map(v => `"${v}"`).join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `decision_roulette_history_${Date.now()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('履歴を出力しました');
+        }
+
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#fd79a8'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        function playSpinSound() {
+            // Web Audio APIを使用した簡単な効果音
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.1);
+            oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.2);
+            
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        function init() {
+            updateHistoryDisplay();
+            updateStatsDisplay();
+            
+            // 色テーマ変更の監視
+            document.getElementById('colorScheme').addEventListener('change', () => {
+                if (currentOptions.length > 0) {
+                    renderWheel();
+                }
+            });
+            
+            // サンプルデータの読み込み
+            if (!document.getElementById('optionsInput').value) {
+                loadPreset('decision');
+            }
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // キーボードショートカット
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !isSpinning) {
+                e.preventDefault();
+                spinWheel();
+            }
+        });
+    </script>
+</body>
+</html>

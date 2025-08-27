@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>距離計算機 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .calculator {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .calculation-type {
+            margin-bottom: 30px;
+        }
+
+        .type-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .type-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .type-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .type-btn:hover:not(.active) {
+            background: #e9ecef;
+            border-color: #dee2e6;
+        }
+
+        .type-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .type-desc {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .calculation-content {
+            display: none;
+        }
+
+        .calculation-content.active {
+            display: block;
+        }
+
+        .formula-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d7ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #0066cc;
+        }
+
+        .formula {
+            font-weight: bold;
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 5px 8px;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-group input,
+        .input-group select {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .unit {
+            color: #666;
+            font-weight: 600;
+            min-width: 50px;
+        }
+
+        .coordinate-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .calculate-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .result {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result-main {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .result-unit {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .detail-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .detail-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .conversion-table {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .table-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .table-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .table-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .table-value {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1rem;
+            margin-bottom: 3px;
+        }
+
+        .table-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .examples {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .examples-title {
+            font-weight: 600;
+            color: #155724;
+            margin-bottom: 10px;
+        }
+
+        .example-item {
+            font-size: 0.9rem;
+            color: #155724;
+            margin-bottom: 5px;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .coordinate-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="header">
+            <h1>距離計算機</h1>
+            <p>2点間の距離を計算</p>
+        </div>
+
+        <div class="calculation-type">
+            <div class="type-buttons">
+                <button class="type-btn active" onclick="selectType('coordinates')">
+                    <div class="type-title">座標から計算</div>
+                    <div class="type-desc">2点の座標を入力</div>
+                </button>
+                <button class="type-btn" onclick="selectType('speed')">
+                    <div class="type-title">速度・時間から</div>
+                    <div class="type-desc">速度と時間から距離</div>
+                </button>
+                <button class="type-btn" onclick="selectType('unit')">
+                    <div class="type-title">単位変換</div>
+                    <div class="type-desc">距離の単位変換</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- 座標計算 -->
+        <div class="calculation-content active" id="coordinates">
+            <div class="formula-info">
+                <strong>距離の公式:</strong>
+                <div class="formula">d = √((x₂-x₁)² + (y₂-y₁)²)</div>
+                <div style="margin-top: 10px;">
+                    2次元平面上の2点間の直線距離（ユークリッド距離）
+                </div>
+            </div>
+
+            <div class="coordinate-inputs">
+                <div>
+                    <h3 style="color: #333; margin-bottom: 15px;">点A の座標</h3>
+                    <div class="input-group">
+                        <label for="x1">X座標</label>
+                        <input type="number" id="x1" placeholder="例: 0" step="any">
+                        <div class="error" id="x1Error"></div>
+                    </div>
+                    <div class="input-group">
+                        <label for="y1">Y座標</label>
+                        <input type="number" id="y1" placeholder="例: 0" step="any">
+                        <div class="error" id="y1Error"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 style="color: #333; margin-bottom: 15px;">点B の座標</h3>
+                    <div class="input-group">
+                        <label for="x2">X座標</label>
+                        <input type="number" id="x2" placeholder="例: 3" step="any">
+                        <div class="error" id="x2Error"></div>
+                    </div>
+                    <div class="input-group">
+                        <label for="y2">Y座標</label>
+                        <input type="number" id="y2" placeholder="例: 4" step="any">
+                        <div class="error" id="y2Error"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateDistance()">距離を計算</button>
+        </div>
+
+        <!-- 速度・時間計算 -->
+        <div class="calculation-content" id="speed">
+            <div class="formula-info">
+                <strong>距離の公式:</strong>
+                <div class="formula">距離 = 速度 × 時間</div>
+            </div>
+
+            <div class="input-group">
+                <label for="speedValue">速度</label>
+                <div class="input-row">
+                    <input type="number" id="speedValue" placeholder="例: 60" min="0" step="0.1">
+                    <select id="speedUnit">
+                        <option value="kmh">km/h</option>
+                        <option value="ms">m/s</option>
+                        <option value="mph">mph</option>
+                        <option value="knot">ノット</option>
+                    </select>
+                </div>
+                <div class="error" id="speedError"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="timeValue">時間</label>
+                <div class="input-row">
+                    <input type="number" id="timeValue" placeholder="例: 2" min="0" step="0.1">
+                    <select id="timeUnit">
+                        <option value="hour">時間</option>
+                        <option value="minute">分</option>
+                        <option value="second">秒</option>
+                    </select>
+                </div>
+                <div class="error" id="timeError"></div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateSpeedDistance()">距離を計算</button>
+        </div>
+
+        <!-- 単位変換 -->
+        <div class="calculation-content" id="unit">
+            <div class="formula-info">
+                <strong>距離の単位変換</strong><br>
+                様々な距離の単位を相互変換できます
+            </div>
+
+            <div class="input-group">
+                <label for="distanceValue">距離</label>
+                <div class="input-row">
+                    <input type="number" id="distanceValue" placeholder="例: 1000" min="0" step="any">
+                    <select id="fromDistanceUnit">
+                        <option value="mm">ミリメートル</option>
+                        <option value="cm">センチメートル</option>
+                        <option value="m" selected>メートル</option>
+                        <option value="km">キロメートル</option>
+                        <option value="inch">インチ</option>
+                        <option value="ft">フィート</option>
+                        <option value="yard">ヤード</option>
+                        <option value="mile">マイル</option>
+                        <option value="nautical">海里</option>
+                    </select>
+                </div>
+                <div class="error" id="distanceError"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="toDistanceUnit">変換先の単位</label>
+                <select id="toDistanceUnit">
+                    <option value="mm">ミリメートル</option>
+                    <option value="cm">センチメートル</option>
+                    <option value="m">メートル</option>
+                    <option value="km" selected>キロメートル</option>
+                    <option value="inch">インチ</option>
+                    <option value="ft">フィート</option>
+                    <option value="yard">ヤード</option>
+                    <option value="mile">マイル</option>
+                    <option value="nautical">海里</option>
+                </select>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateUnitConversion()">変換を計算</button>
+        </div>
+
+        <div class="result" id="result">
+            <div class="result-main">
+                <div class="result-value" id="resultValue">0</div>
+                <div class="result-unit" id="resultUnit">メートル</div>
+            </div>
+
+            <div class="result-details" id="resultDetails">
+                <!-- 詳細情報がここに表示されます -->
+            </div>
+        </div>
+
+        <div class="conversion-table" id="conversionTable" style="display: none;">
+            <div class="table-title">距離の単位変換</div>
+            <div class="table-grid" id="conversionGrid">
+                <!-- 変換表がここに表示されます -->
+            </div>
+        </div>
+
+        <div class="examples">
+            <div class="examples-title">参考距離</div>
+            <div class="example-item">• 東京-大阪間: 約515km</div>
+            <div class="example-item">• マラソン: 42.195km</div>
+            <div class="example-item">• 地球一周: 約40,075km</div>
+            <div class="example-item">• 地球-月間: 約384,400km</div>
+            <div class="example-item">• 光が1秒で進む距離: 約300,000km</div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        let currentType = 'coordinates';
+
+        // 距離単位の定義（メートル基準）
+        const distanceUnits = {
+            'mm': { name: 'ミリメートル', symbol: 'mm', factor: 0.001 },
+            'cm': { name: 'センチメートル', symbol: 'cm', factor: 0.01 },
+            'm': { name: 'メートル', symbol: 'm', factor: 1 },
+            'km': { name: 'キロメートル', symbol: 'km', factor: 1000 },
+            'inch': { name: 'インチ', symbol: 'in', factor: 0.0254 },
+            'ft': { name: 'フィート', symbol: 'ft', factor: 0.3048 },
+            'yard': { name: 'ヤード', symbol: 'yd', factor: 0.9144 },
+            'mile': { name: 'マイル', symbol: 'mi', factor: 1609.344 },
+            'nautical': { name: '海里', symbol: 'nmi', factor: 1852 }
+        };
+
+        // 速度単位の定義（m/s基準）
+        const speedUnits = {
+            'ms': { name: 'm/s', factor: 1 },
+            'kmh': { name: 'km/h', factor: 1/3.6 },
+            'mph': { name: 'mph', factor: 0.44704 },
+            'knot': { name: 'ノット', factor: 0.514444 }
+        };
+
+        // 時間単位の定義（秒基準）
+        const timeUnits = {
+            'second': { name: '秒', factor: 1 },
+            'minute': { name: '分', factor: 60 },
+            'hour': { name: '時間', factor: 3600 }
+        };
+
+        function selectType(type) {
+            // ボタンの状態更新
+            document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // コンテンツの表示切り替え
+            document.querySelectorAll('.calculation-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(type).classList.add('active');
+
+            currentType = type;
+            clearErrors();
+            hideResult();
+        }
+
+        function calculateDistance() {
+            clearErrors();
+
+            const x1 = parseFloat(document.getElementById('x1').value);
+            const y1 = parseFloat(document.getElementById('y1').value);
+            const x2 = parseFloat(document.getElementById('x2').value);
+            const y2 = parseFloat(document.getElementById('y2').value);
+
+            let hasError = false;
+
+            if (isNaN(x1)) {
+                showError('x1Error', 'X1座標を入力してください');
+                hasError = true;
+            }
+            if (isNaN(y1)) {
+                showError('y1Error', 'Y1座標を入力してください');
+                hasError = true;
+            }
+            if (isNaN(x2)) {
+                showError('x2Error', 'X2座標を入力してください');
+                hasError = true;
+            }
+            if (isNaN(y2)) {
+                showError('y2Error', 'Y2座標を入力してください');
+                hasError = true;
+            }
+
+            if (hasError) {
+                hideResult();
+                return;
+            }
+
+            const distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            const deltaX = Math.abs(x2 - x1);
+            const deltaY = Math.abs(y2 - y1);
+
+            displayDistanceResult(distance, deltaX, deltaY, x1, y1, x2, y2);
+        }
+
+        function calculateSpeedDistance() {
+            clearErrors();
+
+            const speed = parseFloat(document.getElementById('speedValue').value);
+            const speedUnit = document.getElementById('speedUnit').value;
+            const time = parseFloat(document.getElementById('timeValue').value);
+            const timeUnit = document.getElementById('timeUnit').value;
+
+            let hasError = false;
+
+            if (!speed || speed <= 0) {
+                showError('speedError', '正しい速度を入力してください');
+                hasError = true;
+            }
+
+            if (!time || time <= 0) {
+                showError('timeError', '正しい時間を入力してください');
+                hasError = true;
+            }
+
+            if (hasError) {
+                hideResult();
+                return;
+            }
+
+            // すべてSI単位系に変換
+            const speedInMs = speed * speedUnits[speedUnit].factor;
+            const timeInSeconds = time * timeUnits[timeUnit].factor;
+            const distanceInMeters = speedInMs * timeInSeconds;
+
+            displaySpeedDistanceResult(distanceInMeters, speed, speedUnit, time, timeUnit);
+        }
+
+        function calculateUnitConversion() {
+            clearErrors();
+
+            const distance = parseFloat(document.getElementById('distanceValue').value);
+            const fromUnit = document.getElementById('fromDistanceUnit').value;
+            const toUnit = document.getElementById('toDistanceUnit').value;
+
+            if (!distance || distance < 0) {
+                showError('distanceError', '正しい距離を入力してください');
+                hideResult();
+                return;
+            }
+
+            // メートルに変換してから目標単位に変換
+            const meters = distance * distanceUnits[fromUnit].factor;
+            const result = meters / distanceUnits[toUnit].factor;
+
+            displayUnitConversionResult(result, distance, fromUnit, toUnit, meters);
+        }
+
+        function displayDistanceResult(distance, deltaX, deltaY, x1, y1, x2, y2) {
+            document.getElementById('resultValue').textContent = formatNumber(distance);
+            document.getElementById('resultUnit').textContent = '単位';
+
+            const detailsHTML = `
+                <div class="detail-card">
+                    <div class="detail-value">${formatNumber(deltaX)}</div>
+                    <div class="detail-label">X方向の差</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${formatNumber(deltaY)}</div>
+                    <div class="detail-label">Y方向の差</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">(${x1}, ${y1})</div>
+                    <div class="detail-label">開始点</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">(${x2}, ${y2})</div>
+                    <div class="detail-label">終了点</div>
+                </div>
+            `;
+
+            document.getElementById('resultDetails').innerHTML = detailsHTML;
+            document.getElementById('conversionTable').style.display = 'none';
+            document.getElementById('result').classList.add('show');
+        }
+
+        function displaySpeedDistanceResult(distanceInMeters, speed, speedUnit, time, timeUnit) {
+            document.getElementById('resultValue').textContent = formatNumber(distanceInMeters);
+            document.getElementById('resultUnit').textContent = 'メートル';
+
+            const distanceInKm = distanceInMeters / 1000;
+            const speedInKmh = speed * (speedUnit === 'kmh' ? 1 : speedUnit === 'ms' ? 3.6 : speedUnit === 'mph' ? 1.60934 : 1.852);
+            const timeInHours = time * (timeUnit === 'hour' ? 1 : timeUnit === 'minute' ? 1/60 : 1/3600);
+
+            const detailsHTML = `
+                <div class="detail-card">
+                    <div class="detail-value">${formatNumber(distanceInKm)}</div>
+                    <div class="detail-label">キロメートル</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${speed}</div>
+                    <div class="detail-label">速度 (${speedUnits[speedUnit].name})</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${time}</div>
+                    <div class="detail-label">時間 (${timeUnits[timeUnit].name})</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${formatNumber(speedInKmh)}</div>
+                    <div class="detail-label">速度 (km/h)</div>
+                </div>
+            `;
+
+            document.getElementById('resultDetails').innerHTML = detailsHTML;
+            document.getElementById('conversionTable').style.display = 'none';
+            document.getElementById('result').classList.add('show');
+        }
+
+        function displayUnitConversionResult(result, original, fromUnit, toUnit, meters) {
+            document.getElementById('resultValue').textContent = formatNumber(result);
+            document.getElementById('resultUnit').textContent = distanceUnits[toUnit].name;
+
+            // 変換表を表示
+            updateConversionTable(meters);
+
+            const detailsHTML = `
+                <div class="detail-card">
+                    <div class="detail-value">${formatNumber(original)}</div>
+                    <div class="detail-label">${distanceUnits[fromUnit].name}</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${formatNumber(result)}</div>
+                    <div class="detail-label">${distanceUnits[toUnit].name}</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${formatNumber(meters)}</div>
+                    <div class="detail-label">メートル</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-value">${formatNumber(meters / 1000)}</div>
+                    <div class="detail-label">キロメートル</div>
+                </div>
+            `;
+
+            document.getElementById('resultDetails').innerHTML = detailsHTML;
+            document.getElementById('conversionTable').style.display = 'block';
+            document.getElementById('result').classList.add('show');
+        }
+
+        function updateConversionTable(meters) {
+            const grid = document.getElementById('conversionGrid');
+            grid.innerHTML = '';
+
+            Object.entries(distanceUnits).forEach(([unit, data]) => {
+                const value = meters / data.factor;
+                if (value > 0.001 && value < 1000000) {
+                    const item = document.createElement('div');
+                    item.className = 'table-item';
+                    item.innerHTML = `
+                        <div class="table-value">${formatNumber(value)}</div>
+                        <div class="table-label">${data.name}</div>
+                    `;
+                    grid.appendChild(item);
+                }
+            });
+        }
+
+        function formatNumber(num) {
+            if (num === 0) return '0';
+            if (num < 0.001) return num.toExponential(2);
+            if (num >= 1000000) return num.toExponential(2);
+            if (num >= 1000) return num.toLocaleString('ja-JP', { maximumFractionDigits: 2 });
+            if (num >= 1) return num.toLocaleString('ja-JP', { maximumFractionDigits: 4 });
+            return num.toFixed(6).replace(/\.?0+$/, '');
+        }
+
+        function showError(elementId, message) {
+            document.getElementById(elementId).textContent = message;
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error').forEach(error => error.textContent = '');
+        }
+
+        function hideResult() {
+            document.getElementById('result').classList.remove('show');
+        }
+
+        // Enterキーで計算
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                switch (currentType) {
+                    case 'coordinates':
+                        calculateDistance();
+                        break;
+                    case 'speed':
+                        calculateSpeedDistance();
+                        break;
+                    case 'unit':
+                        calculateUnitConversion();
+                        break;
+                }
+            }
+        });
+
+        // リアルタイム計算
+        ['x1', 'y1', 'x2', 'y2'].forEach(id => {
+            document.getElementById(id).addEventListener('input', function() {
+                const x1 = document.getElementById('x1').value;
+                const y1 = document.getElementById('y1').value;
+                const x2 = document.getElementById('x2').value;
+                const y2 = document.getElementById('y2').value;
+                if (x1 && y1 && x2 && y2) {
+                    setTimeout(calculateDistance, 500);
+                }
+            });
+        });
+
+        ['speedValue', 'timeValue'].forEach(id => {
+            document.getElementById(id).addEventListener('input', function() {
+                const speed = document.getElementById('speedValue').value;
+                const time = document.getElementById('timeValue').value;
+                if (speed && time) {
+                    setTimeout(calculateSpeedDistance, 500);
+                }
+            });
+        });
+
+        document.getElementById('distanceValue').addEventListener('input', function() {
+            const distance = this.value;
+            if (distance) {
+                setTimeout(calculateUnitConversion, 500);
+            }
+        });
+
+        ['speedUnit', 'timeUnit', 'fromDistanceUnit', 'toDistanceUnit'].forEach(id => {
+            document.getElementById(id).addEventListener('change', function() {
+                switch (currentType) {
+                    case 'speed':
+                        const speed = document.getElementById('speedValue').value;
+                        const time = document.getElementById('timeValue').value;
+                        if (speed && time) {
+                            calculateSpeedDistance();
+                        }
+                        break;
+                    case 'unit':
+                        const distance = document.getElementById('distanceValue').value;
+                        if (distance) {
+                            calculateUnitConversion();
+                        }
+                        break;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

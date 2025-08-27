@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>締切管理 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .deadline-manager {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card.danger {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+
+        .stat-card.warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+
+        .stat-card.success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .deadline-form {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-title {
+            color: #333;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .form-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-btn.primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .form-btn.primary:hover {
+            background: #5a6fd8;
+        }
+
+        .form-btn.secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .form-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .filter-section {
+            background: #e1ecf4;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .filter-title {
+            color: #0c5460;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .filter-control label {
+            font-weight: 600;
+            color: #0c5460;
+        }
+
+        .filter-select {
+            padding: 6px 12px;
+            border: 1px solid #b3d4fc;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .deadline-list {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .list-title {
+            color: #333;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .deadline-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .deadline-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .deadline-item.overdue {
+            border-left: 5px solid #dc3545;
+            background: #f8d7da;
+        }
+
+        .deadline-item.urgent {
+            border-left: 5px solid #ffc107;
+            background: #fff3cd;
+        }
+
+        .deadline-item.upcoming {
+            border-left: 5px solid #17a2b8;
+            background: #d1ecf1;
+        }
+
+        .deadline-item.completed {
+            border-left: 5px solid #28a745;
+            background: #d4edda;
+            opacity: 0.8;
+        }
+
+        .deadline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .deadline-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .deadline-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-overdue {
+            background: #dc3545;
+            color: white;
+        }
+
+        .status-urgent {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .status-upcoming {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .status-completed {
+            background: #28a745;
+            color: white;
+        }
+
+        .deadline-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .deadline-detail {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .deadline-detail strong {
+            color: #333;
+        }
+
+        .deadline-progress {
+            margin-bottom: 15px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #667eea;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.completed {
+            background: #28a745;
+        }
+
+        .deadline-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn.edit {
+            background: #667eea;
+            color: white;
+        }
+
+        .action-btn.edit:hover {
+            background: #5a6fd8;
+        }
+
+        .action-btn.complete {
+            background: #28a745;
+            color: white;
+        }
+
+        .action-btn.complete:hover {
+            background: #218838;
+        }
+
+        .action-btn.delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .action-btn.delete:hover {
+            background: #c82333;
+        }
+
+        .time-remaining {
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+
+        .time-remaining.overdue {
+            background: #dc3545;
+            color: white;
+        }
+
+        .time-remaining.urgent {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .time-remaining.normal {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .quick-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .quick-btn.secondary {
+            background: #6c757d;
+        }
+
+        .quick-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .notification.warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .deadline-manager {
+                padding: 20px;
+            }
+            
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .deadline-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="deadline-manager">
+        <div class="header">
+            <h1>締切管理</h1>
+            <p>プロジェクトの締切を管理・追跡</p>
+        </div>
+
+        <div class="stats-overview">
+            <div class="stat-card danger">
+                <div class="stat-value" id="overdueCount">0</div>
+                <div class="stat-label">期限切れ</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-value" id="urgentCount">0</div>
+                <div class="stat-label">緊急（3日以内）</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="upcomingCount">0</div>
+                <div class="stat-label">進行中</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-value" id="completedCount">0</div>
+                <div class="stat-label">完了</div>
+            </div>
+        </div>
+
+        <div class="deadline-form">
+            <div class="form-title">新しい締切を追加</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="deadlineTitle">タイトル</label>
+                    <input type="text" id="deadlineTitle" class="form-control" placeholder="プロジェクトの名前" required>
+                </div>
+                <div class="form-group">
+                    <label for="deadlineDate">締切日</label>
+                    <input type="date" id="deadlineDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="deadlineTime">時刻</label>
+                    <input type="time" id="deadlineTime" class="form-control" value="23:59">
+                </div>
+                <div class="form-group">
+                    <label for="deadlinePriority">優先度</label>
+                    <select id="deadlinePriority" class="form-control">
+                        <option value="high">高</option>
+                        <option value="medium">中</option>
+                        <option value="low">低</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="deadlineCategory">カテゴリ</label>
+                    <select id="deadlineCategory" class="form-control">
+                        <option value="work">仕事</option>
+                        <option value="personal">個人</option>
+                        <option value="project">プロジェクト</option>
+                        <option value="assignment">課題</option>
+                        <option value="other">その他</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="deadlineProgress">進捗（%）</label>
+                    <input type="range" id="deadlineProgress" class="form-control" min="0" max="100" value="0" 
+                           oninput="document.getElementById('progressValue').textContent = this.value + '%'">
+                    <div id="progressValue" style="text-align: center; margin-top: 5px;">0%</div>
+                </div>
+                <div class="form-group">
+                    <label for="deadlineDescription">詳細</label>
+                    <textarea id="deadlineDescription" class="form-control" placeholder="詳細な説明" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="form-btn primary" onclick="addDeadline()">締切を追加</button>
+                <button class="form-btn secondary" onclick="clearForm()">クリア</button>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-title">フィルター</div>
+            <div class="filter-controls">
+                <div class="filter-control">
+                    <label for="statusFilter">状態:</label>
+                    <select id="statusFilter" class="filter-select" onchange="filterDeadlines()">
+                        <option value="">すべて</option>
+                        <option value="overdue">期限切れ</option>
+                        <option value="urgent">緊急</option>
+                        <option value="upcoming">進行中</option>
+                        <option value="completed">完了</option>
+                    </select>
+                </div>
+                <div class="filter-control">
+                    <label for="priorityFilter">優先度:</label>
+                    <select id="priorityFilter" class="filter-select" onchange="filterDeadlines()">
+                        <option value="">すべて</option>
+                        <option value="high">高</option>
+                        <option value="medium">中</option>
+                        <option value="low">低</option>
+                    </select>
+                </div>
+                <div class="filter-control">
+                    <label for="categoryFilter">カテゴリ:</label>
+                    <select id="categoryFilter" class="filter-select" onchange="filterDeadlines()">
+                        <option value="">すべて</option>
+                        <option value="work">仕事</option>
+                        <option value="personal">個人</option>
+                        <option value="project">プロジェクト</option>
+                        <option value="assignment">課題</option>
+                        <option value="other">その他</option>
+                    </select>
+                </div>
+                <div class="filter-control">
+                    <label for="sortBy">並び順:</label>
+                    <select id="sortBy" class="filter-select" onchange="filterDeadlines()">
+                        <option value="deadline">締切日順</option>
+                        <option value="priority">優先度順</option>
+                        <option value="progress">進捗順</option>
+                        <option value="title">タイトル順</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="deadline-list">
+            <div class="list-title">締切一覧</div>
+            <div id="deadlineList">
+                <!-- 締切リストがここに表示されます -->
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <button class="quick-btn" onclick="exportDeadlines()">データ出力</button>
+            <button class="quick-btn" onclick="importDeadlines()">データ読込</button>
+            <button class="quick-btn secondary" onclick="clearAllDeadlines()">全削除</button>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let deadlines = [];
+        let editingDeadlineId = null;
+
+        function addDeadline() {
+            const title = document.getElementById('deadlineTitle').value;
+            const date = document.getElementById('deadlineDate').value;
+            const time = document.getElementById('deadlineTime').value;
+            const priority = document.getElementById('deadlinePriority').value;
+            const category = document.getElementById('deadlineCategory').value;
+            const progress = parseInt(document.getElementById('deadlineProgress').value);
+            const description = document.getElementById('deadlineDescription').value;
+            
+            if (!title || !date) {
+                showNotification('タイトルと締切日を入力してください', 'error');
+                return;
+            }
+            
+            const deadline = {
+                id: editingDeadlineId || Date.now().toString(),
+                title: title,
+                date: date,
+                time: time,
+                priority: priority,
+                category: category,
+                progress: progress,
+                description: description,
+                status: progress === 100 ? 'completed' : getDeadlineStatus(new Date(date + 'T' + time)),
+                createdAt: new Date().toISOString()
+            };
+            
+            if (editingDeadlineId) {
+                const index = deadlines.findIndex(d => d.id === editingDeadlineId);
+                deadlines[index] = deadline;
+                editingDeadlineId = null;
+                showNotification('締切を更新しました');
+            } else {
+                deadlines.push(deadline);
+                showNotification('締切を追加しました');
+            }
+            
+            clearForm();
+            saveDeadlines();
+            updateStats();
+            renderDeadlines();
+        }
+
+        function editDeadline(deadlineId) {
+            const deadline = deadlines.find(d => d.id === deadlineId);
+            if (deadline) {
+                editingDeadlineId = deadlineId;
+                document.getElementById('deadlineTitle').value = deadline.title;
+                document.getElementById('deadlineDate').value = deadline.date;
+                document.getElementById('deadlineTime').value = deadline.time;
+                document.getElementById('deadlinePriority').value = deadline.priority;
+                document.getElementById('deadlineCategory').value = deadline.category;
+                document.getElementById('deadlineProgress').value = deadline.progress;
+                document.getElementById('progressValue').textContent = deadline.progress + '%';
+                document.getElementById('deadlineDescription').value = deadline.description || '';
+                
+                document.querySelector('.deadline-form').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function deleteDeadline(deadlineId) {
+            if (confirm('この締切を削除しますか？')) {
+                deadlines = deadlines.filter(d => d.id !== deadlineId);
+                saveDeadlines();
+                updateStats();
+                renderDeadlines();
+                showNotification('締切を削除しました');
+            }
+        }
+
+        function completeDeadline(deadlineId) {
+            const deadline = deadlines.find(d => d.id === deadlineId);
+            if (deadline) {
+                deadline.progress = 100;
+                deadline.status = 'completed';
+                saveDeadlines();
+                updateStats();
+                renderDeadlines();
+                showNotification('締切を完了にしました');
+            }
+        }
+
+        function updateProgress(deadlineId, progress) {
+            const deadline = deadlines.find(d => d.id === deadlineId);
+            if (deadline) {
+                deadline.progress = progress;
+                deadline.status = progress === 100 ? 'completed' : getDeadlineStatus(new Date(deadline.date + 'T' + deadline.time));
+                saveDeadlines();
+                updateStats();
+                renderDeadlines();
+            }
+        }
+
+        function getDeadlineStatus(deadlineDate) {
+            const now = new Date();
+            const diffTime = deadlineDate - now;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffTime < 0) return 'overdue';
+            if (diffDays <= 3) return 'urgent';
+            return 'upcoming';
+        }
+
+        function getTimeRemaining(deadlineDate) {
+            const now = new Date();
+            const diffTime = deadlineDate - now;
+            
+            if (diffTime < 0) {
+                const overdueDays = Math.ceil(Math.abs(diffTime) / (1000 * 60 * 60 * 24));
+                return `${overdueDays}日超過`;
+            }
+            
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
+            
+            if (diffDays >= 1) {
+                return `残り${diffDays}日`;
+            } else if (diffHours >= 1) {
+                return `残り${diffHours}時間`;
+            } else {
+                const diffMinutes = Math.ceil(diffTime / (1000 * 60));
+                return `残り${diffMinutes}分`;
+            }
+        }
+
+        function renderDeadlines() {
+            const deadlineList = document.getElementById('deadlineList');
+            deadlineList.innerHTML = '';
+            
+            let filteredDeadlines = getFilteredDeadlines();
+            
+            if (filteredDeadlines.length === 0) {
+                deadlineList.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">締切がありません</div>';
+                return;
+            }
+            
+            filteredDeadlines.forEach(deadline => {
+                const deadlineDate = new Date(deadline.date + 'T' + deadline.time);
+                const status = deadline.progress === 100 ? 'completed' : getDeadlineStatus(deadlineDate);
+                const timeRemaining = getTimeRemaining(deadlineDate);
+                
+                const deadlineItem = document.createElement('div');
+                deadlineItem.className = `deadline-item ${status}`;
+                
+                deadlineItem.innerHTML = `
+                    <div class="deadline-header">
+                        <div class="deadline-title">${deadline.title}</div>
+                        <div class="deadline-status status-${status}">${getStatusText(status)}</div>
+                    </div>
+                    <div class="deadline-details">
+                        <div class="deadline-detail">
+                            <span>📅</span>
+                            <strong>締切:</strong> ${new Date(deadlineDate).toLocaleDateString('ja-JP')} ${deadline.time}
+                        </div>
+                        <div class="deadline-detail">
+                            <span>⏰</span>
+                            <span class="time-remaining ${status === 'overdue' ? 'overdue' : status === 'urgent' ? 'urgent' : 'normal'}">${timeRemaining}</span>
+                        </div>
+                        <div class="deadline-detail">
+                            <span>⚡</span>
+                            <strong>優先度:</strong> ${getPriorityText(deadline.priority)}
+                        </div>
+                        <div class="deadline-detail">
+                            <span>📂</span>
+                            <strong>カテゴリ:</strong> ${getCategoryText(deadline.category)}
+                        </div>
+                    </div>
+                    <div class="deadline-progress">
+                        <div class="progress-label">
+                            <span>進捗</span>
+                            <span>${deadline.progress}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill ${deadline.progress === 100 ? 'completed' : ''}" 
+                                 style="width: ${deadline.progress}%"></div>
+                        </div>
+                    </div>
+                    <div class="deadline-detail" style="margin-bottom: 15px;">
+                        <span>📝</span>
+                        ${deadline.description || '詳細なし'}
+                    </div>
+                    <div class="deadline-actions">
+                        <button class="action-btn edit" onclick="editDeadline('${deadline.id}')">編集</button>
+                        ${deadline.progress < 100 ? `<button class="action-btn complete" onclick="completeDeadline('${deadline.id}')">完了</button>` : ''}
+                        <button class="action-btn delete" onclick="deleteDeadline('${deadline.id}')">削除</button>
+                        <input type="range" min="0" max="100" value="${deadline.progress}" 
+                               style="margin-left: 10px; width: 100px;" 
+                               onchange="updateProgress('${deadline.id}', this.value)">
+                    </div>
+                `;
+                
+                deadlineList.appendChild(deadlineItem);
+            });
+        }
+
+        function getFilteredDeadlines() {
+            let filtered = [...deadlines];
+            
+            const statusFilter = document.getElementById('statusFilter').value;
+            const priorityFilter = document.getElementById('priorityFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const sortBy = document.getElementById('sortBy').value;
+            
+            if (statusFilter) {
+                filtered = filtered.filter(d => {
+                    const status = d.progress === 100 ? 'completed' : getDeadlineStatus(new Date(d.date + 'T' + d.time));
+                    return status === statusFilter;
+                });
+            }
+            
+            if (priorityFilter) {
+                filtered = filtered.filter(d => d.priority === priorityFilter);
+            }
+            
+            if (categoryFilter) {
+                filtered = filtered.filter(d => d.category === categoryFilter);
+            }
+            
+            // ソート
+            filtered.sort((a, b) => {
+                switch (sortBy) {
+                    case 'deadline':
+                        return new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time);
+                    case 'priority':
+                        const priorityOrder = { high: 3, medium: 2, low: 1 };
+                        return priorityOrder[b.priority] - priorityOrder[a.priority];
+                    case 'progress':
+                        return a.progress - b.progress;
+                    case 'title':
+                        return a.title.localeCompare(b.title);
+                    default:
+                        return 0;
+                }
+            });
+            
+            return filtered;
+        }
+
+        function updateStats() {
+            let overdueCount = 0;
+            let urgentCount = 0;
+            let upcomingCount = 0;
+            let completedCount = 0;
+            
+            deadlines.forEach(deadline => {
+                if (deadline.progress === 100) {
+                    completedCount++;
+                } else {
+                    const status = getDeadlineStatus(new Date(deadline.date + 'T' + deadline.time));
+                    switch (status) {
+                        case 'overdue':
+                            overdueCount++;
+                            break;
+                        case 'urgent':
+                            urgentCount++;
+                            break;
+                        case 'upcoming':
+                            upcomingCount++;
+                            break;
+                    }
+                }
+            });
+            
+            document.getElementById('overdueCount').textContent = overdueCount;
+            document.getElementById('urgentCount').textContent = urgentCount;
+            document.getElementById('upcomingCount').textContent = upcomingCount;
+            document.getElementById('completedCount').textContent = completedCount;
+        }
+
+        function filterDeadlines() {
+            renderDeadlines();
+        }
+
+        function clearForm() {
+            document.getElementById('deadlineTitle').value = '';
+            document.getElementById('deadlineDate').value = '';
+            document.getElementById('deadlineTime').value = '23:59';
+            document.getElementById('deadlinePriority').value = 'medium';
+            document.getElementById('deadlineCategory').value = 'work';
+            document.getElementById('deadlineProgress').value = '0';
+            document.getElementById('progressValue').textContent = '0%';
+            document.getElementById('deadlineDescription').value = '';
+            editingDeadlineId = null;
+        }
+
+        function exportDeadlines() {
+            const exportData = {
+                deadlines: deadlines,
+                exportedAt: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `deadlines_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('データを出力しました');
+        }
+
+        function importDeadlines() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const importData = JSON.parse(e.target.result);
+                            if (importData.deadlines && Array.isArray(importData.deadlines)) {
+                                deadlines = [...deadlines, ...importData.deadlines];
+                                saveDeadlines();
+                                updateStats();
+                                renderDeadlines();
+                                showNotification(`${importData.deadlines.length}件の締切を読み込みました`);
+                            } else {
+                                showNotification('無効なファイル形式です', 'error');
+                            }
+                        } catch (error) {
+                            showNotification('ファイルの読み込みに失敗しました', 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        function clearAllDeadlines() {
+            if (confirm('すべての締切を削除しますか？')) {
+                deadlines = [];
+                saveDeadlines();
+                updateStats();
+                renderDeadlines();
+                showNotification('すべての締切を削除しました');
+            }
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                overdue: '期限切れ',
+                urgent: '緊急',
+                upcoming: '進行中',
+                completed: '完了'
+            };
+            return statusMap[status] || status;
+        }
+
+        function getPriorityText(priority) {
+            const priorityMap = {
+                high: '高',
+                medium: '中',
+                low: '低'
+            };
+            return priorityMap[priority] || priority;
+        }
+
+        function getCategoryText(category) {
+            const categoryMap = {
+                work: '仕事',
+                personal: '個人',
+                project: 'プロジェクト',
+                assignment: '課題',
+                other: 'その他'
+            };
+            return categoryMap[category] || category;
+        }
+
+        function saveDeadlines() {
+            localStorage.setItem('deadlines', JSON.stringify(deadlines));
+        }
+
+        function loadDeadlines() {
+            const saved = localStorage.getItem('deadlines');
+            if (saved) {
+                deadlines = JSON.parse(saved);
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function checkDeadlines() {
+            const now = new Date();
+            deadlines.forEach(deadline => {
+                if (deadline.progress < 100) {
+                    const deadlineDate = new Date(deadline.date + 'T' + deadline.time);
+                    const diffTime = deadlineDate - now;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    if (diffTime < 0 && Math.abs(diffTime) < 60000) { // 1分以内に期限切れ
+                        showNotification(`「${deadline.title}」の締切が過ぎました`, 'error');
+                    } else if (diffDays === 1 && diffTime > 0) { // 1日前
+                        showNotification(`「${deadline.title}」の締切が明日です`, 'warning');
+                    }
+                }
+            });
+        }
+
+        // 初期化
+        function init() {
+            loadDeadlines();
+            updateStats();
+            renderDeadlines();
+            
+            // 定期的に締切をチェック
+            setInterval(checkDeadlines, 60000); // 1分ごと
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

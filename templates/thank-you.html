@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お礼状テンプレート - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .thankyou-app {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .thankyou-preview {
+            padding: 40px;
+            font-family: 'Times New Roman', serif;
+            color: #333;
+            line-height: 1.8;
+            background: #fff;
+        }
+
+        .letter-header {
+            text-align: right;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        .letter-date {
+            margin-bottom: 10px;
+        }
+
+        .sender-info {
+            margin-bottom: 20px;
+        }
+
+        .recipient-info {
+            text-align: left;
+            margin-bottom: 40px;
+            font-size: 1rem;
+        }
+
+        .recipient-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .letter-title {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 40px 0;
+            color: #667eea;
+            text-decoration: underline;
+        }
+
+        .greeting {
+            margin-bottom: 20px;
+            text-indent: 1em;
+        }
+
+        .main-content {
+            margin-bottom: 30px;
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .main-paragraph {
+            margin-bottom: 20px;
+            text-indent: 1em;
+        }
+
+        .appreciation-section {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 5px;
+        }
+
+        .appreciation-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .closing {
+            margin-top: 30px;
+            margin-bottom: 20px;
+            text-indent: 1em;
+        }
+
+        .signature-section {
+            text-align: right;
+            margin-top: 40px;
+        }
+
+        .signature-date {
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .signature-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .signature-title {
+            font-size: 0.95rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .company-info {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .postscript {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            font-size: 0.95rem;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+        }
+
+        .control-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .thankyou-preview {
+                padding: 20px;
+                font-size: 0.9rem;
+            }
+            
+            .letter-title {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .thankyou-app {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header, .form-section, .controls {
+                display: none;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+                padding: 0;
+                gap: 0;
+            }
+            
+            .preview-section {
+                border: none;
+                max-height: none;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="thankyou-app">
+        <div class="header">
+            <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+            <h1>💝 お礼状テンプレート</h1>
+            <p>感謝の気持ちを込めたお礼状を作成</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="section-title">お礼状の種類</div>
+                <div class="form-group">
+                    <label for="letterType">お礼状の用途</label>
+                    <select id="letterType">
+                        <option value="business">ビジネス関係</option>
+                        <option value="gift">贈り物への礼状</option>
+                        <option value="hospitality">お世話になった礼状</option>
+                        <option value="event">イベント参加礼状</option>
+                        <option value="interview">面接後の礼状</option>
+                        <option value="condolence">お悔やみへの礼状</option>
+                        <option value="congratulation">お祝いへの礼状</option>
+                        <option value="other">その他</option>
+                    </select>
+                </div>
+
+                <div class="section-title">宛先情報</div>
+                <div class="form-group">
+                    <label for="recipientName">宛先氏名</label>
+                    <input type="text" id="recipientName" placeholder="山田 太郎 様">
+                </div>
+
+                <div class="form-group">
+                    <label for="recipientTitle">役職・肩書き</label>
+                    <input type="text" id="recipientTitle" placeholder="代表取締役社長">
+                </div>
+
+                <div class="form-group">
+                    <label for="recipientCompany">会社名・団体名</label>
+                    <input type="text" id="recipientCompany" placeholder="○○株式会社">
+                </div>
+
+                <div class="section-title">送信者情報</div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="senderName">送信者氏名</label>
+                            <input type="text" id="senderName" placeholder="佐藤 花子">
+                        </div>
+                        <div>
+                            <label for="senderTitle">役職・肩書き</label>
+                            <input type="text" id="senderTitle" placeholder="営業部長">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="senderCompany">会社名・団体名</label>
+                    <input type="text" id="senderCompany" placeholder="△△株式会社">
+                </div>
+
+                <div class="form-group">
+                    <label for="senderContact">連絡先</label>
+                    <input type="text" id="senderContact" placeholder="TEL: 03-1234-5678">
+                </div>
+
+                <div class="section-title">お礼状内容</div>
+                <div class="form-group">
+                    <label for="letterDate">手紙の日付</label>
+                    <input type="date" id="letterDate">
+                </div>
+
+                <div class="form-group">
+                    <label for="greeting">挨拶文</label>
+                    <textarea id="greeting" placeholder="拝啓　時下ますますご清栄のこととお慶び申し上げます。"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="thankReason">お礼の理由・内容</label>
+                    <textarea id="thankReason" placeholder="この度は、貴重なお時間をいただき、誠にありがとうございました。"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="specificDetails">具体的な感謝内容</label>
+                    <textarea id="specificDetails" placeholder="特に○○についてのご指導は、大変勉強になりました。"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="futureRelation">今後の関係について</label>
+                    <textarea id="futureRelation" placeholder="今後ともご指導ご鞭撻のほど、よろしくお願い申し上げます。"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="closing">結びの言葉</label>
+                    <textarea id="closing" placeholder="末筆ながら、皆様のご健康とご発展をお祈り申し上げます。"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="postscript">追伸・補足</label>
+                    <textarea id="postscript" placeholder="追伸　資料をお送りいたしますので、ご確認ください。"></textarea>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="thankyou-preview" id="thankyouPreview">
+                    <div class="letter-header">
+                        <div class="letter-date" id="previewDate">令和6年1月1日</div>
+                        <div class="sender-info">
+                            <div id="previewSenderCompany">△△株式会社</div>
+                            <div id="previewSenderName">佐藤 花子</div>
+                            <div id="previewSenderContact"></div>
+                        </div>
+                    </div>
+
+                    <div class="recipient-info">
+                        <div id="previewRecipientCompany"></div>
+                        <div class="recipient-name" id="previewRecipientName">山田 太郎 様</div>
+                    </div>
+
+                    <div class="letter-title" id="previewTitle">お礼状</div>
+
+                    <div class="greeting" id="previewGreeting">
+                        拝啓　時下ますますご清栄のこととお慶び申し上げます。
+                    </div>
+
+                    <div class="main-content">
+                        <div class="main-paragraph" id="previewThankReason">
+                            この度は、貴重なお時間をいただき、誠にありがとうございました。
+                        </div>
+
+                        <div class="appreciation-section" id="appreciationSection" style="display: none;">
+                            <div class="appreciation-title">特に感謝したいこと</div>
+                            <div id="previewSpecificDetails"></div>
+                        </div>
+
+                        <div class="main-paragraph" id="previewFutureRelation">
+                            今後ともご指導ご鞭撻のほど、よろしくお願い申し上げます。
+                        </div>
+                    </div>
+
+                    <div class="closing" id="previewClosing">
+                        末筆ながら、皆様のご健康とご発展をお祈り申し上げます。
+                    </div>
+
+                    <div style="text-align: right; margin: 20px 0;">
+                        敬具
+                    </div>
+
+                    <div class="signature-section">
+                        <div class="signature-date" id="previewSignatureDate">令和6年1月1日</div>
+                        <div class="signature-name" id="previewSignatureName">佐藤 花子</div>
+                        <div class="signature-title" id="previewSignatureTitle"></div>
+                        <div class="company-info" id="previewSignatureCompany"></div>
+                    </div>
+
+                    <div class="postscript" id="postscriptSection" style="display: none;">
+                        <div style="font-weight: bold; margin-bottom: 10px;">追伸</div>
+                        <div id="previewPostscript"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="printThankYou()">🖨️ 印刷</button>
+            <button class="control-btn secondary" onclick="saveThankYou()">💾 保存</button>
+            <button class="control-btn secondary" onclick="loadThankYou()">📂 読み込み</button>
+            <button class="control-btn secondary" onclick="clearForm()">🗑️ クリア</button>
+        </div>
+    </div>
+
+    <script>
+        const letterTitles = {
+            business: 'お礼状',
+            gift: '御礼',
+            hospitality: 'お礼状',
+            event: '参加御礼',
+            interview: '面接御礼',
+            condolence: '御礼',
+            congratulation: '御礼',
+            other: 'お礼状'
+        };
+
+        function updatePreview() {
+            const letterType = document.getElementById('letterType').value;
+            const recipientName = document.getElementById('recipientName').value;
+            const recipientTitle = document.getElementById('recipientTitle').value;
+            const recipientCompany = document.getElementById('recipientCompany').value;
+            const senderName = document.getElementById('senderName').value;
+            const senderTitle = document.getElementById('senderTitle').value;
+            const senderCompany = document.getElementById('senderCompany').value;
+            const senderContact = document.getElementById('senderContact').value;
+            const letterDate = document.getElementById('letterDate').value;
+            const greeting = document.getElementById('greeting').value;
+            const thankReason = document.getElementById('thankReason').value;
+            const specificDetails = document.getElementById('specificDetails').value;
+            const futureRelation = document.getElementById('futureRelation').value;
+            const closing = document.getElementById('closing').value;
+            const postscript = document.getElementById('postscript').value;
+
+            // タイトルの更新
+            document.getElementById('previewTitle').textContent = 
+                letterTitles[letterType] || 'お礼状';
+
+            // 日付の更新
+            const formattedDate = letterDate ? formatJapaneseDate(letterDate) : formatJapaneseDate(new Date().toISOString().split('T')[0]);
+            document.getElementById('previewDate').textContent = formattedDate;
+            document.getElementById('previewSignatureDate').textContent = formattedDate;
+
+            // 送信者情報の更新
+            document.getElementById('previewSenderCompany').textContent = senderCompany;
+            document.getElementById('previewSenderName').textContent = senderName;
+            document.getElementById('previewSenderContact').textContent = senderContact;
+
+            // 宛先情報の更新
+            let recipientFullName = '';
+            if (recipientTitle && recipientName) {
+                recipientFullName = `${recipientTitle} ${recipientName}`;
+            } else {
+                recipientFullName = recipientName || '○○様';
+            }
+            document.getElementById('previewRecipientName').textContent = recipientFullName;
+            document.getElementById('previewRecipientCompany').textContent = recipientCompany;
+
+            // 本文の更新
+            document.getElementById('previewGreeting').textContent = 
+                greeting || '拝啓　時下ますますご清栄のこととお慶び申し上げます。';
+
+            document.getElementById('previewThankReason').textContent = 
+                thankReason || 'この度は、貴重なお時間をいただき、誠にありがとうございました。';
+
+            // 具体的な感謝内容の表示制御
+            if (specificDetails) {
+                document.getElementById('previewSpecificDetails').textContent = specificDetails;
+                document.getElementById('appreciationSection').style.display = 'block';
+            } else {
+                document.getElementById('appreciationSection').style.display = 'none';
+            }
+
+            document.getElementById('previewFutureRelation').textContent = 
+                futureRelation || '今後ともご指導ご鞭撻のほど、よろしくお願い申し上げます。';
+
+            document.getElementById('previewClosing').textContent = 
+                closing || '末筆ながら、皆様のご健康とご発展をお祈り申し上げます。';
+
+            // 署名欄の更新
+            document.getElementById('previewSignatureName').textContent = senderName;
+            document.getElementById('previewSignatureTitle').textContent = senderTitle;
+            document.getElementById('previewSignatureCompany').textContent = senderCompany;
+
+            // 追伸の表示制御
+            if (postscript) {
+                document.getElementById('previewPostscript').textContent = postscript;
+                document.getElementById('postscriptSection').style.display = 'block';
+            } else {
+                document.getElementById('postscriptSection').style.display = 'none';
+            }
+        }
+
+        function formatJapaneseDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            
+            // 令和年への変換 (2019年5月1日から令和元年)
+            const reiwaStart = new Date('2019-05-01');
+            if (date >= reiwaStart) {
+                const reiwaYear = year - 2018;
+                return `令和${reiwaYear === 1 ? '元' : reiwaYear}年${month}月${day}日`;
+            } else {
+                // 平成年への変換 (1989年1月8日から平成元年)
+                const heiseiStart = new Date('1989-01-08');
+                if (date >= heiseiStart) {
+                    const heiseiYear = year - 1988;
+                    return `平成${heiseiYear === 1 ? '元' : heiseiYear}年${month}月${day}日`;
+                }
+            }
+            
+            return `${year}年${month}月${day}日`;
+        }
+
+        function printThankYou() {
+            window.print();
+        }
+
+        function saveThankYou() {
+            const data = {
+                letterType: document.getElementById('letterType').value,
+                recipientName: document.getElementById('recipientName').value,
+                recipientTitle: document.getElementById('recipientTitle').value,
+                recipientCompany: document.getElementById('recipientCompany').value,
+                senderName: document.getElementById('senderName').value,
+                senderTitle: document.getElementById('senderTitle').value,
+                senderCompany: document.getElementById('senderCompany').value,
+                senderContact: document.getElementById('senderContact').value,
+                letterDate: document.getElementById('letterDate').value,
+                greeting: document.getElementById('greeting').value,
+                thankReason: document.getElementById('thankReason').value,
+                specificDetails: document.getElementById('specificDetails').value,
+                futureRelation: document.getElementById('futureRelation').value,
+                closing: document.getElementById('closing').value,
+                postscript: document.getElementById('postscript').value
+            };
+
+            localStorage.setItem('thankYouData', JSON.stringify(data));
+            alert('お礼状を保存しました！');
+        }
+
+        function loadThankYou() {
+            const savedData = localStorage.getItem('thankYouData');
+            if (!savedData) {
+                alert('保存されたデータがありません。');
+                return;
+            }
+
+            const data = JSON.parse(savedData);
+            
+            // フォームに保存されたデータを読み込み
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = data[key] || '';
+                }
+            });
+
+            updatePreview();
+            alert('お礼状を読み込みました！');
+        }
+
+        function clearForm() {
+            if (confirm('すべての入力内容をクリアしますか？')) {
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    if (element.id === 'letterType') {
+                        element.value = 'business';
+                    } else {
+                        element.value = '';
+                    }
+                });
+                updatePreview();
+            }
+        }
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+                input.addEventListener('change', updatePreview);
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            // 現在の日付を設定
+            document.getElementById('letterDate').value = new Date().toISOString().split('T')[0];
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

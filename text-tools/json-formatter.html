@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSONフォーマッター - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .json-formatter {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .control-input {
+            padding: 8px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .control-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .checkbox-item label {
+            color: #333;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .action-btn.secondary {
+            background: #28a745;
+        }
+
+        .action-btn.secondary:hover {
+            background: #218838;
+        }
+
+        .action-btn.danger {
+            background: #dc3545;
+        }
+
+        .action-btn.danger:hover {
+            background: #c82333;
+        }
+
+        .input-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .json-input {
+            width: 100%;
+            min-height: 400px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .json-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .json-input.error {
+            border-color: #dc3545;
+        }
+
+        .json-input.success {
+            border-color: #28a745;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 8px 15px;
+            margin-top: 10px;
+            font-size: 0.8rem;
+        }
+
+        .status-info {
+            color: #666;
+        }
+
+        .status-error {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .status-success {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .validation-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .validation-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .validation-result {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            min-height: 100px;
+        }
+
+        .validation-result.error {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .validation-result.success {
+            border-color: #28a745;
+            color: #28a745;
+        }
+
+        .stats-section {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #155724;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .examples-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .examples-title {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .example-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .example-btn {
+            background: white;
+            border: 2px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .example-btn:hover {
+            background: #ffeaa7;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .checkbox-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="json-formatter">
+        <div class="header">
+            <h1>JSONフォーマッター</h1>
+            <p>JSONデータの整形・圧縮・検証を行うツール</p>
+        </div>
+
+        <div class="controls">
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label for="indentSize">インデントサイズ</label>
+                    <input type="number" id="indentSize" class="control-input" value="2" min="0" max="8">
+                </div>
+                <div class="control-group">
+                    <label for="indentType">インデント種類</label>
+                    <select id="indentType" class="control-input">
+                        <option value="space">スペース</option>
+                        <option value="tab">タブ</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="sortKeys">オブジェクトのキー</label>
+                    <select id="sortKeys" class="control-input">
+                        <option value="none">ソートしない</option>
+                        <option value="asc">昇順</option>
+                        <option value="desc">降順</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="removeTrailingComma">
+                    <label for="removeTrailingComma">末尾カンマを削除</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="escapeUnicode">
+                    <label for="escapeUnicode">Unicode文字をエスケープ</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="removeComments">
+                    <label for="removeComments">コメントを削除</label>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn" onclick="formatJSON()">整形</button>
+                <button class="action-btn" onclick="compressJSON()">圧縮</button>
+                <button class="action-btn secondary" onclick="validateJSON()">検証</button>
+                <button class="action-btn secondary" onclick="copyResult()">コピー</button>
+                <button class="action-btn danger" onclick="clearAll()">クリア</button>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="jsonInput">入力JSON</label>
+                <textarea 
+                    id="jsonInput" 
+                    class="json-input" 
+                    placeholder="JSONデータを入力してください..."
+                    oninput="updateStats()"
+                ></textarea>
+                <div class="status-bar">
+                    <div class="status-info" id="inputStatus">0文字, 0行</div>
+                    <div class="status-info" id="inputValidation">未検証</div>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="jsonOutput">出力結果</label>
+                <textarea 
+                    id="jsonOutput" 
+                    class="json-input" 
+                    placeholder="整形されたJSONがここに表示されます..."
+                    readonly
+                ></textarea>
+                <div class="status-bar">
+                    <div class="status-info" id="outputStatus">0文字, 0行</div>
+                    <div class="status-info" id="outputValidation">未処理</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="validation-section">
+            <div class="validation-title">検証結果</div>
+            <div class="validation-result" id="validationResult">
+                JSONの検証結果がここに表示されます
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="objectCount">0</div>
+                    <div class="stat-label">オブジェクト数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="arrayCount">0</div>
+                    <div class="stat-label">配列数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="keyCount">0</div>
+                    <div class="stat-label">キー数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="depthLevel">0</div>
+                    <div class="stat-label">最大深度</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="compressionRatio">0%</div>
+                    <div class="stat-label">圧縮率</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="examples-section">
+            <div class="examples-title">サンプルJSON</div>
+            <div class="example-buttons">
+                <button class="example-btn" onclick="loadExample('simple')">シンプル</button>
+                <button class="example-btn" onclick="loadExample('nested')">ネスト</button>
+                <button class="example-btn" onclick="loadExample('array')">配列</button>
+                <button class="example-btn" onclick="loadExample('complex')">複雑</button>
+                <button class="example-btn" onclick="loadExample('malformed')">不正形式</button>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        let currentJSON = null;
+
+        const examples = {
+            simple: {
+                "name": "田中太郎",
+                "age": 30,
+                "active": true
+            },
+            nested: {
+                "user": {
+                    "name": "佐藤花子",
+                    "profile": {
+                        "age": 25,
+                        "city": "東京"
+                    }
+                }
+            },
+            array: {
+                "users": [
+                    {"name": "山田", "age": 20},
+                    {"name": "鈴木", "age": 25},
+                    {"name": "高橋", "age": 30}
+                ]
+            },
+            complex: {
+                "company": "株式会社サンプル",
+                "employees": [
+                    {
+                        "id": 1,
+                        "name": "田中太郎",
+                        "department": "開発部",
+                        "skills": ["JavaScript", "Python", "SQL"],
+                        "contact": {
+                            "email": "tanaka@example.com",
+                            "phone": "090-1234-5678"
+                        }
+                    }
+                ],
+                "founded": "2020-01-01",
+                "active": true
+            },
+            malformed: '{"name": "田中", "age": 30, "active": true,}'
+        };
+
+        function loadExample(type) {
+            const example = examples[type];
+            if (type === 'malformed') {
+                document.getElementById('jsonInput').value = example;
+            } else {
+                document.getElementById('jsonInput').value = JSON.stringify(example, null, 2);
+            }
+            updateStats();
+        }
+
+        function updateStats() {
+            const input = document.getElementById('jsonInput').value;
+            const lines = input.split('\n').length;
+            const chars = input.length;
+            
+            document.getElementById('inputStatus').textContent = `${chars}文字, ${lines}行`;
+            
+            try {
+                const parsed = JSON.parse(input);
+                currentJSON = parsed;
+                document.getElementById('inputValidation').textContent = '有効';
+                document.getElementById('inputValidation').className = 'status-success';
+                document.getElementById('jsonInput').className = 'json-input success';
+                
+                updateJSONStats(parsed);
+            } catch (e) {
+                document.getElementById('inputValidation').textContent = '無効';
+                document.getElementById('inputValidation').className = 'status-error';
+                document.getElementById('jsonInput').className = 'json-input error';
+                
+                resetJSONStats();
+            }
+        }
+
+        function updateJSONStats(obj) {
+            const stats = analyzeJSON(obj);
+            
+            document.getElementById('objectCount').textContent = stats.objectCount;
+            document.getElementById('arrayCount').textContent = stats.arrayCount;
+            document.getElementById('keyCount').textContent = stats.keyCount;
+            document.getElementById('depthLevel').textContent = stats.maxDepth;
+        }
+
+        function resetJSONStats() {
+            document.getElementById('objectCount').textContent = '0';
+            document.getElementById('arrayCount').textContent = '0';
+            document.getElementById('keyCount').textContent = '0';
+            document.getElementById('depthLevel').textContent = '0';
+        }
+
+        function analyzeJSON(obj, depth = 0) {
+            let objectCount = 0;
+            let arrayCount = 0;
+            let keyCount = 0;
+            let maxDepth = depth;
+
+            if (Array.isArray(obj)) {
+                arrayCount = 1;
+                obj.forEach(item => {
+                    const childStats = analyzeJSON(item, depth + 1);
+                    objectCount += childStats.objectCount;
+                    arrayCount += childStats.arrayCount;
+                    keyCount += childStats.keyCount;
+                    maxDepth = Math.max(maxDepth, childStats.maxDepth);
+                });
+            } else if (obj !== null && typeof obj === 'object') {
+                objectCount = 1;
+                const keys = Object.keys(obj);
+                keyCount = keys.length;
+                
+                keys.forEach(key => {
+                    const childStats = analyzeJSON(obj[key], depth + 1);
+                    objectCount += childStats.objectCount;
+                    arrayCount += childStats.arrayCount;
+                    keyCount += childStats.keyCount;
+                    maxDepth = Math.max(maxDepth, childStats.maxDepth);
+                });
+            }
+
+            return { objectCount, arrayCount, keyCount, maxDepth };
+        }
+
+        function formatJSON() {
+            const input = document.getElementById('jsonInput').value;
+            
+            if (!input.trim()) {
+                alert('入力JSONが空です');
+                return;
+            }
+
+            try {
+                let parsed = JSON.parse(input);
+                
+                // オプションの適用
+                if (document.getElementById('sortKeys').value !== 'none') {
+                    parsed = sortObjectKeys(parsed, document.getElementById('sortKeys').value === 'asc');
+                }
+                
+                const indentSize = parseInt(document.getElementById('indentSize').value);
+                const indentType = document.getElementById('indentType').value;
+                const indent = indentType === 'tab' ? '\t' : ' '.repeat(indentSize);
+                
+                let formatted = JSON.stringify(parsed, null, indent);
+                
+                // 追加オプションの適用
+                if (document.getElementById('removeTrailingComma').checked) {
+                    formatted = formatted.replace(/,(\s*[}\]])/g, '$1');
+                }
+                
+                if (document.getElementById('escapeUnicode').checked) {
+                    formatted = formatted.replace(/[\u0080-\uFFFF]/g, function(match) {
+                        return '\\u' + ('0000' + match.charCodeAt(0).toString(16)).slice(-4);
+                    });
+                }
+                
+                document.getElementById('jsonOutput').value = formatted;
+                document.getElementById('jsonOutput').className = 'json-input success';
+                
+                updateOutputStats(formatted);
+                
+                // 圧縮率計算
+                const originalSize = input.length;
+                const formattedSize = formatted.length;
+                const compressionRatio = originalSize > 0 ? Math.round((formattedSize / originalSize) * 100) : 0;
+                document.getElementById('compressionRatio').textContent = `${compressionRatio}%`;
+                
+            } catch (e) {
+                document.getElementById('jsonOutput').value = 'エラー: ' + e.message;
+                document.getElementById('jsonOutput').className = 'json-input error';
+                document.getElementById('outputValidation').textContent = '無効';
+                document.getElementById('outputValidation').className = 'status-error';
+            }
+        }
+
+        function compressJSON() {
+            const input = document.getElementById('jsonInput').value;
+            
+            if (!input.trim()) {
+                alert('入力JSONが空です');
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(input);
+                const compressed = JSON.stringify(parsed);
+                
+                document.getElementById('jsonOutput').value = compressed;
+                document.getElementById('jsonOutput').className = 'json-input success';
+                
+                updateOutputStats(compressed);
+                
+                // 圧縮率計算
+                const originalSize = input.length;
+                const compressedSize = compressed.length;
+                const compressionRatio = originalSize > 0 ? Math.round((compressedSize / originalSize) * 100) : 0;
+                document.getElementById('compressionRatio').textContent = `${compressionRatio}%`;
+                
+            } catch (e) {
+                document.getElementById('jsonOutput').value = 'エラー: ' + e.message;
+                document.getElementById('jsonOutput').className = 'json-input error';
+            }
+        }
+
+        function validateJSON() {
+            const input = document.getElementById('jsonInput').value;
+            const validationResult = document.getElementById('validationResult');
+            
+            if (!input.trim()) {
+                validationResult.textContent = '入力JSONが空です';
+                validationResult.className = 'validation-result error';
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(input);
+                const stats = analyzeJSON(parsed);
+                
+                const resultText = `✅ JSONは有効です
+
+📊 統計情報:
+- オブジェクト数: ${stats.objectCount}
+- 配列数: ${stats.arrayCount}
+- キー数: ${stats.keyCount}
+- 最大深度: ${stats.maxDepth}
+- 文字数: ${input.length}
+- 行数: ${input.split('\n').length}
+
+🔍 データ型分析:
+${getDataTypeAnalysis(parsed)}`;
+                
+                validationResult.textContent = resultText;
+                validationResult.className = 'validation-result success';
+                
+            } catch (e) {
+                const errorLine = getErrorLine(e.message);
+                const resultText = `❌ JSONが無効です
+
+エラー詳細:
+${e.message}
+
+${errorLine ? `エラーの位置: ${errorLine}行目付近` : ''}
+
+💡 よくあるエラー:
+- 末尾のカンマ
+- 引用符の不一致
+- 括弧の不一致
+- プロパティ名の引用符漏れ`;
+                
+                validationResult.textContent = resultText;
+                validationResult.className = 'validation-result error';
+            }
+        }
+
+        function getErrorLine(errorMessage) {
+            const match = errorMessage.match(/position (\d+)/);
+            if (match) {
+                const position = parseInt(match[1]);
+                const input = document.getElementById('jsonInput').value;
+                const lines = input.substring(0, position).split('\n');
+                return lines.length;
+            }
+            return null;
+        }
+
+        function getDataTypeAnalysis(obj) {
+            const types = {};
+            
+            function analyzeTypes(value) {
+                const type = Array.isArray(value) ? 'array' : typeof value;
+                types[type] = (types[type] || 0) + 1;
+                
+                if (typeof value === 'object' && value !== null) {
+                    Object.values(value).forEach(analyzeTypes);
+                }
+            }
+            
+            analyzeTypes(obj);
+            
+            return Object.entries(types)
+                .map(([type, count]) => `- ${type}: ${count}個`)
+                .join('\n');
+        }
+
+        function sortObjectKeys(obj, ascending = true) {
+            if (Array.isArray(obj)) {
+                return obj.map(item => sortObjectKeys(item, ascending));
+            } else if (obj !== null && typeof obj === 'object') {
+                const sortedKeys = Object.keys(obj).sort();
+                if (!ascending) sortedKeys.reverse();
+                
+                const sorted = {};
+                sortedKeys.forEach(key => {
+                    sorted[key] = sortObjectKeys(obj[key], ascending);
+                });
+                return sorted;
+            }
+            return obj;
+        }
+
+        function updateOutputStats(output) {
+            const lines = output.split('\n').length;
+            const chars = output.length;
+            
+            document.getElementById('outputStatus').textContent = `${chars}文字, ${lines}行`;
+            document.getElementById('outputValidation').textContent = '有効';
+            document.getElementById('outputValidation').className = 'status-success';
+        }
+
+        function copyResult() {
+            const output = document.getElementById('jsonOutput').value;
+            if (!output) {
+                alert('コピーする内容がありません');
+                return;
+            }
+
+            navigator.clipboard.writeText(output).then(() => {
+                alert('結果がクリップボードにコピーされました！');
+            }).catch(err => {
+                console.error('コピーに失敗しました:', err);
+                alert('コピーに失敗しました');
+            });
+        }
+
+        function clearAll() {
+            document.getElementById('jsonInput').value = '';
+            document.getElementById('jsonOutput').value = '';
+            document.getElementById('jsonInput').className = 'json-input';
+            document.getElementById('jsonOutput').className = 'json-input';
+            document.getElementById('validationResult').textContent = 'JSONの検証結果がここに表示されます';
+            document.getElementById('validationResult').className = 'validation-result';
+            
+            document.getElementById('inputStatus').textContent = '0文字, 0行';
+            document.getElementById('outputStatus').textContent = '0文字, 0行';
+            document.getElementById('inputValidation').textContent = '未検証';
+            document.getElementById('outputValidation').textContent = '未処理';
+            document.getElementById('inputValidation').className = 'status-info';
+            document.getElementById('outputValidation').className = 'status-info';
+            
+            resetJSONStats();
+            document.getElementById('compressionRatio').textContent = '0%';
+        }
+
+        // 初期サンプル読み込み
+        loadExample('simple');
+    </script>
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>割引計算機 - AI Mini Apps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .calculator {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-group input,
+        .input-group select {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .unit {
+            color: #666;
+            font-weight: 600;
+            min-width: 30px;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .calculate-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .result {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: #667eea;
+            color: white;
+            margin: 10px -20px -20px;
+            padding: 15px 20px;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .result-value {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .result-row:last-child .result-label,
+        .result-row:last-child .result-value {
+            color: white;
+        }
+
+        .savings-highlight {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .savings-highlight.show {
+            display: block;
+        }
+
+        .savings-amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .preset-discounts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .preset-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .preset-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .info {
+            background: #e7f3ff;
+            border: 1px solid #b3d7ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #0066cc;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="header">
+            <h1>割引計算機</h1>
+            <p>割引率から割引後価格を計算</p>
+        </div>
+
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="switchTab('percentage')">割引率</button>
+            <button class="tab-btn" onclick="switchTab('amount')">割引額</button>
+        </div>
+
+        <!-- 割引率タブ -->
+        <div class="tab-content active" id="percentage">
+            <div class="info">
+                元の価格と割引率から割引後価格を計算します
+            </div>
+
+            <div class="input-group">
+                <label for="originalPrice1">元の価格</label>
+                <div class="input-row">
+                    <input type="number" id="originalPrice1" placeholder="例: 10000" min="0" step="0.01">
+                    <span class="unit">円</span>
+                </div>
+                <div class="error" id="originalPrice1Error"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="discountRate">割引率</label>
+                <div class="input-row">
+                    <input type="number" id="discountRate" placeholder="例: 20" min="0" max="100" step="0.01">
+                    <span class="unit">%</span>
+                </div>
+                <div class="error" id="discountRateError"></div>
+            </div>
+
+            <div class="preset-discounts">
+                <button class="preset-btn" onclick="setDiscountRate(10)">10%</button>
+                <button class="preset-btn" onclick="setDiscountRate(20)">20%</button>
+                <button class="preset-btn" onclick="setDiscountRate(30)">30%</button>
+                <button class="preset-btn" onclick="setDiscountRate(40)">40%</button>
+                <button class="preset-btn" onclick="setDiscountRate(50)">50%</button>
+            </div>
+
+            <button class="calculate-btn" onclick="calculatePercentageDiscount()">割引を計算</button>
+
+            <div class="result" id="percentageResult">
+                <div class="result-row">
+                    <span class="result-label">元の価格</span>
+                    <span class="result-value" id="originalAmount1">0円</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">割引額</span>
+                    <span class="result-value" id="discountAmount1">0円</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">割引後価格</span>
+                    <span class="result-value" id="finalPrice1">0円</span>
+                </div>
+            </div>
+
+            <div class="savings-highlight" id="savingsHighlight1">
+                <div class="savings-amount" id="savingsAmount1">0円お得！</div>
+                <div>通常価格より安くなります</div>
+            </div>
+        </div>
+
+        <!-- 割引額タブ -->
+        <div class="tab-content" id="amount">
+            <div class="info">
+                元の価格と割引額から割引率と割引後価格を計算します
+            </div>
+
+            <div class="input-group">
+                <label for="originalPrice2">元の価格</label>
+                <div class="input-row">
+                    <input type="number" id="originalPrice2" placeholder="例: 10000" min="0" step="0.01">
+                    <span class="unit">円</span>
+                </div>
+                <div class="error" id="originalPrice2Error"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="discountAmount">割引額</label>
+                <div class="input-row">
+                    <input type="number" id="discountAmount" placeholder="例: 2000" min="0" step="0.01">
+                    <span class="unit">円</span>
+                </div>
+                <div class="error" id="discountAmountError"></div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateAmountDiscount()">割引を計算</button>
+
+            <div class="result" id="amountResult">
+                <div class="result-row">
+                    <span class="result-label">元の価格</span>
+                    <span class="result-value" id="originalAmount2">0円</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">割引額</span>
+                    <span class="result-value" id="discountAmount2">0円</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">割引率</span>
+                    <span class="result-value" id="calculatedRate">0%</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">割引後価格</span>
+                    <span class="result-value" id="finalPrice2">0円</span>
+                </div>
+            </div>
+
+            <div class="savings-highlight" id="savingsHighlight2">
+                <div class="savings-amount" id="savingsAmount2">0円お得！</div>
+                <div>通常価格より安くなります</div>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← アプリ一覧に戻る</a>
+    </div>
+
+    <script>
+        let currentTab = 'percentage';
+
+        function switchTab(tabName) {
+            // タブボタンの状態更新
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // タブコンテンツの表示切り替え
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+
+            currentTab = tabName;
+            clearErrors();
+        }
+
+        function calculatePercentageDiscount() {
+            clearErrors();
+
+            const originalPrice = parseFloat(document.getElementById('originalPrice1').value);
+            const discountRate = parseFloat(document.getElementById('discountRate').value);
+
+            let hasError = false;
+
+            // バリデーション
+            if (!originalPrice || originalPrice <= 0) {
+                showError('originalPrice1Error', '正しい価格を入力してください');
+                hasError = true;
+            }
+
+            if (isNaN(discountRate) || discountRate < 0 || discountRate > 100) {
+                showError('discountRateError', '割引率は0-100%の範囲で入力してください');
+                hasError = true;
+            }
+
+            if (hasError) {
+                hideResults();
+                return;
+            }
+
+            // 計算
+            const discountAmount = originalPrice * (discountRate / 100);
+            const finalPrice = originalPrice - discountAmount;
+
+            // 結果表示
+            document.getElementById('originalAmount1').textContent = formatPrice(originalPrice);
+            document.getElementById('discountAmount1').textContent = formatPrice(discountAmount);
+            document.getElementById('finalPrice1').textContent = formatPrice(finalPrice);
+
+            document.getElementById('percentageResult').classList.add('show');
+
+            // 節約額ハイライト
+            document.getElementById('savingsAmount1').textContent = `${formatPrice(discountAmount)}お得！`;
+            document.getElementById('savingsHighlight1').classList.add('show');
+        }
+
+        function calculateAmountDiscount() {
+            clearErrors();
+
+            const originalPrice = parseFloat(document.getElementById('originalPrice2').value);
+            const discountAmount = parseFloat(document.getElementById('discountAmount').value);
+
+            let hasError = false;
+
+            // バリデーション
+            if (!originalPrice || originalPrice <= 0) {
+                showError('originalPrice2Error', '正しい価格を入力してください');
+                hasError = true;
+            }
+
+            if (!discountAmount || discountAmount < 0) {
+                showError('discountAmountError', '正しい割引額を入力してください');
+                hasError = true;
+            }
+
+            if (discountAmount > originalPrice) {
+                showError('discountAmountError', '割引額は元の価格以下にしてください');
+                hasError = true;
+            }
+
+            if (hasError) {
+                hideResults();
+                return;
+            }
+
+            // 計算
+            const discountRate = (discountAmount / originalPrice) * 100;
+            const finalPrice = originalPrice - discountAmount;
+
+            // 結果表示
+            document.getElementById('originalAmount2').textContent = formatPrice(originalPrice);
+            document.getElementById('discountAmount2').textContent = formatPrice(discountAmount);
+            document.getElementById('calculatedRate').textContent = `${discountRate.toFixed(1)}%`;
+            document.getElementById('finalPrice2').textContent = formatPrice(finalPrice);
+
+            document.getElementById('amountResult').classList.add('show');
+
+            // 節約額ハイライト
+            document.getElementById('savingsAmount2').textContent = `${formatPrice(discountAmount)}お得！`;
+            document.getElementById('savingsHighlight2').classList.add('show');
+        }
+
+        function setDiscountRate(rate) {
+            document.getElementById('discountRate').value = rate;
+            if (document.getElementById('originalPrice1').value) {
+                calculatePercentageDiscount();
+            }
+        }
+
+        function formatPrice(price) {
+            return new Intl.NumberFormat('ja-JP').format(Math.round(price)) + '円';
+        }
+
+        function showError(elementId, message) {
+            document.getElementById(elementId).textContent = message;
+        }
+
+        function clearErrors() {
+            document.getElementById('originalPrice1Error').textContent = '';
+            document.getElementById('discountRateError').textContent = '';
+            document.getElementById('originalPrice2Error').textContent = '';
+            document.getElementById('discountAmountError').textContent = '';
+        }
+
+        function hideResults() {
+            document.getElementById('percentageResult').classList.remove('show');
+            document.getElementById('amountResult').classList.remove('show');
+            document.getElementById('savingsHighlight1').classList.remove('show');
+            document.getElementById('savingsHighlight2').classList.remove('show');
+        }
+
+        // Enterキーで計算
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                if (currentTab === 'percentage') {
+                    calculatePercentageDiscount();
+                } else {
+                    calculateAmountDiscount();
+                }
+            }
+        });
+
+        // リアルタイム計算
+        document.getElementById('originalPrice1').addEventListener('input', function() {
+            const price = this.value;
+            const rate = document.getElementById('discountRate').value;
+            if (price && rate) {
+                calculatePercentageDiscount();
+            }
+        });
+
+        document.getElementById('discountRate').addEventListener('input', function() {
+            const price = document.getElementById('originalPrice1').value;
+            const rate = this.value;
+            if (price && rate) {
+                calculatePercentageDiscount();
+            }
+        });
+
+        document.getElementById('originalPrice2').addEventListener('input', function() {
+            const price = this.value;
+            const amount = document.getElementById('discountAmount').value;
+            if (price && amount) {
+                calculateAmountDiscount();
+            }
+        });
+
+        document.getElementById('discountAmount').addEventListener('input', function() {
+            const price = document.getElementById('originalPrice2').value;
+            const amount = this.value;
+            if (price && amount) {
+                calculateAmountDiscount();
+            }
+        });
+    </script>
+</body>
+</html>
