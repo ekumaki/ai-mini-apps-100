@@ -61,6 +61,20 @@ def main():
         layout="wide"
     )
     
+    # OGPメタタグの追加
+    st.markdown("""
+    <meta property="og:title" content="100 Mini Apps Collection - Python アプリコレクション" />
+    <meta property="og:description" content="Python 3.12で構築された100個のミニアプリケーションのコレクション。計算機、税金計算、BMI計算など様々なツールを提供。" />
+    <meta property="og:image" content="https://ekumaki.github.io/ai-mini-apps-100/static/ogp_image.png" />
+    <meta property="og:url" content="https://ekumaki.github.io/ai-mini-apps-100/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="100 Mini Apps Collection" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="100 Mini Apps Collection - Python アプリコレクション" />
+    <meta name="twitter:description" content="Python 3.12で構築された100個のミニアプリケーションのコレクション。計算機、税金計算、BMI計算など様々なツールを提供。" />
+    <meta name="twitter:image" content="https://ekumaki.github.io/ai-mini-apps-100/static/ogp_image.png" />
+    """, unsafe_allow_html=True)
+    
     st.title("🎯 100 Mini Apps Collection")
     st.markdown("---")
     
